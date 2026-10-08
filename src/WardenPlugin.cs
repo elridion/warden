@@ -2,11 +2,8 @@ using System.Collections.Generic;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
-using Jotunn.Configs;
-using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using UnityEngine;
 
 namespace Warden
 {
@@ -17,14 +14,13 @@ namespace Warden
     {
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
-        public const string PluginVersion = "0.2.0";
-
-        public const string PiecePrefabName = "piece_spawnward";
-        private const string BasePrefabName = "guard_stone";
+        public const string PluginVersion = "0.3.0";
 
         public enum HullVisibility { Always, OnHover, Off }
 
-        public static ConfigEntry<float> Radius;
+        public static ConfigEntry<float> BaseRadius;
+        public static ConfigEntry<float> RadiusPerUpgrade;
+        public static ConfigEntry<float> UpgradeRange;
         public static ConfigEntry<bool> BlockEventSpawns;
         public static ConfigEntry<HullVisibility> ShowHull;
 
@@ -34,9 +30,15 @@ namespace Warden
         {
             var adminOnly = new ConfigurationManagerAttributes { IsAdminOnly = true };
 
-            Radius = Config.Bind("General", "Radius", 60f,
-                new ConfigDescription("Radius in meters inside which creature spawns are blocked.",
+            BaseRadius = Config.Bind("General", "BaseRadius", 40f,
+                new ConfigDescription("Radius in meters of a warden stone without upgrades.",
                     new AcceptableValueRange<float>(4f, 128f), adminOnly));
+            RadiusPerUpgrade = Config.Bind("General", "RadiusPerUpgrade", 15f,
+                new ConfigDescription("Radius in meters each distinct upgrade piece adds.",
+                    new AcceptableValueRange<float>(0f, 64f), adminOnly));
+            UpgradeRange = Config.Bind("General", "UpgradeRange", 5f,
+                new ConfigDescription("Max distance in meters between an upgrade piece and its warden stone.",
+                    new AcceptableValueRange<float>(2f, 20f), adminOnly));
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", false,
                 new ConfigDescription("Also block raid/event spawns inside the radius. Event creatures can still walk in from outside.",
                     null, adminOnly));
@@ -44,7 +46,7 @@ namespace Warden
                 "When to show the amber haze marking an active ward's radius. Client-side only.");
 
             AddLocalizations();
-            PrefabManager.OnVanillaPrefabsAvailable += AddPieces;
+            PrefabManager.OnVanillaPrefabsAvailable += WardPieces.Register;
 
             _harmony = new Harmony(PluginGuid);
             _harmony.PatchAll(typeof(WardenPlugin).Assembly);
@@ -59,50 +61,20 @@ namespace Warden
         {
             LocalizationManager.Instance.GetLocalization().AddTranslation("English", new Dictionary<string, string>
             {
-                { "piece_spawnward", "Warden Stone" },
-                { "piece_spawnward_description", "Wards the surrounding land against wild creatures. Nothing spawns inside its radius while active." },
+                { "piece_spawnward", "Warden stone" },
+                { "piece_spawnward_description", "Wild things will not rise where this stone keeps watch." },
+                { "piece_spawnward_ext1", "Runed hide banner" },
+                { "piece_spawnward_ext1_description", "Runes of truce, inked in tin. The warden stone's watch reaches further." },
+                { "piece_spawnward_ext2", "Sacred idol" },
+                { "piece_spawnward_ext2_description", "An iron heart beats in the stone. The spirits of the land take notice." },
+                { "piece_spawnward_ext3", "Offering cup" },
+                { "piece_spawnward_ext3_description", "Filled for the spirits, never emptied." },
+                { "piece_spawnward_ext4", "Tar lamp" },
+                { "piece_spawnward_ext4_description", "It burns slow and black, and nothing creeps close." },
+                { "spawnward_level", "Level" },
+                { "spawnward_connected", "Strengthens a warden stone" },
+                { "spawnward_notconnected", "No warden stone nearby" },
             });
-        }
-
-        private static void AddPieces()
-        {
-            PrefabManager.OnVanillaPrefabsAvailable -= AddPieces;
-
-            var config = new PieceConfig
-            {
-                Name = "$piece_spawnward",
-                Description = "$piece_spawnward_description",
-                PieceTable = PieceTables.Hammer,
-                Category = PieceCategories.Misc,
-                CraftingStation = CraftingStations.Workbench,
-                Requirements = new[]
-                {
-                    new RequirementConfig("Stone", 15, 0, true),
-                    new RequirementConfig("GreydwarfEye", 10, 0, true),
-                    new RequirementConfig("SurtlingCore", 2, 0, true),
-                },
-            };
-
-            var piece = new CustomPiece(PiecePrefabName, BasePrefabName, config);
-            ConvertToSpawnWard(piece.PiecePrefab);
-            PieceManager.Instance.AddPiece(piece);
-        }
-
-        // Swaps the cloned vanilla PrivateArea for SpawnWard, reusing its visuals and effects.
-        private static void ConvertToSpawnWard(GameObject prefab)
-        {
-            var privateArea = prefab.GetComponent<PrivateArea>();
-            var ward = prefab.AddComponent<SpawnWard>();
-
-            if (privateArea)
-            {
-                ward.m_enabledEffect = privateArea.m_enabledEffect;
-                ward.m_areaMarker = privateArea.m_areaMarker;
-                ward.m_activateEffect = privateArea.m_activateEffect;
-                ward.m_deactivateEffect = privateArea.m_deactivateEffect;
-                ward.m_hoverOffset = privateArea.m_hoverOffset;
-                Object.DestroyImmediate(privateArea);
-            }
         }
     }
 }

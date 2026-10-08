@@ -6,7 +6,7 @@
     <RootNamespace>Warden</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
@@ -25,6 +25,11 @@
 
   <ItemGroup>
     <Reference Update="@(Reference)" Private="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="assets\models\offering_cup\greek_cup.obj" LogicalName="Warden.offering_cup.obj" />
+    <EmbeddedResource Include="assets\textures\banner_runed_hide.png" LogicalName="Warden.banner_runed_hide.png" />
   </ItemGroup>
 
   <!-- Deploy into the Gale mod manager profile when present, else the game's own BepInEx.

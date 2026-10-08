@@ -1,0 +1,448 @@
+using Jotunn.Configs;
+using Jotunn.Entities;
+using Jotunn.Managers;
+using UnityEngine;
+
+namespace Warden
+{
+    /// <summary>
+    /// Builds and registers the warden stone and its four upgrade pieces.
+    /// </summary>
+    internal static class WardPieces
+    {
+        public const string WardPrefabName = "piece_spawnward";
+
+        // Custom hammer tab; Jotunn creates it on first use.
+        private const string BuildCategory = "Base defense";
+
+        private const string WardBasePrefab = "guard_stone";
+        private const string BannerBasePrefab = "piece_banner01";
+        private const string BannerTextureResource = "Warden.banner_runed_hide.png";
+        private static readonly Color s_parchmentTint = new Color(0.8f, 0.78f, 0.75f);
+        private const string IdolModelPrefab = "StatueDeer";
+        private const float IdolHeight = 0.9f;
+        private static readonly Color s_blackMetalTint = new Color(0.2f, 0.21f, 0.23f);
+        private const string LampBasePrefab = "piece_brazierfloor01";
+        private const string SilverMaterialPrefab = "Silver";
+        private const string ConnectionSourcePrefab = "piece_workbench_ext1";
+
+        private static GameObject s_connectionPrefab;
+        private static Piece s_wardPiece;
+
+        public static void Register()
+        {
+            PrefabManager.OnVanillaPrefabsAvailable -= Register;
+
+            var connectionSource = PrefabManager.Cache.GetPrefab<GameObject>(ConnectionSourcePrefab);
+            s_connectionPrefab = connectionSource ? connectionSource.GetComponent<StationExtension>()?.m_connectionPrefab : null;
+
+            AddWard();
+            AddExtension(1, CreateBanner, Req("Tin", 5), Req("DeerHide", 3), Req("Resin", 5), Req("Wood", 4));
+            AddExtension(2, CreateIdol, Req("Stone", 20), Req("Iron", 5), Req("WitheredBone", 3));
+            AddExtension(3, CreateOfferingCup, Req("Silver", 5), Req("Crystal", 3), Req("Obsidian", 5));
+            AddExtension(4, CreateTarLamp, Req("Tar", 10), Req("BlackMetal", 5), Req("Needle", 5));
+        }
+
+        private static RequirementConfig Req(string item, int amount) => new RequirementConfig(item, amount, 0, true);
+
+        private static PieceConfig Config(string name, RequirementConfig[] requirements) => new PieceConfig
+        {
+            Name = "$" + name,
+            Description = "$" + name + "_description",
+            PieceTable = PieceTables.Hammer,
+            Category = BuildCategory,
+            CraftingStation = CraftingStations.Workbench,
+            Requirements = requirements,
+        };
+
+        private static void AddWard()
+        {
+            var config = Config(WardPrefabName, new[] { Req("Stone", 15), Req("GreydwarfEye", 10), Req("SurtlingCore", 2) });
+            var piece = new CustomPiece(WardPrefabName, WardBasePrefab, config);
+            var prefab = piece.PiecePrefab;
+            s_wardPiece = prefab.GetComponent<Piece>();
+
+            // Swap the cloned vanilla PrivateArea for SpawnWard, reusing its visuals and effects.
+            var privateArea = prefab.GetComponent<PrivateArea>();
+            var ward = prefab.AddComponent<SpawnWard>();
+            if (privateArea)
+            {
+                ward.m_enabledEffect = privateArea.m_enabledEffect;
+                ward.m_areaMarker = privateArea.m_areaMarker;
+                ward.m_activateEffect = privateArea.m_activateEffect;
+                ward.m_deactivateEffect = privateArea.m_deactivateEffect;
+                ward.m_hoverOffset = privateArea.m_hoverOffset;
+                Object.DestroyImmediate(privateArea);
+            }
+
+            PieceManager.Instance.AddPiece(piece);
+        }
+
+        private delegate CustomPiece PieceFactory(string name, PieceConfig config);
+
+        private static void AddExtension(int tier, PieceFactory factory, params RequirementConfig[] requirements)
+        {
+            string name = $"{WardPrefabName}_ext{tier}";
+            CustomPiece piece;
+            try
+            {
+                piece = factory(name, Config(name, requirements));
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogError($"Failed to build {name}: {e}");
+                return;
+            }
+            if (piece == null) return;
+
+            // Shows the upgrade arrow on the build menu icon, like vanilla station extensions.
+            piece.PiecePrefab.GetComponent<Piece>().m_isUpgrade = true;
+
+            var extension = piece.PiecePrefab.AddComponent<WardExtension>();
+            extension.m_tier = tier;
+            extension.m_connectionPrefab = s_connectionPrefab;
+            extension.m_connectionOffset = new Vector3(0f, 1f, 0f);
+
+            PieceManager.Instance.AddPiece(piece);
+        }
+
+        private static CustomPiece CreateBanner(string name, PieceConfig config)
+        {
+            if (!RequirePrefab(BannerBasePrefab)) return null;
+            var piece = new CustomPiece(name, BannerBasePrefab, config);
+            ApplyBannerTexture(piece.PiecePrefab);
+            return piece;
+        }
+
+        // Swaps the banner cloth's texture for the runed parchment, on fresh material copies so vanilla
+        // banners keep theirs. The cloth is simulated by MagicaCloth from the original mesh, so instead of
+        // touching its UVs we place the design into an atlas at the strip of UV space the cloth samples.
+        private static void ApplyBannerTexture(GameObject prefab)
+        {
+            var design = LoadEmbeddedTexture(BannerTextureResource);
+            if (!design) return;
+
+            foreach (var r in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = r.sharedMaterials;
+                bool isBannerCloth = materials.Length > 0 && materials[0] && materials[0].mainTexture &&
+                    materials[0].mainTexture.name.IndexOf("banner", System.StringComparison.OrdinalIgnoreCase) >= 0;
+                if (!isBannerCloth) continue;
+
+                if (!TryGetUvRect(r, out var uvRect))
+                {
+                    Jotunn.Logger.LogWarning($"Banner cloth '{r.name}' has no readable UVs; using the design unmapped.");
+                    uvRect = new Rect(0f, 0f, 1f, 1f);
+                }
+                var atlas = BuildAtlas(design, uvRect);
+
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (!materials[i]) continue;
+                    materials[i] = MakeParchmentMaterial(materials[i], atlas);
+                }
+                r.sharedMaterials = materials;
+            }
+        }
+
+        private static bool TryGetUvRect(Renderer renderer, out Rect rect)
+        {
+            rect = default;
+            Mesh mesh = renderer is SkinnedMeshRenderer skinned ? skinned.sharedMesh : renderer.GetComponent<MeshFilter>()?.sharedMesh;
+            if (!mesh || !mesh.isReadable) return false;
+
+            var uvs = mesh.uv;
+            if (uvs.Length == 0) return false;
+            Vector2 min = uvs[0], max = uvs[0];
+            foreach (var uv in uvs)
+            {
+                min = Vector2.Min(min, uv);
+                max = Vector2.Max(max, uv);
+            }
+            if (max.x <= min.x || max.y <= min.y) return false;
+
+            rect = Rect.MinMaxRect(Mathf.Clamp01(min.x), Mathf.Clamp01(min.y), Mathf.Clamp01(max.x), Mathf.Clamp01(max.y));
+            return true;
+        }
+
+        // Atlas sized so the design keeps its proportions inside uvRect; outside it is transparent.
+        private static Texture2D BuildAtlas(Texture2D design, Rect uvRect)
+        {
+            const int designHeight = 1024;
+            int rectH = designHeight;
+            int rectW = Mathf.RoundToInt(rectH * (float)design.width / design.height);
+            int width = Mathf.Clamp(Mathf.RoundToInt(rectW / uvRect.width), rectW, 4096);
+            int height = Mathf.Clamp(Mathf.RoundToInt(rectH / uvRect.height), rectH, 4096);
+
+            var pixels = new Color32[width * height];
+            var outside = new Color32(60, 45, 30, 0);
+            int x0 = Mathf.FloorToInt(uvRect.xMin * width), x1 = Mathf.CeilToInt(uvRect.xMax * width);
+            int y0 = Mathf.FloorToInt(uvRect.yMin * height), y1 = Mathf.CeilToInt(uvRect.yMax * height);
+
+            for (int y = 0; y < height; y++)
+            {
+                float v = (y + 0.5f - y0) / (y1 - y0);
+                for (int x = 0; x < width; x++)
+                {
+                    float u = (x + 0.5f - x0) / (x1 - x0);
+                    pixels[y * width + x] = u < 0f || u > 1f || v < 0f || v > 1f ? outside : (Color32)design.GetPixelBilinear(u, v);
+                }
+            }
+
+            var atlas = new Texture2D(width, height, TextureFormat.RGBA32, true)
+            {
+                name = "warden_banner_atlas",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Trilinear,
+                anisoLevel = 4,
+            };
+            atlas.SetPixels32(pixels);
+            atlas.Apply(true, true);
+            return atlas;
+        }
+
+        // Matte parchment: drop the cloth's atlas normal map (it doesn't line up with our design),
+        // remove sheen, and alpha-clip the torn edges when the shader supports it.
+        private static Material MakeParchmentMaterial(Material source, Texture2D atlas)
+        {
+            var shader = source.shader;
+            var props = new System.Collections.Generic.List<string>();
+            for (int i = 0; i < shader.GetPropertyCount(); i++) props.Add(shader.GetPropertyName(i));
+            Jotunn.Logger.LogInfo($"Banner material '{source.name}' shader '{shader.name}' properties: {string.Join(", ", props)}");
+
+            var material = new Material(source) { name = "warden_banner_parchment", mainTexture = atlas };
+            if (material.HasProperty("_Color")) material.SetColor("_Color", s_parchmentTint);
+            // The vanilla atlas also drives emission and metalness; left in, the parchment glows.
+            // Use explicit black textures: a cleared slot falls back to the shader's default, which can be white.
+            if (material.HasProperty("_BumpMap")) material.SetTexture("_BumpMap", null);
+            if (material.HasProperty("_EmissiveTex")) material.SetTexture("_EmissiveTex", Texture2D.blackTexture);
+            if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", Color.black);
+            if (material.HasProperty("_MetalTex")) material.SetTexture("_MetalTex", Texture2D.blackTexture);
+            if (material.HasProperty("_USEMETALMAP")) material.SetFloat("_USEMETALMAP", 0f);
+            material.DisableKeyword("_EMISSION");
+            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.05f);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.05f);
+            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
+            if (material.HasProperty("_Cutoff"))
+            {
+                material.SetFloat("_Cutoff", 0.5f);
+                material.EnableKeyword("_ALPHATEST_ON");
+            }
+            return material;
+        }
+
+        private static Texture2D LoadEmbeddedTexture(string resourceName)
+        {
+            using (var stream = typeof(WardPieces).Assembly.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                {
+                    Jotunn.Logger.LogWarning($"Embedded texture '{resourceName}' not found.");
+                    return null;
+                }
+
+                var bytes = new byte[stream.Length];
+                stream.Read(bytes, 0, bytes.Length);
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true) { name = resourceName };
+                if (!Jotunn.Utils.AssetUtils.LoadImage(texture, bytes))
+                {
+                    Jotunn.Logger.LogWarning($"Embedded texture '{resourceName}' failed to decode.");
+                    return null;
+                }
+                texture.wrapMode = TextureWrapMode.Clamp;
+                texture.filterMode = FilterMode.Trilinear;
+                return texture;
+            }
+        }
+
+        private static CustomPiece CreateTarLamp(string name, PieceConfig config)
+        {
+            if (!RequirePrefab(LampBasePrefab)) return null;
+            var piece = new CustomPiece(name, LampBasePrefab, config);
+
+            // Keep the flame burning without fuel: freeze the fireplace's lit state, then drop it.
+            var fireplace = piece.PiecePrefab.GetComponent<Fireplace>();
+            if (fireplace)
+            {
+                SetActive(fireplace.m_enabledObject, true);
+                SetActive(fireplace.m_enabledObjectLow, false);
+                SetActive(fireplace.m_enabledObjectHigh, false);
+                SetActive(fireplace.m_fullObject, true);
+                SetActive(fireplace.m_halfObject, false);
+                SetActive(fireplace.m_emptyObject, false);
+                SetActive(fireplace.m_playerBaseObject, false);
+                Object.DestroyImmediate(fireplace);
+            }
+            return piece;
+        }
+
+        private static CustomPiece CreateIdol(string name, PieceConfig config)
+        {
+            if (!RequirePrefab(IdolModelPrefab)) return null;
+
+            var prefab = CreateBarePrefab(name);
+            var model = Object.Instantiate(PrefabManager.Cache.GetPrefab<GameObject>(IdolModelPrefab), prefab.transform, false);
+            model.name = "model";
+            StripToVisual(model);
+            var bounds = FitToHeight(model, IdolHeight);
+            TintMaterials(model, s_blackMetalTint);
+
+            // Placement only snaps to convex colliders; with just the statue's mesh collider the ghost
+            // floats 50 m up. Replace it with a box around the scaled model.
+            foreach (var meshCollider in model.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(meshCollider);
+            var box = prefab.AddComponent<BoxCollider>();
+            box.center = bounds.center;
+            box.size = bounds.size;
+
+            SetupLoosePiece(prefab);
+
+            config.Icon = RenderIcon(prefab);
+            return new CustomPiece(prefab, true, config);
+        }
+
+        private static CustomPiece CreateOfferingCup(string name, PieceConfig config)
+        {
+            var prefab = CreateBarePrefab(name);
+            OfferingCupModel.Build(prefab.transform, FindMaterial(SilverMaterialPrefab));
+
+            var collider = prefab.AddComponent<BoxCollider>();
+            collider.center = new Vector3(0f, OfferingCupModel.Height * 0.5f, 0f);
+            collider.size = new Vector3(OfferingCupModel.Width, OfferingCupModel.Height, OfferingCupModel.Width);
+            SetupLoosePiece(prefab);
+
+            config.Icon = RenderIcon(prefab);
+            return new CustomPiece(prefab, true, config);
+        }
+
+        // Scales a model uniformly to the given height, centers it on the piece origin and stands its
+        // base on y = 0, so the origin (used for placement and range checks) matches what you see.
+        // Returns the model's resulting bounds in its parent's space.
+        private static Bounds FitToHeight(GameObject model, float height)
+        {
+            var parent = model.transform.parent;
+            var local = MeshBounds(model.transform, parent);
+            if (local.size.y <= 0f) return local;
+
+            model.transform.localScale *= height / local.size.y;
+            var scaled = MeshBounds(model.transform, parent);
+            model.transform.localPosition -= new Vector3(scaled.center.x, scaled.min.y, scaled.center.z);
+            return MeshBounds(model.transform, parent);
+        }
+
+        // Combined mesh bounds of everything under root, expressed in space's local coordinates.
+        private static Bounds MeshBounds(Transform root, Transform space)
+        {
+            var toSpace = space.worldToLocalMatrix;
+            bool any = false;
+            var result = new Bounds();
+            foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
+            {
+                if (!filter.sharedMesh) continue;
+                var b = filter.sharedMesh.bounds;
+                var toLocal = toSpace * filter.transform.localToWorldMatrix;
+                for (int i = 0; i < 8; i++)
+                {
+                    var corner = toLocal.MultiplyPoint3x4(new Vector3(
+                        (i & 1) == 0 ? b.min.x : b.max.x, (i & 2) == 0 ? b.min.y : b.max.y, (i & 4) == 0 ? b.min.z : b.max.z));
+                    if (any) result.Encapsulate(corner);
+                    else result = new Bounds(corner, Vector3.zero);
+                    any = true;
+                }
+            }
+            return result;
+        }
+
+        // Darkens copies of a model's materials, e.g. to read as black metal.
+        private static void TintMaterials(GameObject model, Color tint)
+        {
+            foreach (var renderer in model.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = renderer.sharedMaterials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    if (!materials[i]) continue;
+                    var copy = new Material(materials[i]) { name = materials[i].name + "_warden" };
+                    if (copy.HasProperty("_Color")) copy.SetColor("_Color", tint);
+                    if (copy.HasProperty("_Metallic")) copy.SetFloat("_Metallic", 0.6f);
+                    if (copy.HasProperty("_Glossiness")) copy.SetFloat("_Glossiness", 0.45f);
+                    materials[i] = copy;
+                }
+                renderer.sharedMaterials = materials;
+            }
+        }
+
+        // Jotunn's empty prefab is a primitive cube; strip the cube so only our model shows.
+        private static GameObject CreateBarePrefab(string name)
+        {
+            var prefab = PrefabManager.Instance.CreateEmptyPrefab(name, true);
+            Object.DestroyImmediate(prefab.GetComponent<Collider>());
+            Object.DestroyImmediate(prefab.GetComponent<MeshRenderer>());
+            Object.DestroyImmediate(prefab.GetComponent<MeshFilter>());
+            return prefab;
+        }
+
+        // Adds the piece plumbing a model-only prefab needs: Piece, effects, and piece-layer colliders.
+        private static void SetupLoosePiece(GameObject prefab)
+        {
+            var piece = prefab.GetComponent<Piece>() ?? prefab.AddComponent<Piece>();
+            if (s_wardPiece)
+            {
+                piece.m_placeEffect = s_wardPiece.m_placeEffect;
+            }
+
+            int pieceLayer = LayerMask.NameToLayer("piece");
+            foreach (var t in prefab.GetComponentsInChildren<Transform>(true)) t.gameObject.layer = pieceLayer;
+
+            var nview = prefab.GetComponent<ZNetView>() ?? prefab.AddComponent<ZNetView>();
+            nview.m_persistent = true;
+        }
+
+        // Removes everything but rendering and collision from an instantiated vanilla prop.
+        private static void StripToVisual(GameObject root)
+        {
+            for (int pass = 0; pass < 3; pass++)
+            {
+                foreach (var component in root.GetComponentsInChildren<Component>(true))
+                {
+                    if (component is Transform || component is MeshFilter || component is Renderer ||
+                        component is LODGroup || component is Collider)
+                        continue;
+                    Object.DestroyImmediate(component);
+                }
+            }
+        }
+
+        private static Sprite RenderIcon(GameObject prefab)
+        {
+            try
+            {
+                return RenderManager.Instance.Render(prefab, RenderManager.IsometricRotation);
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Icon render failed for {prefab.name}: {e.Message}");
+                return s_wardPiece ? s_wardPiece.m_icon : null;
+            }
+        }
+
+        private static Material FindMaterial(string prefabName)
+        {
+            var prefab = PrefabManager.Cache.GetPrefab<GameObject>(prefabName);
+            var renderer = prefab ? prefab.GetComponentInChildren<MeshRenderer>(true) : null;
+            if (!renderer) Jotunn.Logger.LogWarning($"No material source '{prefabName}'.");
+            return renderer ? renderer.sharedMaterial : null;
+        }
+
+        private static bool RequirePrefab(string prefabName)
+        {
+            if (PrefabManager.Cache.GetPrefab<GameObject>(prefabName)) return true;
+            Jotunn.Logger.LogWarning($"Vanilla prefab '{prefabName}' not found; skipping its upgrade piece.");
+            return false;
+        }
+
+        private static void SetActive(GameObject go, bool active)
+        {
+            if (go) go.SetActive(active);
+        }
+    }
+}

@@ -57,7 +57,7 @@ namespace Warden
         private Color32[] m_colors;
         private float m_radius = -1f;
         private ParticleSystem m_motes;
-        private readonly List<Vector3> m_mergeCenters = new List<Vector3>();
+        private readonly List<Vector4> m_mergeSpheres = new List<Vector4>();
 
         public static WardHull Create(SpawnWard owner)
         {
@@ -135,7 +135,7 @@ namespace Warden
                 s_hazeMaterial.mainTextureOffset = new Vector2(time * 0.004f, -time * 0.006f);
             }
 
-            m_owner.CollectMergeCenters(m_mergeCenters);
+            m_owner.CollectMergeSpheres(m_mergeSpheres);
 
             Vector3 center = transform.position;
             Vector3 camPos = cam.transform.position;
@@ -147,9 +147,9 @@ namespace Warden
                 Vector3 worldPos = center + normal * radius;
 
                 float merge = 1f;
-                foreach (var other in m_mergeCenters)
+                foreach (var other in m_mergeSpheres)
                 {
-                    float outside = Vector3.Distance(worldPos, other) - radius;
+                    float outside = Vector3.Distance(worldPos, (Vector3)other) - other.w;
                     merge = Mathf.Min(merge, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-MergeFade, MergeFade * 0.5f, outside)));
                     if (merge <= 0f) break;
                 }
