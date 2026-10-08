@@ -24,7 +24,7 @@ namespace Warden
         private bool m_statusInitialized;
         private bool m_isGhost;
         private bool m_hovered;
-        private GameObject m_hull;
+        private WardHull m_hull;
 
         public static float Radius => WardenPlugin.Radius.Value;
 
@@ -51,7 +51,7 @@ namespace Warden
                 m_areaMarker.gameObject.SetActive(false);
             }
 
-            m_hull = WardHull.Create("warden_hull");
+            m_hull = WardHull.Create(this);
 
             m_nview = GetComponent<ZNetView>();
             if (!m_nview || !m_nview.IsValid())
@@ -71,12 +71,28 @@ namespace Warden
         private void OnDestroy()
         {
             s_instances.Remove(this);
-            if (m_hull) Destroy(m_hull);
+            if (m_hull) Destroy(m_hull.gameObject);
         }
 
-        private void LateUpdate()
+        // Centers of other visible hulls close enough to overlap this one, so the hull can hide
+        // the parts of itself inside them. Coincident wards: only the lower instance id stays visible.
+        internal void CollectMergeCenters(List<Vector3> centers)
         {
-            if (m_hull && m_hull.activeSelf) m_hull.transform.position = transform.position;
+            centers.Clear();
+            Vector3 pos = transform.position;
+            float maxDistance = Radius * 2f;
+
+            foreach (var other in s_instances)
+            {
+                if (!other || other == this || !other.m_hull || !other.m_hull.IsVisible) continue;
+
+                Vector3 otherPos = other.transform.position;
+                float distance = Vector3.Distance(pos, otherPos);
+                if (distance >= maxDistance) continue;
+                if (distance < 0.1f && !m_isGhost && other.GetInstanceID() > GetInstanceID()) continue;
+
+                centers.Add(otherPos);
+            }
         }
 
         private void UpdateHull()
@@ -91,9 +107,8 @@ namespace Warden
                 default: show = false; break;
             }
 
-            m_hull.transform.position = transform.position;
-            m_hull.transform.localScale = Vector3.one * Radius;
-            m_hull.SetActive(show);
+            m_hull.SetRadius(Radius);
+            m_hull.SetVisible(show);
         }
 
         public bool IsEnabled()

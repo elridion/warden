@@ -2,7 +2,9 @@
 
 ## 0.2.0
 
-- Soft amber haze sphere visualizes the protected area (`ShowHull`: Always / OnHover / Off).
+- Animated amber haze sphere visualizes the protected area (`ShowHull`: Always / OnHover / Off):
+  drifting light bands, swirling haze and floating motes.
+- Overlapping wards merge into one common hull.
 - Default radius raised from 32 m to 60 m.
 
 ## 0.1.0

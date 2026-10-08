@@ -1,15 +1,17 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Warden
 {
     /// <summary>
-    /// Soft amber haze sphere that visualizes a ward's radius. Kept as a separate root object
-    /// so piece highlighting and placement tinting don't touch its material.
+    /// Animated amber haze sphere that visualizes a ward's radius. Overlapping hulls hide the
+    /// parts of themselves that lie inside each other, so chained wards read as one shape.
+    /// Kept as a separate root object so piece highlighting and placement tinting leave it alone.
     /// </summary>
     internal class WardHull : MonoBehaviour
     {
-        private const int Segments = 64;
-        private const int Rings = 32;
+        private const int Segments = 96;
+        private const int Rings = 48;
         private const float NoiseTilesAround = 3f;
         private const float NoiseTilesVertical = 1.5f;
 
@@ -17,8 +19,21 @@ namespace Warden
         private const float BaseAlpha = 0.02f;
         private const float RimAlpha = 0.32f;
         private const float RimSharpness = 2.5f;
-        private const float PulseAmount = 0.12f;
-        private const float PulseSpeed = 0.7f;
+
+        // Bands of light drifting upward, wobbling around the sphere.
+        private const float BandStrength = 0.35f;
+        private const float BandCount = 7f;
+        private const float BandSpeed = 0.9f;
+        private const float BandWobble = 1.6f;
+
+        // Haze swirl: per-vertex UV warp on top of the shared texture scroll.
+        private const float SwirlAmount = 0.06f;
+        private const float SwirlSpeed = 0.35f;
+
+        // Width in meters of the soft seam where chained hulls meet.
+        private const float MergeFade = 4f;
+
+        private static readonly Color s_color = new Color(1f, 0.66f, 0.25f, 1f);
 
         private static readonly string[] s_shaderCandidates =
         {
@@ -27,32 +42,77 @@ namespace Warden
             "Legacy Shaders/Particles/Alpha Blended",
         };
 
-        private static Mesh s_templateMesh;
-        private static Vector3[] s_normals;
-        private static Material s_material;
+        private static Vector3[] s_unitSphere;
+        private static Vector2[] s_baseUvs;
+        private static int[] s_triangles;
+        private static Material s_hazeMaterial;
+        private static Material s_moteMaterial;
         private static bool s_failed;
+        private static int s_lastScrollFrame = -1;
 
+        private SpawnWard m_owner;
         private Mesh m_mesh;
+        private Vector3[] m_vertices;
+        private Vector2[] m_uvs;
         private Color32[] m_colors;
+        private float m_radius = -1f;
+        private ParticleSystem m_motes;
+        private readonly List<Vector3> m_mergeCenters = new List<Vector3>();
 
-        public static GameObject Create(string name)
+        public static WardHull Create(SpawnWard owner)
         {
             // Dedicated servers render nothing.
             if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) return null;
             if (!EnsureResources()) return null;
 
-            var hull = new GameObject(name);
-            hull.SetActive(false);
-            var component = hull.AddComponent<WardHull>();
-            component.m_mesh = Instantiate(s_templateMesh);
-            component.m_colors = new Color32[s_normals.Length];
+            var go = new GameObject("warden_hull");
+            go.SetActive(false);
 
-            hull.AddComponent<MeshFilter>().sharedMesh = component.m_mesh;
-            var renderer = hull.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = s_material;
+            var hull = go.AddComponent<WardHull>();
+            hull.m_owner = owner;
+            hull.m_vertices = new Vector3[s_unitSphere.Length];
+            hull.m_uvs = new Vector2[s_unitSphere.Length];
+            hull.m_colors = new Color32[s_unitSphere.Length];
+            hull.m_mesh = new Mesh { name = "warden_hull_sphere" };
+            hull.m_mesh.MarkDynamic();
+
+            go.AddComponent<MeshFilter>().sharedMesh = hull.m_mesh;
+            var renderer = go.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = s_hazeMaterial;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+
+            hull.m_motes = CreateMotes(go.transform);
             return hull;
+        }
+
+        public bool IsVisible => gameObject.activeSelf;
+
+        public void SetVisible(bool visible)
+        {
+            if (gameObject.activeSelf != visible) gameObject.SetActive(visible);
+        }
+
+        public void SetRadius(float radius)
+        {
+            if (Mathf.Approximately(radius, m_radius)) return;
+            m_radius = radius;
+
+            for (int i = 0; i < s_unitSphere.Length; i++) m_vertices[i] = s_unitSphere[i] * radius;
+            m_mesh.vertices = m_vertices;
+            m_mesh.uv = s_baseUvs;
+            m_mesh.colors32 = m_colors;
+            if (m_mesh.triangles.Length == 0) m_mesh.triangles = s_triangles;
+            m_mesh.RecalculateBounds();
+
+            if (m_motes)
+            {
+                var shape = m_motes.shape;
+                shape.radius = radius;
+                var emission = m_motes.emission;
+                // Keep mote density roughly constant across radii (~45/s at 60 m).
+                emission.rateOverTime = 45f * (radius * radius) / (60f * 60f);
+            }
         }
 
         private void OnDestroy()
@@ -62,33 +122,122 @@ namespace Warden
 
         private void LateUpdate()
         {
+            if (!m_owner) return;
+            transform.position = m_owner.transform.position;
+
             var cam = Camera.main;
             if (!cam) return;
 
             float time = Time.time;
-            s_material.mainTextureOffset = new Vector2(time * 0.004f, time * 0.0025f);
+            if (s_lastScrollFrame != Time.frameCount)
+            {
+                s_lastScrollFrame = Time.frameCount;
+                s_hazeMaterial.mainTextureOffset = new Vector2(time * 0.004f, -time * 0.006f);
+            }
+
+            m_owner.CollectMergeCenters(m_mergeCenters);
 
             Vector3 center = transform.position;
-            float radius = transform.localScale.x;
             Vector3 camPos = cam.transform.position;
-            float pulse = 1f - PulseAmount + PulseAmount * Mathf.Sin(time * PulseSpeed);
+            float radius = m_radius;
 
-            for (int i = 0; i < s_normals.Length; i++)
+            for (int i = 0; i < s_unitSphere.Length; i++)
             {
-                Vector3 normal = s_normals[i];
-                Vector3 toVertex = center + normal * radius - camPos;
+                Vector3 normal = s_unitSphere[i];
+                Vector3 worldPos = center + normal * radius;
+
+                float merge = 1f;
+                foreach (var other in m_mergeCenters)
+                {
+                    float outside = Vector3.Distance(worldPos, other) - radius;
+                    merge = Mathf.Min(merge, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-MergeFade, MergeFade * 0.5f, outside)));
+                    if (merge <= 0f) break;
+                }
+
+                if (merge <= 0f)
+                {
+                    m_colors[i] = new Color32(255, 255, 255, 0);
+                    continue;
+                }
+
+                Vector3 toVertex = worldPos - camPos;
                 float facing = Mathf.Abs(Vector3.Dot(normal, toVertex.normalized));
                 float rim = Mathf.Pow(1f - facing, RimSharpness);
-                float alpha = (BaseAlpha + RimAlpha * rim) * pulse;
+
+                // normal.y is sin(latitude); atan2 gives longitude.
+                float lat = normal.y;
+                float lon = Mathf.Atan2(normal.z, normal.x);
+                float band = Mathf.Sin(lat * BandCount - time * BandSpeed + Mathf.Sin(lon * 3f + time * 0.25f) * BandWobble);
+                float bands = 1f + BandStrength * band;
+
+                float alpha = (BaseAlpha + RimAlpha * rim) * bands * merge;
                 m_colors[i] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(alpha) * 255f));
+
+                Vector2 uv = s_baseUvs[i];
+                uv.x += SwirlAmount * Mathf.Sin(lat * 4f + time * SwirlSpeed);
+                uv.y += SwirlAmount * Mathf.Sin(lon * 2f - time * SwirlSpeed * 0.8f);
+                m_uvs[i] = uv;
             }
 
             m_mesh.colors32 = m_colors;
+            m_mesh.uv = m_uvs;
+        }
+
+        private static ParticleSystem CreateMotes(Transform parent)
+        {
+            var go = new GameObject("warden_hull_motes");
+            go.transform.SetParent(parent, false);
+
+            var ps = go.AddComponent<ParticleSystem>();
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
+            var main = ps.main;
+            main.loop = true;
+            main.playOnAwake = true;
+            main.startLifetime = new ParticleSystem.MinMaxCurve(4f, 7f);
+            main.startSpeed = 0f;
+            main.startSize = new ParticleSystem.MinMaxCurve(0.12f, 0.32f);
+            main.startColor = s_color;
+            main.simulationSpace = ParticleSystemSimulationSpace.Local;
+            main.maxParticles = 400;
+
+            var shape = ps.shape;
+            shape.shapeType = ParticleSystemShapeType.Sphere;
+            shape.radiusThickness = 0f;
+
+            var velocity = ps.velocityOverLifetime;
+            velocity.enabled = true;
+            velocity.space = ParticleSystemSimulationSpace.Local;
+            velocity.x = new ParticleSystem.MinMaxCurve(0f, 0f);
+            velocity.y = new ParticleSystem.MinMaxCurve(0.2f, 0.6f);
+            velocity.z = new ParticleSystem.MinMaxCurve(0f, 0f);
+
+            var noise = ps.noise;
+            noise.enabled = true;
+            noise.strength = 0.6f;
+            noise.frequency = 0.3f;
+            noise.scrollSpeed = 0.2f;
+
+            var fade = new Gradient();
+            fade.SetKeys(
+                new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+                new[] { new GradientAlphaKey(0f, 0f), new GradientAlphaKey(0.9f, 0.25f), new GradientAlphaKey(0.9f, 0.7f), new GradientAlphaKey(0f, 1f) });
+            var colorOverLifetime = ps.colorOverLifetime;
+            colorOverLifetime.enabled = true;
+            colorOverLifetime.color = fade;
+
+            var renderer = go.GetComponent<ParticleSystemRenderer>();
+            renderer.sharedMaterial = s_moteMaterial;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+
+            ps.Play();
+            return ps;
         }
 
         private static bool EnsureResources()
         {
-            if (s_material) return true;
+            if (s_hazeMaterial) return true;
             if (s_failed) return false;
 
             Shader shader = null;
@@ -105,22 +254,26 @@ namespace Warden
                 return false;
             }
 
-            s_templateMesh = BuildSphere(out s_normals);
-            s_material = new Material(shader)
+            BuildSphere();
+            s_hazeMaterial = new Material(shader)
             {
                 name = "warden_hull",
                 mainTexture = BuildHazeTexture(),
-                color = new Color(1f, 0.66f, 0.25f, 1f),
+                color = s_color,
+            };
+            s_moteMaterial = new Material(shader)
+            {
+                name = "warden_hull_mote",
+                mainTexture = BuildMoteTexture(),
             };
             return true;
         }
 
-        // Unit UV sphere; vertex positions double as normals.
-        private static Mesh BuildSphere(out Vector3[] normals)
+        private static void BuildSphere()
         {
-            var vertices = new Vector3[(Segments + 1) * (Rings + 1)];
-            var uvs = new Vector2[vertices.Length];
-            var triangles = new int[Segments * Rings * 6];
+            s_unitSphere = new Vector3[(Segments + 1) * (Rings + 1)];
+            s_baseUvs = new Vector2[s_unitSphere.Length];
+            s_triangles = new int[Segments * Rings * 6];
 
             for (int ring = 0; ring <= Rings; ring++)
             {
@@ -134,8 +287,8 @@ namespace Warden
                     float u = (float)seg / Segments;
                     float lon = u * Mathf.PI * 2f;
                     int i = ring * (Segments + 1) + seg;
-                    vertices[i] = new Vector3(r * Mathf.Cos(lon), y, r * Mathf.Sin(lon));
-                    uvs[i] = new Vector2(u * NoiseTilesAround, v * NoiseTilesVertical);
+                    s_unitSphere[i] = new Vector3(r * Mathf.Cos(lon), y, r * Mathf.Sin(lon));
+                    s_baseUvs[i] = new Vector2(u * NoiseTilesAround, v * NoiseTilesVertical);
                 }
             }
 
@@ -146,27 +299,14 @@ namespace Warden
                 {
                     int a = ring * (Segments + 1) + seg;
                     int b = a + Segments + 1;
-                    triangles[t++] = a;
-                    triangles[t++] = b;
-                    triangles[t++] = a + 1;
-                    triangles[t++] = a + 1;
-                    triangles[t++] = b;
-                    triangles[t++] = b + 1;
+                    s_triangles[t++] = a;
+                    s_triangles[t++] = b;
+                    s_triangles[t++] = a + 1;
+                    s_triangles[t++] = a + 1;
+                    s_triangles[t++] = b;
+                    s_triangles[t++] = b + 1;
                 }
             }
-
-            normals = vertices;
-            var mesh = new Mesh
-            {
-                name = "warden_hull_sphere",
-                vertices = vertices,
-                uv = uvs,
-                colors32 = new Color32[vertices.Length],
-                triangles = triangles,
-            };
-            mesh.RecalculateBounds();
-            mesh.MarkDynamic();
-            return mesh;
         }
 
         // Tileable soft noise so the haze drifts instead of reading as a flat shell.
@@ -209,6 +349,34 @@ namespace Warden
             float c = Mathf.PerlinNoise(x * scale, (y - size) * scale);
             float d = Mathf.PerlinNoise((x - size) * scale, (y - size) * scale);
             return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
+        }
+
+        // Soft round glow for the floating motes.
+        private static Texture2D BuildMoteTexture()
+        {
+            const int size = 32;
+            var texture = new Texture2D(size, size, TextureFormat.RGBA32, true)
+            {
+                name = "warden_hull_mote",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+            };
+
+            var pixels = new Color[size * size];
+            float half = (size - 1) * 0.5f;
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float d = Mathf.Sqrt((x - half) * (x - half) + (y - half) * (y - half)) / half;
+                    float glow = Mathf.Pow(Mathf.Clamp01(1f - d), 2f);
+                    pixels[y * size + x] = new Color(1f, 1f, 1f, glow);
+                }
+            }
+
+            texture.SetPixels(pixels);
+            texture.Apply(true, true);
+            return texture;
         }
     }
 }
