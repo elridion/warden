@@ -27,10 +27,19 @@
     <Reference Update="@(Reference)" Private="false" />
   </ItemGroup>
 
-  <Target Name="DeployPlugin" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' And Exists('$(BEPINEX_PATH)')">
-    <MakeDir Directories="$(BEPINEX_PATH)\plugins\Warden" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(BEPINEX_PATH)\plugins\Warden" />
-    <Message Importance="High" Text="Deployed $(TargetFileName) to $(BEPINEX_PATH)\plugins\Warden" />
+  <!-- Deploy into the Gale mod manager profile when present, else the game's own BepInEx.
+       Override with -p:DeployBepInEx="<path to BepInEx folder>". -->
+  <PropertyGroup>
+    <GaleProfile Condition="'$(GaleProfile)' == ''">Default</GaleProfile>
+    <GaleBepInEx>$(APPDATA)\com.kesomannen.gale\valheim\profiles\$(GaleProfile)\BepInEx</GaleBepInEx>
+    <DeployBepInEx Condition="'$(DeployBepInEx)' == '' And Exists('$(GaleBepInEx)')">$(GaleBepInEx)</DeployBepInEx>
+    <DeployBepInEx Condition="'$(DeployBepInEx)' == ''">$(BEPINEX_PATH)</DeployBepInEx>
+  </PropertyGroup>
+
+  <Target Name="DeployPlugin" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' And Exists('$(DeployBepInEx)')">
+    <MakeDir Directories="$(DeployBepInEx)\plugins\Warden" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(DeployBepInEx)\plugins\Warden" />
+    <Message Importance="High" Text="Deployed $(TargetFileName) to $(DeployBepInEx)\plugins\Warden" />
   </Target>
 
   <!-- Thunderstore/Hexium package: dotnet build -c Release -t:Package -->
