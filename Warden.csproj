@@ -30,6 +30,7 @@
   <ItemGroup>
     <EmbeddedResource Include="assets\models\offering_cup\greek_cup.obj" LogicalName="Warden.offering_cup.obj" />
     <EmbeddedResource Include="assets\textures\banner_runed_hide.png" LogicalName="Warden.banner_runed_hide.png" />
+    <EmbeddedResource Include="assets\textures\banner_runed_hide_n.png" LogicalName="Warden.banner_runed_hide_n.png" />
   </ItemGroup>
 
   <!-- Deploy into the Gale mod manager profile when present, else the game's own BepInEx.

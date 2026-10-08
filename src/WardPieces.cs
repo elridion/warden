@@ -18,6 +18,10 @@ namespace Warden
         private const string WardBasePrefab = "guard_stone";
         private const string BannerBasePrefab = "piece_banner01";
         private const string BannerTextureResource = "Warden.banner_runed_hide.png";
+        private const string BannerNormalResource = "Warden.banner_runed_hide_n.png";
+        private static readonly Color32 s_atlasOutside = new Color32(60, 45, 30, 0);
+        // Flat normal in the DXT5nm-style layout the banner normal map uses (X in alpha, Y in green).
+        private static readonly Color32 s_flatNormal = new Color32(255, 128, 255, 128);
         private static readonly Color s_parchmentTint = new Color(0.8f, 0.78f, 0.75f);
         private const string IdolModelPrefab = "StatueDeer";
         private const float IdolHeight = 0.9f;
@@ -170,8 +174,9 @@ namespace Warden
         // touching its UVs we place the design into an atlas at the strip of UV space the cloth samples.
         private static void ApplyBannerTexture(GameObject prefab)
         {
-            var design = LoadEmbeddedTexture(BannerTextureResource);
+            var design = LoadEmbeddedTexture(BannerTextureResource, false);
             if (!design) return;
+            var normalDesign = LoadEmbeddedTexture(BannerNormalResource, true);
 
             foreach (var r in prefab.GetComponentsInChildren<Renderer>(true))
             {
@@ -185,12 +190,13 @@ namespace Warden
                     Jotunn.Logger.LogWarning($"Banner cloth '{r.name}' has no readable UVs; using the design unmapped.");
                     uvRect = new Rect(0f, 0f, 1f, 1f);
                 }
-                var atlas = BuildAtlas(design, uvRect);
+                var atlas = BuildAtlas(design, uvRect, s_atlasOutside, false);
+                var normalAtlas = normalDesign ? BuildAtlas(normalDesign, uvRect, s_flatNormal, true) : null;
 
                 for (int i = 0; i < materials.Length; i++)
                 {
                     if (!materials[i]) continue;
-                    materials[i] = MakeParchmentMaterial(materials[i], atlas);
+                    materials[i] = MakeParchmentMaterial(materials[i], atlas, normalAtlas);
                 }
                 r.sharedMaterials = materials;
             }
@@ -218,7 +224,7 @@ namespace Warden
 
         // Atlas sized so the design keeps its proportions inside uvRect; outside it is transparent.
         // The design keeps its own resolution: bilinear sampling can't shrink it without dropping thin strokes.
-        private static Texture2D BuildAtlas(Texture2D design, Rect uvRect)
+        private static Texture2D BuildAtlas(Texture2D design, Rect uvRect, Color32 outside, bool linear)
         {
             int rectH = design.height;
             int rectW = Mathf.RoundToInt(rectH * (float)design.width / design.height);
@@ -226,7 +232,6 @@ namespace Warden
             int height = Mathf.Clamp(Mathf.RoundToInt(rectH / uvRect.height), rectH, 4096);
 
             var pixels = new Color32[width * height];
-            var outside = new Color32(60, 45, 30, 0);
             int x0 = Mathf.FloorToInt(uvRect.xMin * width), x1 = Mathf.CeilToInt(uvRect.xMax * width);
             int y0 = Mathf.FloorToInt(uvRect.yMin * height), y1 = Mathf.CeilToInt(uvRect.yMax * height);
 
@@ -240,9 +245,9 @@ namespace Warden
                 }
             }
 
-            var atlas = new Texture2D(width, height, TextureFormat.RGBA32, true)
+            var atlas = new Texture2D(width, height, TextureFormat.RGBA32, true, linear)
             {
-                name = "warden_banner_atlas",
+                name = design.name + "_atlas",
                 wrapMode = TextureWrapMode.Clamp,
                 filterMode = FilterMode.Trilinear,
                 anisoLevel = 4,
@@ -252,9 +257,9 @@ namespace Warden
             return atlas;
         }
 
-        // Matte parchment: drop the cloth's atlas normal map (it doesn't line up with our design),
-        // remove sheen, and alpha-clip the torn edges when the shader supports it.
-        private static Material MakeParchmentMaterial(Material source, Texture2D atlas)
+        // Matte parchment: swap the cloth's normal map for ours (the vanilla one doesn't line up with
+        // our design), remove sheen, and alpha-clip the torn edges when the shader supports it.
+        private static Material MakeParchmentMaterial(Material source, Texture2D atlas, Texture2D normalAtlas)
         {
             var shader = source.shader;
             var props = new System.Collections.Generic.List<string>();
@@ -265,7 +270,8 @@ namespace Warden
             if (material.HasProperty("_Color")) material.SetColor("_Color", s_parchmentTint);
             // The vanilla atlas also drives emission and metalness; left in, the parchment glows.
             // Use explicit black textures: a cleared slot falls back to the shader's default, which can be white.
-            if (material.HasProperty("_BumpMap")) material.SetTexture("_BumpMap", null);
+            if (material.HasProperty("_BumpMap")) material.SetTexture("_BumpMap", normalAtlas);
+            if (material.HasProperty("_BumpScale")) material.SetFloat("_BumpScale", 1f);
             if (material.HasProperty("_EmissiveTex")) material.SetTexture("_EmissiveTex", Texture2D.blackTexture);
             if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", Color.black);
             if (material.HasProperty("_MetalTex")) material.SetTexture("_MetalTex", Texture2D.blackTexture);
@@ -282,7 +288,8 @@ namespace Warden
             return material;
         }
 
-        private static Texture2D LoadEmbeddedTexture(string resourceName)
+        // Normal maps must load as linear: sRGB decoding would bend the encoded vectors.
+        private static Texture2D LoadEmbeddedTexture(string resourceName, bool linear)
         {
             using (var stream = typeof(WardPieces).Assembly.GetManifestResourceStream(resourceName))
             {
@@ -294,7 +301,7 @@ namespace Warden
 
                 var bytes = new byte[stream.Length];
                 stream.Read(bytes, 0, bytes.Length);
-                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true) { name = resourceName };
+                var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true, linear) { name = resourceName };
                 if (!Jotunn.Utils.AssetUtils.LoadImage(texture, bytes))
                 {
                     Jotunn.Logger.LogWarning($"Embedded texture '{resourceName}' failed to decode.");
