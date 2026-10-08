@@ -30,7 +30,6 @@ namespace Warden
         private WardHull m_hull;
 
         public float Radius => m_radius;
-
         public Vector3 ConnectionPoint => transform.position + Vector3.up * 1.2f;
 
         public static bool IsInsideActiveWard(Vector3 point)

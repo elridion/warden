@@ -26,7 +26,19 @@ namespace Warden
         private const string IdolModelPrefab = "StatueDeer";
         private const float IdolHeight = 0.9f;
         private static readonly Color s_blackMetalTint = new Color(0.2f, 0.21f, 0.23f);
-        private const string LampBasePrefab = "piece_brazierfloor01";
+        private const string CandlePrefab = "Candle_resin";
+        // Candle cluster: (x, z, scale) per candle, tallest near the middle.
+        private static readonly Vector3[] s_candles =
+        {
+            new Vector3(0f, 0f, 1.35f),
+            new Vector3(0.09f, 0.05f, 1.1f),
+            new Vector3(-0.08f, 0.07f, 1.0f),
+            new Vector3(-0.06f, -0.09f, 0.9f),
+            new Vector3(0.1f, -0.08f, 0.8f),
+            new Vector3(0.17f, 0.12f, 0.65f),
+            new Vector3(-0.17f, -0.02f, 0.7f),
+            new Vector3(0.02f, 0.17f, 0.6f),
+        };
         private const string SilverMaterialPrefab = "Silver";
         private const string ConnectionSourcePrefab = "piece_workbench_ext1";
 
@@ -41,27 +53,28 @@ namespace Warden
             s_connectionPrefab = connectionSource ? connectionSource.GetComponent<StationExtension>()?.m_connectionPrefab : null;
 
             AddWard();
-            AddExtension(1, CreateBanner, Req("Tin", 5), Req("DeerHide", 3), Req("Resin", 5), Req("Wood", 4));
+            AddExtension(1, CreateBanner, Req("LeatherScraps", 6), Req("FineWood", 2), Req("Coal", 4), Req("Tin", 5));
             AddExtension(2, CreateIdol, Req("Stone", 20), Req("Iron", 5), Req("WitheredBone", 3));
-            AddExtension(3, CreateOfferingCup, Req("Silver", 5), Req("Crystal", 3), Req("Obsidian", 5));
-            AddExtension(4, CreateTarLamp, Req("Tar", 10), Req("BlackMetal", 5), Req("Needle", 5));
+            AddExtension(3, CreateOfferingCup, Req("Silver", 5), Req("Obsidian", 5));
+            AddExtension(4, CreateRitualCandles, Req("Tar", 10), Req("Resin", 10), Req("CandleWick", 5));
         }
 
         private static RequirementConfig Req(string item, int amount) => new RequirementConfig(item, amount, 0, true);
 
-        private static PieceConfig Config(string name, RequirementConfig[] requirements) => new PieceConfig
+        // Upgrades need no crafting station: being near a warden stone is their requirement.
+        private static PieceConfig Config(string name, RequirementConfig[] requirements, string craftingStation = null) => new PieceConfig
         {
             Name = "$" + name,
             Description = "$" + name + "_description",
             PieceTable = PieceTables.Hammer,
             Category = BuildCategory,
-            CraftingStation = CraftingStations.Workbench,
+            CraftingStation = craftingStation,
             Requirements = requirements,
         };
 
         private static void AddWard()
         {
-            var config = Config(WardPrefabName, new[] { Req("Stone", 15), Req("GreydwarfEye", 10), Req("SurtlingCore", 2) });
+            var config = Config(WardPrefabName, new[] { Req("Stone", 15), Req("GreydwarfEye", 10), Req("SurtlingCore", 2) }, CraftingStations.Workbench);
             var piece = new CustomPiece(WardPrefabName, WardBasePrefab, config);
             var prefab = piece.PiecePrefab;
             s_wardPiece = prefab.GetComponent<Piece>();
@@ -103,9 +116,6 @@ namespace Warden
                 {
                     var source = materials[i];
                     if (!source) continue;
-                    Jotunn.Logger.LogInfo($"Ward renderer '{renderer.name}' material '{source.name}' shader '{source.shader.name}' " +
-                        $"color={(source.HasProperty("_Color") ? source.GetColor("_Color").ToString() : "-")} " +
-                        $"emission={(source.HasProperty("_EmissionColor") ? source.GetColor("_EmissionColor").ToString() : "-")}");
 
                     var copy = new Material(source) { name = source.name + "_warden" };
                     if (copy.HasProperty("_Color")) copy.SetColor("_Color", copy.GetColor("_Color") * s_wardStoneTint);
@@ -261,11 +271,6 @@ namespace Warden
         // our design), remove sheen, and alpha-clip the torn edges when the shader supports it.
         private static Material MakeParchmentMaterial(Material source, Texture2D atlas, Texture2D normalAtlas)
         {
-            var shader = source.shader;
-            var props = new System.Collections.Generic.List<string>();
-            for (int i = 0; i < shader.GetPropertyCount(); i++) props.Add(shader.GetPropertyName(i));
-            Jotunn.Logger.LogInfo($"Banner material '{source.name}' shader '{shader.name}' properties: {string.Join(", ", props)}");
-
             var material = new Material(source) { name = "warden_banner_parchment", mainTexture = atlas };
             if (material.HasProperty("_Color")) material.SetColor("_Color", s_parchmentTint);
             // The vanilla atlas also drives emission and metalness; left in, the parchment glows.
@@ -313,14 +318,44 @@ namespace Warden
             }
         }
 
-        private static CustomPiece CreateTarLamp(string name, PieceConfig config)
+        // A cluster of vanilla resin candles of different heights.
+        private static CustomPiece CreateRitualCandles(string name, PieceConfig config)
         {
-            if (!RequirePrefab(LampBasePrefab)) return null;
-            var piece = new CustomPiece(name, LampBasePrefab, config);
+            if (!RequirePrefab(CandlePrefab)) return null;
 
-            // Keep the flame burning without fuel: freeze the fireplace's lit state, then drop it.
-            var fireplace = piece.PiecePrefab.GetComponent<Fireplace>();
-            if (fireplace)
+            var prefab = CreateBarePrefab(name);
+            var candleSource = PrefabManager.Cache.GetPrefab<GameObject>(CandlePrefab);
+            for (int i = 0; i < s_candles.Length; i++)
+            {
+                var spot = s_candles[i];
+                var candle = Object.Instantiate(candleSource, prefab.transform, false);
+                candle.name = "candle" + i;
+                LightFireplace(candle);
+                StripToVisualAndEffects(candle);
+                candle.transform.localScale *= spot.z;
+                candle.transform.localRotation = Quaternion.Euler(0f, i * 47f, 0f);
+                // Stand the candle's base on the ground, whatever its pivot. The vanilla prefab isn't
+                // stored at the origin, so start from zero before measuring.
+                candle.transform.localPosition = Vector3.zero;
+                var bounds = MeshBounds(candle.transform, prefab.transform, true);
+                candle.transform.localPosition = new Vector3(spot.x, -bounds.min.y, spot.y);
+            }
+
+            var collider = prefab.AddComponent<BoxCollider>();
+            var all = MeshBounds(prefab.transform, prefab.transform, true);            collider.center = all.center;
+            collider.size = all.size;
+            SetupLoosePiece(prefab);
+
+            // A rendered icon misses the flames; the vanilla candle's icon reads better.
+            var candleIcon = candleSource.GetComponent<Piece>()?.m_icon;
+            config.Icon = candleIcon ? candleIcon : RenderIcon(prefab);
+            return new CustomPiece(prefab, true, config);
+        }
+
+        // Keep a flame burning without fuel: freeze the fireplace's lit state, then drop it.
+        private static void LightFireplace(GameObject root)
+        {
+            foreach (var fireplace in root.GetComponentsInChildren<Fireplace>(true))
             {
                 SetActive(fireplace.m_enabledObject, true);
                 SetActive(fireplace.m_enabledObjectLow, false);
@@ -331,7 +366,23 @@ namespace Warden
                 SetActive(fireplace.m_playerBaseObject, false);
                 Object.DestroyImmediate(fireplace);
             }
-            return piece;
+        }
+
+        // Like StripToVisual, but keeps flames: particles, lights and their flicker. Colliders go too;
+        // the piece gets one box around everything.
+        private static void StripToVisualAndEffects(GameObject root)
+        {
+            for (int pass = 0; pass < 3; pass++)
+            {
+                foreach (var component in root.GetComponentsInChildren<Component>(true))
+                {
+                    if (component is Transform || component is MeshFilter || component is Renderer ||
+                        component is LODGroup || component is ParticleSystem || component is Light ||
+                        component is LightFlicker || component is LightLod)
+                        continue;
+                    Object.DestroyImmediate(component);
+                }
+            }
         }
 
         private static CustomPiece CreateIdol(string name, PieceConfig config)
@@ -388,7 +439,8 @@ namespace Warden
         }
 
         // Combined mesh bounds of everything under root, expressed in space's local coordinates.
-        private static Bounds MeshBounds(Transform root, Transform space)
+        // With visibleOnly, meshes on disabled branches below root (e.g. a fireplace's unlit state) are skipped.
+        private static Bounds MeshBounds(Transform root, Transform space, bool visibleOnly = false)
         {
             var toSpace = space.worldToLocalMatrix;
             bool any = false;
@@ -396,6 +448,9 @@ namespace Warden
             foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
             {
                 if (!filter.sharedMesh) continue;
+                if (visibleOnly && !ActiveBelow(filter.transform, root)) continue;
+                var renderer = filter.GetComponent<Renderer>();
+                if (visibleOnly && (!renderer || !renderer.enabled)) continue;
                 var b = filter.sharedMesh.bounds;
                 var toLocal = toSpace * filter.transform.localToWorldMatrix;
                 for (int i = 0; i < 8; i++)
@@ -408,6 +463,14 @@ namespace Warden
                 }
             }
             return result;
+        }
+
+        // Whether t and its parents up to root are active, ignoring root's own (possibly inactive) parents.
+        private static bool ActiveBelow(Transform t, Transform root)
+        {
+            for (; t && t != root; t = t.parent)
+                if (!t.gameObject.activeSelf) return false;
+            return root.gameObject.activeSelf;
         }
 
         // Darkens copies of a model's materials, e.g. to read as black metal.

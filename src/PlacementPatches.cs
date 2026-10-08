@@ -30,23 +30,25 @@ namespace Warden
             extension.StopConnectionEffect();
             if (___m_placementStatus == Player.PlacementStatus.Valid)
             {
-                LogRejection(___m_placementGhost);
                 ___m_placementStatus = Player.PlacementStatus.ExtensionMissingStation;
                 s_setPlacementGhostValid(__instance, false);
             }
         }
 
-        private static float s_nextLogTime;
+    }
 
-        // Throttled diagnostics: where the ghost is versus the nearest warden stone.
-        private static void LogRejection(GameObject ghost)
+    /// <summary>
+    /// The rejection reuses vanilla's "missing station" status, whose message talks about crafting
+    /// stations; for upgrade pieces, say a warden stone is what's missing.
+    /// </summary>
+    [HarmonyPatch(typeof(Player), nameof(Player.Message))]
+    internal static class PlacementMessagePatch
+    {
+        private static void Prefix(Player __instance, ref string msg, GameObject ___m_placementGhost)
         {
-            if (Time.time < s_nextLogTime) return;
-            s_nextLogTime = Time.time + 2f;
-
-            var nearest = SpawnWard.FindClosestWard(ghost.transform.position, float.MaxValue);
-            string distance = nearest ? Vector3.Distance(nearest.transform.position, ghost.transform.position).ToString("0.0") + " m" : "none loaded";
-            Jotunn.Logger.LogInfo($"{ghost.name} not placeable: ghost at {ghost.transform.position}, nearest warden stone {distance}, range {WardExtension.Range} m");
+            if (msg != "$msg_extensionmissingstation" || !___m_placementGhost) return;
+            if (!___m_placementGhost.GetComponent<WardExtension>()) return;
+            msg = Localization.instance.Localize("$spawnward_needstone", WardExtension.Range.ToString("0"));
         }
     }
 }

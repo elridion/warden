@@ -4,12 +4,14 @@
 
 - Warden stones can be upgraded like crafting stations. Build upgrade pieces within 5 m to raise
   the level and radius: Runed hide banner (Black Forest), Sacred idol (Swamp), Offering cup (Mountain),
-  Tar lamp (Plains).
+  Ritual candles (Plains).
 - Radius now scales with level: 40 m base, +15 m per upgrade (`BaseRadius`, `RadiusPerUpgrade`).
   Replaces the old `Radius` setting.
 - Hulls of wards with different radii merge correctly.
 - Hover text shows the ward's level and radius.
 - Offering cup uses a chalice model from The Base Mesh (CC0).
+- Ritual candles: a cluster of always-lit resin candles of different heights.
+- Upgrades need no workbench, only a warden stone within range, and say so when placed too far.
 - Runed hide banner has its own texture: a torn, swallowtailed hide writ with tin-inked runes in two
   panels around a braided spine, red-ochre knot bands, and an Algiz medallion at the head.
   A normal map presses the runes into the hide and rounds its torn edge.

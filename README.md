@@ -5,7 +5,8 @@ and upgrade pieces that extend its reach.
 
 ## Features
 
-- Warden stone and its upgrades in the hammer's Base defense tab, require a workbench nearby.
+- Warden stone and its upgrades in the hammer's Base defense tab. The stone requires a workbench
+  nearby; upgrades only need a warden stone within range.
   Cost: 15 Stone, 10 Greydwarf Eye, 2 Surtling Core.
 - While active, random world spawns inside the radius are blocked.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
@@ -21,10 +22,10 @@ the stone's level by one and its radius by 15 m.
 | Level | Upgrade | Biome | Cost | Radius |
 | --- | --- | --- | --- | --- |
 | 1 | Warden stone | Black Forest | 15 Stone, 10 Greydwarf Eye, 2 Surtling Core | 40 m |
-| 2 | Runed hide banner | Black Forest | 5 Tin, 3 Deer Hide, 5 Resin, 4 Wood | 55 m |
+| 2 | Runed hide banner | Black Forest | 6 Leather Scraps, 2 Fine Wood, 4 Coal, 5 Tin | 55 m |
 | 3 | Sacred idol | Swamp | 20 Stone, 5 Iron, 3 Withered Bone | 70 m |
-| 4 | Offering cup | Mountain | 5 Silver, 3 Crystal, 5 Obsidian | 85 m |
-| 5 | Tar lamp | Plains | 10 Tar, 5 Black Metal, 5 Needle | 100 m |
+| 4 | Offering cup | Mountain | 5 Silver, 5 Obsidian | 85 m |
+| 5 | Ritual candles | Plains | 10 Tar, 10 Resin, 5 Candle Wick | 100 m |
 
 ## Configuration
 
