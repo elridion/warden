@@ -217,10 +217,10 @@ namespace Warden
         }
 
         // Atlas sized so the design keeps its proportions inside uvRect; outside it is transparent.
+        // The design keeps its own resolution: bilinear sampling can't shrink it without dropping thin strokes.
         private static Texture2D BuildAtlas(Texture2D design, Rect uvRect)
         {
-            const int designHeight = 1024;
-            int rectH = designHeight;
+            int rectH = design.height;
             int rectW = Mathf.RoundToInt(rectH * (float)design.width / design.height);
             int width = Mathf.Clamp(Mathf.RoundToInt(rectW / uvRect.width), rectW, 4096);
             int height = Mathf.Clamp(Mathf.RoundToInt(rectH / uvRect.height), rectH, 4096);

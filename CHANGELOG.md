@@ -10,7 +10,8 @@
 - Hulls of wards with different radii merge correctly.
 - Hover text shows the ward's level and radius.
 - Offering cup uses a chalice model from The Base Mesh (CC0).
-- Runed hide banner has its own texture: torn parchment with silver-inked runes around an Algiz.
+- Runed hide banner has its own texture: a torn, swallowtailed hide writ with tin-inked runes in two
+  panels around a braided spine, red-ochre knot bands, and an Algiz medallion at the head.
 - All Warden pieces moved to the hammer's Base defense tab; upgrades show the build menu upgrade arrow.
 - Warden stone recolored: grey stone with amber runes and glow, so it reads apart from the vanilla ward.
 
