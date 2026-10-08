@@ -12,6 +12,7 @@
 - Offering cup uses a chalice model from The Base Mesh (CC0).
 - Runed hide banner has its own texture: torn parchment with silver-inked runes around an Algiz.
 - All Warden pieces moved to the hammer's Base defense tab; upgrades show the build menu upgrade arrow.
+- Warden stone recolored: grey stone with amber runes and glow, so it reads apart from the vanilla ward.
 
 ## 0.2.0
 

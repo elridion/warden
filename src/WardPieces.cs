@@ -75,7 +75,58 @@ namespace Warden
                 Object.DestroyImmediate(privateArea);
             }
 
+            RecolorWard(prefab, ward);
+
             PieceManager.Instance.AddPiece(piece);
+        }
+
+        private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
+        private static readonly Color s_wardRuneGlow = new Color(1f, 0.55f, 0.15f);
+
+        // Grey stone with amber runes, so the warden stone reads apart from the vanilla ward.
+        // Works on copies of the materials; the area marker keeps its look.
+        private static void RecolorWard(GameObject prefab, SpawnWard ward)
+        {
+            var marker = ward.m_areaMarker ? ward.m_areaMarker.transform : null;
+
+            foreach (var renderer in prefab.GetComponentsInChildren<Renderer>(true))
+            {
+                if (marker && renderer.transform.IsChildOf(marker)) continue;
+                if (renderer is ParticleSystemRenderer) continue;
+
+                var materials = renderer.sharedMaterials;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    var source = materials[i];
+                    if (!source) continue;
+                    Jotunn.Logger.LogInfo($"Ward renderer '{renderer.name}' material '{source.name}' shader '{source.shader.name}' " +
+                        $"color={(source.HasProperty("_Color") ? source.GetColor("_Color").ToString() : "-")} " +
+                        $"emission={(source.HasProperty("_EmissionColor") ? source.GetColor("_EmissionColor").ToString() : "-")}");
+
+                    var copy = new Material(source) { name = source.name + "_warden" };
+                    if (copy.HasProperty("_Color")) copy.SetColor("_Color", copy.GetColor("_Color") * s_wardStoneTint);
+                    if (copy.HasProperty("_EmissionColor"))
+                    {
+                        // Keep the original glow strength, swap its hue to amber.
+                        var original = copy.GetColor("_EmissionColor");
+                        float strength = Mathf.Max(original.maxColorComponent, 1f);
+                        copy.SetColor("_EmissionColor", s_wardRuneGlow * strength);
+                    }
+                    materials[i] = copy;
+                }
+                renderer.sharedMaterials = materials;
+            }
+
+            // The "on" effect's lights and sparks follow the rune colour.
+            if (ward.m_enabledEffect)
+            {
+                foreach (var light in ward.m_enabledEffect.GetComponentsInChildren<Light>(true)) light.color = s_wardRuneGlow;
+                foreach (var ps in ward.m_enabledEffect.GetComponentsInChildren<ParticleSystem>(true))
+                {
+                    var main = ps.main;
+                    main.startColor = new ParticleSystem.MinMaxGradient(s_wardRuneGlow);
+                }
+            }
         }
 
         private delegate CustomPiece PieceFactory(string name, PieceConfig config);
