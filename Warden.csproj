@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <AssemblyName>Warden</AssemblyName>
+    <RootNamespace>Warden</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <Version>0.1.0</Version>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
+    <!-- Unity/BepInEx reference mismatched netstandard versions; harmless at runtime -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+    <!-- Lets Jotunn generate publicized Valheim assemblies on first build -->
+    <ExecutePrebuild>true</ExecutePrebuild>
+    <!-- Override if Valheim lives elsewhere: dotnet build -p:VALHEIM_INSTALL="D:\...\Valheim" -->
+    <DeployToGame Condition="'$(DeployToGame)' == ''">true</DeployToGame>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="JotunnLib" Version="2.30.2" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Update="@(Reference)" Private="false" />
+  </ItemGroup>
+
+  <Target Name="DeployPlugin" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' And Exists('$(BEPINEX_PATH)')">
+    <MakeDir Directories="$(BEPINEX_PATH)\plugins\Warden" />
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(BEPINEX_PATH)\plugins\Warden" />
+    <Message Importance="High" Text="Deployed $(TargetFileName) to $(BEPINEX_PATH)\plugins\Warden" />
+  </Target>
+
+</Project>
