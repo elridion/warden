@@ -22,6 +22,9 @@ namespace Warden
         private ZNetView m_nview;
         private bool m_lastEnabled;
         private bool m_statusInitialized;
+        private bool m_isGhost;
+        private bool m_hovered;
+        private GameObject m_hull;
 
         public static float Radius => WardenPlugin.Radius.Value;
 
@@ -48,11 +51,15 @@ namespace Warden
                 m_areaMarker.gameObject.SetActive(false);
             }
 
+            m_hull = WardHull.Create("warden_hull");
+
             m_nview = GetComponent<ZNetView>();
             if (!m_nview || !m_nview.IsValid())
             {
                 // Placement ghost: show the area so the player can see the coverage.
+                m_isGhost = true;
                 if (m_areaMarker) m_areaMarker.gameObject.SetActive(true);
+                UpdateHull();
                 return;
             }
 
@@ -64,6 +71,29 @@ namespace Warden
         private void OnDestroy()
         {
             s_instances.Remove(this);
+            if (m_hull) Destroy(m_hull);
+        }
+
+        private void LateUpdate()
+        {
+            if (m_hull && m_hull.activeSelf) m_hull.transform.position = transform.position;
+        }
+
+        private void UpdateHull()
+        {
+            if (!m_hull) return;
+
+            bool show;
+            switch (WardenPlugin.ShowHull.Value)
+            {
+                case WardenPlugin.HullVisibility.Always: show = m_isGhost || IsEnabled(); break;
+                case WardenPlugin.HullVisibility.OnHover: show = m_isGhost || m_hovered; break;
+                default: show = false; break;
+            }
+
+            m_hull.transform.position = transform.position;
+            m_hull.transform.localScale = Vector3.one * Radius;
+            m_hull.SetActive(show);
         }
 
         public bool IsEnabled()
@@ -85,6 +115,7 @@ namespace Warden
 
             m_lastEnabled = enabled;
             m_statusInitialized = true;
+            UpdateHull();
         }
 
         private void RPC_Toggle(long sender)
@@ -123,8 +154,12 @@ namespace Warden
 
         private void ShowAreaMarker()
         {
-            if (!m_areaMarker) return;
-            m_areaMarker.gameObject.SetActive(true);
+            if (m_areaMarker) m_areaMarker.gameObject.SetActive(true);
+            if (!m_hovered)
+            {
+                m_hovered = true;
+                UpdateHull();
+            }
             CancelInvoke(nameof(HideMarker));
             Invoke(nameof(HideMarker), 0.5f);
         }
@@ -132,6 +167,8 @@ namespace Warden
         private void HideMarker()
         {
             if (m_areaMarker) m_areaMarker.gameObject.SetActive(false);
+            m_hovered = false;
+            UpdateHull();
         }
     }
 }

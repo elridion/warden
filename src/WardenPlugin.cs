@@ -17,13 +17,16 @@ namespace Warden
     {
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.2.0";
 
         public const string PiecePrefabName = "piece_spawnward";
         private const string BasePrefabName = "guard_stone";
 
+        public enum HullVisibility { Always, OnHover, Off }
+
         public static ConfigEntry<float> Radius;
         public static ConfigEntry<bool> BlockEventSpawns;
+        public static ConfigEntry<HullVisibility> ShowHull;
 
         private Harmony _harmony;
 
@@ -31,12 +34,14 @@ namespace Warden
         {
             var adminOnly = new ConfigurationManagerAttributes { IsAdminOnly = true };
 
-            Radius = Config.Bind("General", "Radius", 32f,
+            Radius = Config.Bind("General", "Radius", 60f,
                 new ConfigDescription("Radius in meters inside which creature spawns are blocked.",
                     new AcceptableValueRange<float>(4f, 128f), adminOnly));
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", false,
                 new ConfigDescription("Also block raid/event spawns inside the radius. Event creatures can still walk in from outside.",
                     null, adminOnly));
+            ShowHull = Config.Bind("Visuals", "ShowHull", HullVisibility.Always,
+                "When to show the translucent dome marking an active ward's radius. Client-side only.");
 
             AddLocalizations();
             PrefabManager.OnVanillaPrefabsAvailable += AddPieces;
