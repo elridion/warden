@@ -21,6 +21,7 @@ namespace Warden
         public static ConfigEntry<float> BaseRadius;
         public static ConfigEntry<float> RadiusPerUpgrade;
         public static ConfigEntry<float> UpgradeRange;
+        public static ConfigEntry<int> MaxStackedUpgrades;
         public static ConfigEntry<bool> BlockEventSpawns;
         public static ConfigEntry<HullVisibility> ShowHull;
 
@@ -39,6 +40,10 @@ namespace Warden
             UpgradeRange = Config.Bind("General", "UpgradeRange", 5f,
                 new ConfigDescription("Max distance in meters between an upgrade piece and its warden stone.",
                     new AcceptableValueRange<float>(2f, 20f), adminOnly));
+            MaxStackedUpgrades = Config.Bind("General", "MaxStackedUpgrades", 4,
+                new ConfigDescription("How many ritual candles around one warden stone count; each adds RadiusPerUpgrade. " +
+                    "Other upgrades count once each.",
+                    new AcceptableValueRange<int>(1, 16), adminOnly));
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", false,
                 new ConfigDescription("Also block raid/event spawns inside the radius. Event creatures can still walk in from outside.",
                     null, adminOnly));

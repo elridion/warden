@@ -26,6 +26,8 @@ namespace Warden
         private const string IdolModelPrefab = "StatueDeer";
         private const float IdolHeight = 0.9f;
         private static readonly Color s_blackMetalTint = new Color(0.2f, 0.21f, 0.23f);
+        // Ritual candles stack: each cluster counts, up to MaxStackedUpgrades.
+        private const int StackableTier = 4;
         private const string CandlePrefab = "Candle_resin";
         // Candle cluster: (x, z, scale) per candle, tallest near the middle.
         private static readonly Vector3[] s_candles =
@@ -99,6 +101,7 @@ namespace Warden
 
         private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
         private static readonly Color s_wardRuneGlow = new Color(1f, 0.55f, 0.15f);
+        private const float WardGlowScale = 0.6f;
 
         // Grey stone with amber runes, so the warden stone reads apart from the vanilla ward.
         // Works on copies of the materials; the area marker keeps its look.
@@ -121,24 +124,32 @@ namespace Warden
                     if (copy.HasProperty("_Color")) copy.SetColor("_Color", copy.GetColor("_Color") * s_wardStoneTint);
                     if (copy.HasProperty("_EmissionColor"))
                     {
-                        // Keep the original glow strength, swap its hue to amber.
+                        // Only materials that already glow (the runes) get the amber; giving the stone
+                        // body emission washes its texture out to a flat glow. Tone the runes down a little.
                         var original = copy.GetColor("_EmissionColor");
-                        float strength = Mathf.Max(original.maxColorComponent, 1f);
-                        copy.SetColor("_EmissionColor", s_wardRuneGlow * strength);
+                        float strength = original.maxColorComponent;
+                        if (strength > 0.01f) copy.SetColor("_EmissionColor", s_wardRuneGlow * strength * WardGlowScale);
                     }
                     materials[i] = copy;
                 }
                 renderer.sharedMaterials = materials;
             }
 
-            // The "on" effect's lights and sparks follow the rune colour.
+            // The "on" effect's lights and sparks follow the rune colour, keeping their own
+            // transparency so the sparks stay faint.
             if (ward.m_enabledEffect)
             {
-                foreach (var light in ward.m_enabledEffect.GetComponentsInChildren<Light>(true)) light.color = s_wardRuneGlow;
+                foreach (var light in ward.m_enabledEffect.GetComponentsInChildren<Light>(true))
+                {
+                    light.color = s_wardRuneGlow;
+                    light.intensity *= WardGlowScale;
+                }
                 foreach (var ps in ward.m_enabledEffect.GetComponentsInChildren<ParticleSystem>(true))
                 {
                     var main = ps.main;
-                    main.startColor = new ParticleSystem.MinMaxGradient(s_wardRuneGlow);
+                    var glow = s_wardRuneGlow;
+                    glow.a = main.startColor.mode == ParticleSystemGradientMode.Color ? main.startColor.color.a : 1f;
+                    main.startColor = new ParticleSystem.MinMaxGradient(glow);
                 }
             }
         }
@@ -165,6 +176,7 @@ namespace Warden
 
             var extension = piece.PiecePrefab.AddComponent<WardExtension>();
             extension.m_tier = tier;
+            extension.m_stackable = tier == StackableTier;
             extension.m_connectionPrefab = s_connectionPrefab;
             extension.m_connectionOffset = new Vector3(0f, 1f, 0f);
 

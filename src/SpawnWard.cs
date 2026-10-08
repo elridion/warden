@@ -102,7 +102,7 @@ namespace Warden
 
         private void RefreshLevel()
         {
-            m_level = 1 + WardExtension.CountTiers(transform.position);
+            m_level = 1 + WardExtension.CountUpgrades(transform.position);
             m_radius = WardenPlugin.BaseRadius.Value + WardenPlugin.RadiusPerUpgrade.Value * (m_level - 1);
             if (m_areaMarker) m_areaMarker.m_radius = m_radius;
         }

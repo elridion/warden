@@ -5,13 +5,15 @@ namespace Warden
 {
     /// <summary>
     /// Upgrade piece for a warden stone. Each distinct tier within range raises the stone's level,
-    /// the same way crafting station extensions work.
+    /// the same way crafting station extensions work; stackable tiers count once per piece, up to
+    /// <see cref="WardenPlugin.MaxStackedUpgrades"/>.
     /// </summary>
     public class WardExtension : MonoBehaviour, Hoverable
     {
         private static readonly List<WardExtension> s_instances = new List<WardExtension>();
 
         public int m_tier;
+        public bool m_stackable;
         public GameObject m_connectionPrefab;
         public Vector3 m_connectionOffset = Vector3.up;
         public float m_hoverOffset;
@@ -21,17 +23,20 @@ namespace Warden
 
         public static float Range => WardenPlugin.UpgradeRange.Value;
 
-        /// <summary>Number of distinct upgrade tiers within range of a ward position.</summary>
-        public static int CountTiers(Vector3 wardPos)
+        /// <summary>Number of upgrades within range of a ward position: one per distinct tier, plus
+        /// one per stackable piece up to the stacking cap.</summary>
+        public static int CountUpgrades(Vector3 wardPos)
         {
-            int mask = 0;
+            int mask = 0, stacked = 0;
             float rangeSqr = Range * Range;
             foreach (var ext in s_instances)
             {
-                if (ext && (ext.transform.position - wardPos).sqrMagnitude < rangeSqr) mask |= 1 << ext.m_tier;
+                if (!ext || (ext.transform.position - wardPos).sqrMagnitude >= rangeSqr) continue;
+                if (ext.m_stackable) stacked++;
+                else mask |= 1 << ext.m_tier;
             }
 
-            int count = 0;
+            int count = Mathf.Min(stacked, WardenPlugin.MaxStackedUpgrades.Value);
             for (; mask != 0; mask &= mask - 1) count++;
             return count;
         }

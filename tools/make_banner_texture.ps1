@@ -252,7 +252,7 @@ function Text-Block([double]$top, [double]$bottom) {
 
 # Frame line along the outer edge, notched with small ticks like a carved border. It is capped at the
 # top and runs down into the lower knot band, whose rules close it at the bottom.
-$frameTop = 88; $frameBottom = 1421   # the top sits below the crossbar, which hides the hide's top edge
+$frameTop = 130; $frameBottom = 1421   # the top sits below the crossbar, which hides the hide's top edge
 Draw-Paths @(,@((Pt $cx $frameTop), (Pt $border $frameTop), (Pt $border $frameBottom))) (Ink-Pens 2.2)
 Draw-Paths @(,@((Pt $cx ($frameTop + 7)), (Pt ($border + 7) ($frameTop + 7)), (Pt ($border + 7) $frameBottom))) (Ink-Pens 1.4)
 for ($y = $frameTop + 10; $y -lt $frameBottom; $y += 24) {
@@ -261,15 +261,15 @@ for ($y = $frameTop + 10; $y -lt $frameBottom; $y += 24) {
 
 # Header: algiz, the rune of protection, inside a medallion on the centre line. It sits well below
 # the top edge, which the banner's crossbar hides in-game.
-$headCy = 196
-Medallion $headCy 82
-Draw-Rune 14 ($cx - 46) ($headCy - 51) 92 102 (Ink-Pens 7 "ochre") 0
-Knot-Band 306
+$headCy = 222
+Medallion $headCy 62
+Draw-Rune 14 ($cx - 35) ($headCy - 39) 70 78 (Ink-Pens 6 "ochre") 0
+Knot-Band 319
 
 # Upper text panel, centre medallion with dagaz, lower text panel.
 $midCy = 840
-Spine 326 ($midCy - 60)
-Text-Block 340 ($midCy - 70)
+Spine 339 ($midCy - 60)
+Text-Block 353 ($midCy - 70)
 Medallion $midCy 56
 Draw-Rune 22 ($cx - 30) ($midCy - 26) 60 52 (Ink-Pens 5 "ochre") 0
 Spine ($midCy + 60) 1380

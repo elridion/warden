@@ -10,7 +10,8 @@
 - Hulls of wards with different radii merge correctly.
 - Hover text shows the ward's level and radius.
 - Offering cup uses a chalice model from The Base Mesh (CC0).
-- Ritual candles: a cluster of always-lit resin candles of different heights.
+- Ritual candles: a cluster of always-lit resin candles of different heights. Unlike the other
+  upgrades they stack: each cluster in range counts, up to `MaxStackedUpgrades` (4).
 - Upgrades need no workbench, only a warden stone within range, and say so when placed too far.
 - Runed hide banner has its own texture: a torn, swallowtailed hide writ with tin-inked runes in two
   panels around a braided spine, red-ochre knot bands, and an Algiz medallion at the head.
