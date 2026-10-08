@@ -8,7 +8,7 @@ Valheim mod that adds the **Warden Stone**, a buildable ward that blocks creatur
   Cost: 15 Stone, 10 Greydwarf Eye, 2 Surtling Core.
 - While active, random world spawns inside the radius are blocked.
 - Toggle on/off by interacting with it. Hover to show its radius.
-- A translucent amber dome marks the protected area while the ward is active.
+- A soft amber haze sphere marks the protected area while the ward is active.
 - Optional: also block raid/event spawns (off by default; raiders can still walk in from outside).
 
 ## Configuration
@@ -20,7 +20,7 @@ Valheim mod that adds the **Warden Stone**, a buildable ward that blocks creatur
 | --- | --- | --- |
 | `Radius` | 60 | Block radius in meters (4-128) |
 | `BlockEventSpawns` | false | Also block raid/event spawns |
-| `ShowHull` | Always | Dome visibility: `Always`, `OnHover` or `Off` |
+| `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
 
 ## Requirements
 

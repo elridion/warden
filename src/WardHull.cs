@@ -3,15 +3,22 @@ using UnityEngine;
 namespace Warden
 {
     /// <summary>
-    /// Translucent lattice dome that visualizes a ward's radius. Kept as a separate root object
+    /// Soft amber haze sphere that visualizes a ward's radius. Kept as a separate root object
     /// so piece highlighting and placement tinting don't touch its material.
     /// </summary>
-    internal static class WardHull
+    internal class WardHull : MonoBehaviour
     {
-        private const int Segments = 96;
-        private const int Rings = 24;
-        private const float LatticeColumns = 48f;
-        private const float LatticeRows = 10f;
+        private const int Segments = 64;
+        private const int Rings = 32;
+        private const float NoiseTilesAround = 3f;
+        private const float NoiseTilesVertical = 1.5f;
+
+        // Edge glow: alpha rises where the surface turns away from the viewer.
+        private const float BaseAlpha = 0.02f;
+        private const float RimAlpha = 0.32f;
+        private const float RimSharpness = 2.5f;
+        private const float PulseAmount = 0.12f;
+        private const float PulseSpeed = 0.7f;
 
         private static readonly string[] s_shaderCandidates =
         {
@@ -20,9 +27,13 @@ namespace Warden
             "Legacy Shaders/Particles/Alpha Blended",
         };
 
-        private static Mesh s_mesh;
+        private static Mesh s_templateMesh;
+        private static Vector3[] s_normals;
         private static Material s_material;
         private static bool s_failed;
+
+        private Mesh m_mesh;
+        private Color32[] m_colors;
 
         public static GameObject Create(string name)
         {
@@ -31,13 +42,48 @@ namespace Warden
             if (!EnsureResources()) return null;
 
             var hull = new GameObject(name);
-            hull.AddComponent<MeshFilter>().sharedMesh = s_mesh;
+            hull.SetActive(false);
+            var component = hull.AddComponent<WardHull>();
+            component.m_mesh = Instantiate(s_templateMesh);
+            component.m_colors = new Color32[s_normals.Length];
+
+            hull.AddComponent<MeshFilter>().sharedMesh = component.m_mesh;
             var renderer = hull.AddComponent<MeshRenderer>();
             renderer.sharedMaterial = s_material;
             renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
             renderer.receiveShadows = false;
-            hull.SetActive(false);
             return hull;
+        }
+
+        private void OnDestroy()
+        {
+            if (m_mesh) Destroy(m_mesh);
+        }
+
+        private void LateUpdate()
+        {
+            var cam = Camera.main;
+            if (!cam) return;
+
+            float time = Time.time;
+            s_material.mainTextureOffset = new Vector2(time * 0.004f, time * 0.0025f);
+
+            Vector3 center = transform.position;
+            float radius = transform.localScale.x;
+            Vector3 camPos = cam.transform.position;
+            float pulse = 1f - PulseAmount + PulseAmount * Mathf.Sin(time * PulseSpeed);
+
+            for (int i = 0; i < s_normals.Length; i++)
+            {
+                Vector3 normal = s_normals[i];
+                Vector3 toVertex = center + normal * radius - camPos;
+                float facing = Mathf.Abs(Vector3.Dot(normal, toVertex.normalized));
+                float rim = Mathf.Pow(1f - facing, RimSharpness);
+                float alpha = (BaseAlpha + RimAlpha * rim) * pulse;
+                m_colors[i] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(alpha) * 255f));
+            }
+
+            m_mesh.colors32 = m_colors;
         }
 
         private static bool EnsureResources()
@@ -59,28 +105,27 @@ namespace Warden
                 return false;
             }
 
-            s_mesh = BuildDome();
+            s_templateMesh = BuildSphere(out s_normals);
             s_material = new Material(shader)
             {
                 name = "warden_hull",
-                mainTexture = BuildLatticeTexture(),
-                color = new Color(1f, 0.72f, 0.3f, 1f),
+                mainTexture = BuildHazeTexture(),
+                color = new Color(1f, 0.66f, 0.25f, 1f),
             };
             return true;
         }
 
-        // Unit hemisphere with vertex alpha fading toward the top.
-        private static Mesh BuildDome()
+        // Unit UV sphere; vertex positions double as normals.
+        private static Mesh BuildSphere(out Vector3[] normals)
         {
             var vertices = new Vector3[(Segments + 1) * (Rings + 1)];
             var uvs = new Vector2[vertices.Length];
-            var colors = new Color[vertices.Length];
             var triangles = new int[Segments * Rings * 6];
 
             for (int ring = 0; ring <= Rings; ring++)
             {
                 float v = (float)ring / Rings;
-                float lat = v * Mathf.PI * 0.5f;
+                float lat = (v - 0.5f) * Mathf.PI;
                 float y = Mathf.Sin(lat);
                 float r = Mathf.Cos(lat);
 
@@ -90,8 +135,7 @@ namespace Warden
                     float lon = u * Mathf.PI * 2f;
                     int i = ring * (Segments + 1) + seg;
                     vertices[i] = new Vector3(r * Mathf.Cos(lon), y, r * Mathf.Sin(lon));
-                    uvs[i] = new Vector2(u * LatticeColumns, v * LatticeRows);
-                    colors[i] = new Color(1f, 1f, 1f, Mathf.Lerp(1f, 0.35f, v));
+                    uvs[i] = new Vector2(u * NoiseTilesAround, v * NoiseTilesVertical);
                 }
             }
 
@@ -111,32 +155,31 @@ namespace Warden
                 }
             }
 
+            normals = vertices;
             var mesh = new Mesh
             {
-                name = "warden_hull_dome",
+                name = "warden_hull_sphere",
                 vertices = vertices,
                 uv = uvs,
-                colors = colors,
+                colors32 = new Color32[vertices.Length],
                 triangles = triangles,
             };
             mesh.RecalculateBounds();
+            mesh.MarkDynamic();
             return mesh;
         }
 
-        // One lattice cell: faint fill with soft bright edges, tiled across the dome.
-        private static Texture2D BuildLatticeTexture()
+        // Tileable soft noise so the haze drifts instead of reading as a flat shell.
+        private static Texture2D BuildHazeTexture()
         {
-            const int size = 64;
-            const float fillAlpha = 0.05f;
-            const float lineAlpha = 0.55f;
-            const float lineWidth = 2.5f;
+            const int size = 128;
+            const float scale = 4f / size;
 
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, true)
             {
-                name = "warden_hull_lattice",
+                name = "warden_hull_haze",
                 wrapMode = TextureWrapMode.Repeat,
                 filterMode = FilterMode.Trilinear,
-                anisoLevel = 4,
             };
 
             var pixels = new Color[size * size];
@@ -144,15 +187,28 @@ namespace Warden
             {
                 for (int x = 0; x < size; x++)
                 {
-                    float edge = Mathf.Min(Mathf.Min(x, size - 1 - x), Mathf.Min(y, size - 1 - y));
-                    float line = 1f - Mathf.Clamp01(edge / lineWidth);
-                    pixels[y * size + x] = new Color(1f, 1f, 1f, Mathf.Lerp(fillAlpha, lineAlpha, line));
+                    float noise = TileableNoise(x, y, size, scale) * 0.65f
+                                + TileableNoise(x * 2 % size, y * 2 % size, size, scale) * 0.35f;
+                    float alpha = Mathf.Lerp(0.45f, 1f, Mathf.SmoothStep(0.25f, 0.75f, noise));
+                    pixels[y * size + x] = new Color(1f, 1f, 1f, alpha);
                 }
             }
 
             texture.SetPixels(pixels);
             texture.Apply(true, true);
             return texture;
+        }
+
+        // Blends four offset Perlin samples so opposite edges match.
+        private static float TileableNoise(int x, int y, int size, float scale)
+        {
+            float fx = (float)x / size;
+            float fy = (float)y / size;
+            float a = Mathf.PerlinNoise(x * scale, y * scale);
+            float b = Mathf.PerlinNoise((x - size) * scale, y * scale);
+            float c = Mathf.PerlinNoise(x * scale, (y - size) * scale);
+            float d = Mathf.PerlinNoise((x - size) * scale, (y - size) * scale);
+            return a * (1 - fx) * (1 - fy) + b * fx * (1 - fy) + c * (1 - fx) * fy + d * fx * fy;
         }
     }
 }

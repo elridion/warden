@@ -41,7 +41,7 @@ namespace Warden
                 new ConfigDescription("Also block raid/event spawns inside the radius. Event creatures can still walk in from outside.",
                     null, adminOnly));
             ShowHull = Config.Bind("Visuals", "ShowHull", HullVisibility.Always,
-                "When to show the translucent dome marking an active ward's radius. Client-side only.");
+                "When to show the amber haze marking an active ward's radius. Client-side only.");
 
             AddLocalizations();
             PrefabManager.OnVanillaPrefabsAvailable += AddPieces;
