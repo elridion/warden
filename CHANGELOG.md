@@ -20,7 +20,9 @@
   A normal map presses the runes into the hide and rounds its torn edge.
 - Runed hide banner has its own build menu icon showing its design, instead of the vanilla banner's.
 - All Warden pieces are listed only under the hammer's Defense tab, next to the vanilla ward; upgrades show the build menu upgrade arrow.
-- Warden stone recolored: grey stone with amber runes and glow, so it reads apart from the vanilla ward.
+- Warden stone recolored: grey stone, so it reads apart from the vanilla ward. Its runes, light and
+  sparks glow like the vanilla ward's instead of glaring.
+- Ritual candles burn again: their flames and light were switched off.
 
 ## 0.2.0
 

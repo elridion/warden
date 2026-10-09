@@ -113,10 +113,9 @@ namespace Warden
         }
 
         private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
-        private static readonly Color s_wardRuneGlow = new Color(1f, 0.55f, 0.15f);
-        private const float WardGlowScale = 0.6f;
-
-        // Grey stone with amber runes, so the warden stone reads apart from the vanilla ward.
+        // Grey stone, so the warden stone reads apart from the vanilla ward. The runes, light and
+        // sparks keep the vanilla ward's amber glow: it is already amber, and recolouring the
+        // sparks lost their faint per-particle alpha and made the stone glare.
         // Works on copies of the materials; the area marker keeps its look.
         private static void RecolorWard(GameObject prefab, SpawnWard ward)
         {
@@ -135,35 +134,9 @@ namespace Warden
 
                     var copy = new Material(source) { name = source.name + "_warden" };
                     if (copy.HasProperty("_Color")) copy.SetColor("_Color", copy.GetColor("_Color") * s_wardStoneTint);
-                    if (copy.HasProperty("_EmissionColor"))
-                    {
-                        // Only materials that already glow (the runes) get the amber; giving the stone
-                        // body emission washes its texture out to a flat glow. Tone the runes down a little.
-                        var original = copy.GetColor("_EmissionColor");
-                        float strength = original.maxColorComponent;
-                        if (strength > 0.01f) copy.SetColor("_EmissionColor", s_wardRuneGlow * strength * WardGlowScale);
-                    }
                     materials[i] = copy;
                 }
                 renderer.sharedMaterials = materials;
-            }
-
-            // The "on" effect's lights and sparks follow the rune colour, keeping their own
-            // transparency so the sparks stay faint.
-            if (ward.m_enabledEffect)
-            {
-                foreach (var light in ward.m_enabledEffect.GetComponentsInChildren<Light>(true))
-                {
-                    light.color = s_wardRuneGlow;
-                    light.intensity *= WardGlowScale;
-                }
-                foreach (var ps in ward.m_enabledEffect.GetComponentsInChildren<ParticleSystem>(true))
-                {
-                    var main = ps.main;
-                    var glow = s_wardRuneGlow;
-                    glow.a = main.startColor.mode == ParticleSystemGradientMode.Color ? main.startColor.color.a : 1f;
-                    main.startColor = new ParticleSystem.MinMaxGradient(glow);
-                }
             }
         }
 
@@ -460,13 +433,15 @@ namespace Warden
         }
 
         // Keep a flame burning without fuel: freeze the fireplace's lit state, then drop it.
+        // The resin candle has no m_enabledObject; its flame and light are the high/low quality
+        // variants, of which vanilla shows one by graphics setting. Keep the high one.
         private static void LightFireplace(GameObject root)
         {
             foreach (var fireplace in root.GetComponentsInChildren<Fireplace>(true))
             {
                 SetActive(fireplace.m_enabledObject, true);
                 SetActive(fireplace.m_enabledObjectLow, false);
-                SetActive(fireplace.m_enabledObjectHigh, false);
+                SetActive(fireplace.m_enabledObjectHigh, true);
                 SetActive(fireplace.m_fullObject, true);
                 SetActive(fireplace.m_halfObject, false);
                 SetActive(fireplace.m_emptyObject, false);
