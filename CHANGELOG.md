@@ -16,6 +16,7 @@
 - Runed hide banner has its own texture: a torn, swallowtailed hide writ with tin-inked runes in two
   panels around a braided spine, red-ochre knot bands, and an Algiz medallion at the head.
   A normal map presses the runes into the hide and rounds its torn edge.
+- Runed hide banner has its own build menu icon showing its design, instead of the vanilla banner's.
 - All Warden pieces are listed only under the hammer's Defense tab, next to the vanilla ward; upgrades show the build menu upgrade arrow.
 - Warden stone recolored: grey stone with amber runes and glow, so it reads apart from the vanilla ward.
 
