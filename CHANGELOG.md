@@ -8,6 +8,8 @@
 - Radius now scales with level: 40 m base, +20 m per upgrade (180 m fully upgraded) (`BaseRadius`, `RadiusPerUpgrade`).
   Replaces the old `Radius` setting.
 - Hulls of wards with different radii merge correctly.
+- Ward hulls are much cheaper to draw: several wards no longer cost a noticeable amount of frame rate.
+- The placement preview's hull no longer stays behind after switching to remove mode or removing a ward.
 - Hover text shows the ward's level and radius.
 - Offering cup uses a chalice model from The Base Mesh (CC0).
 - Ritual candles: a cluster of always-lit resin candles of different heights. Unlike the other
