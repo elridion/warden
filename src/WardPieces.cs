@@ -23,6 +23,15 @@ namespace Warden
         // Flat normal in the DXT5nm-style layout the banner normal map uses (X in alpha, Y in green).
         private static readonly Color32 s_flatNormal = new Color32(255, 128, 255, 128);
         private static readonly Color s_parchmentTint = new Color(0.8f, 0.78f, 0.75f);
+        // Banner build-menu icon: the mirrored design hanging from a crossbar, in a square sprite.
+        private const int BannerIconSize = 128;
+        private const int BannerIconMargin = 4;
+        // Share of the design's top cut off; in game that strip is behind the crossbar too.
+        private const float BannerIconTopCrop = 0.06f;
+        private const int BannerIconBarHeight = 7;
+        private const int BannerIconBarOverhang = 9;
+        private static readonly Color32 s_bannerIconWood = new Color32(92, 64, 40, 255);
+        private static readonly Color32 s_bannerIconWoodEdge = new Color32(48, 32, 20, 255);
         private const string IdolModelPrefab = "StatueDeer";
         private const float IdolHeight = 0.9f;
         private static readonly Color s_blackMetalTint = new Color(0.2f, 0.21f, 0.23f);
@@ -186,17 +195,21 @@ namespace Warden
         private static CustomPiece CreateBanner(string name, PieceConfig config)
         {
             if (!RequirePrefab(BannerBasePrefab)) return null;
+            var design = LoadEmbeddedTexture(BannerTextureResource, false);
+            // Without an icon the clone keeps the vanilla banner's, which shows a different design.
+            // Rendering the prefab doesn't help: the 3 m cloth strip comes out a thin sliver at icon
+            // size, so the icon is drawn flat from the design instead.
+            config.Icon = BuildBannerIcon(design);
             var piece = new CustomPiece(name, BannerBasePrefab, config);
-            ApplyBannerTexture(piece.PiecePrefab);
+            ApplyBannerTexture(piece.PiecePrefab, design);
             return piece;
         }
 
         // Swaps the banner cloth's texture for the runed parchment, on fresh material copies so vanilla
         // banners keep theirs. The cloth is simulated by MagicaCloth from the original mesh, so instead of
         // touching its UVs we place the design into an atlas at the strip of UV space the cloth samples.
-        private static void ApplyBannerTexture(GameObject prefab)
+        private static void ApplyBannerTexture(GameObject prefab, Texture2D design)
         {
-            var design = LoadEmbeddedTexture(BannerTextureResource, false);
             if (!design) return;
             var normalDesign = LoadEmbeddedTexture(BannerNormalResource, true);
 
@@ -222,6 +235,84 @@ namespace Warden
                 }
                 r.sharedMaterials = materials;
             }
+        }
+
+        // The design is only the banner's left half; mirror it at its right edge to get the whole cloth.
+        // Each icon pixel box-filters the design area it covers: point or bilinear samples at this
+        // shrink (about 14:1) would alias the runes into speckle.
+        private static Sprite BuildBannerIcon(Texture2D design)
+        {
+            if (!design) return null;
+
+            int halfW = design.width, srcH = Mathf.RoundToInt(design.height * (1f - BannerIconTopCrop));
+            int fullW = halfW * 2;
+            var src = design.GetPixels32();
+
+            int bannerTop = BannerIconMargin + BannerIconBarHeight / 2;
+            int bannerH = BannerIconSize - BannerIconMargin - bannerTop;
+            int bannerW = Mathf.RoundToInt(bannerH * (float)fullW / srcH);
+            int bannerX = (BannerIconSize - bannerW) / 2;
+            float scale = (float)srcH / bannerH;
+
+            var pixels = new Color32[BannerIconSize * BannerIconSize];
+            for (int row = 0; row < bannerH; row++)
+            {
+                // Rows count down from the banner's top; textures store the bottom row first.
+                int y = BannerIconSize - 1 - bannerTop - row;
+                int sy0 = srcH - 1 - Mathf.FloorToInt((row + 1) * scale - 0.001f);
+                int sy1 = srcH - 1 - Mathf.FloorToInt(row * scale);
+                for (int col = 0; col < bannerW; col++)
+                {
+                    int sx0 = Mathf.FloorToInt(col * scale), sx1 = Mathf.Min(Mathf.FloorToInt((col + 1) * scale - 0.001f), fullW - 1);
+                    pixels[y * BannerIconSize + bannerX + col] = AverageMirrored(src, halfW, sx0, sx1, Mathf.Max(sy0, 0), sy1);
+                }
+            }
+
+            int barX0 = Mathf.Max(bannerX - BannerIconBarOverhang, 0);
+            int barX1 = Mathf.Min(bannerX + bannerW + BannerIconBarOverhang, BannerIconSize);
+            for (int i = 0; i < BannerIconBarHeight; i++)
+            {
+                int y = BannerIconSize - 1 - BannerIconMargin - i;
+                bool edge = i == 0 || i == BannerIconBarHeight - 1;
+                for (int x = barX0; x < barX1; x++)
+                    pixels[y * BannerIconSize + x] = edge || x == barX0 || x == barX1 - 1 ? s_bannerIconWoodEdge : s_bannerIconWood;
+            }
+
+            var texture = new Texture2D(BannerIconSize, BannerIconSize, TextureFormat.RGBA32, false)
+            {
+                name = "warden_banner_icon",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear,
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(false, true);
+            return Sprite.Create(texture, new Rect(0f, 0f, BannerIconSize, BannerIconSize), new Vector2(0.5f, 0.5f));
+        }
+
+        // Alpha-weighted average of a block of the mirrored design, tinted like the in-game parchment.
+        // Weighting by alpha keeps the colour of fully cut-away pixels out of the torn edge.
+        private static Color32 AverageMirrored(Color32[] src, int halfW, int x0, int x1, int y0, int y1)
+        {
+            float r = 0f, g = 0f, b = 0f, a = 0f;
+            int count = 0;
+            for (int y = y0; y <= y1; y++)
+            {
+                for (int x = x0; x <= x1; x++)
+                {
+                    var c = src[y * halfW + (x < halfW ? x : 2 * halfW - 1 - x)];
+                    r += c.r * c.a;
+                    g += c.g * c.a;
+                    b += c.b * c.a;
+                    a += c.a;
+                    count++;
+                }
+            }
+            if (a <= 0f) return new Color32(0, 0, 0, 0);
+            return new Color32(
+                (byte)(r / a * s_parchmentTint.r),
+                (byte)(g / a * s_parchmentTint.g),
+                (byte)(b / a * s_parchmentTint.b),
+                (byte)(a / count));
         }
 
         private static bool TryGetUvRect(Renderer renderer, out Rect rect)
