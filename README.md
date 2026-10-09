@@ -17,16 +17,16 @@ and upgrade pieces that extend its reach.
 ## Upgrades
 
 Like crafting station extensions: build them within 5 m of a warden stone. Each distinct upgrade raises
-the stone's level by one and its radius by 15 m; a second banner, idol or cup adds nothing. Ritual
-candles stack: every cluster in range counts, up to 4, so a fully upgraded stone reaches 145 m.
+the stone's level by one and its radius by 20 m; a second banner, idol or cup adds nothing. Ritual
+candles stack: every cluster in range counts, up to 4, so a fully upgraded stone reaches 180 m.
 
 | Level | Upgrade | Biome | Cost | Radius |
 | --- | --- | --- | --- | --- |
 | 1 | Warden stone | Black Forest | 15 Stone, 10 Greydwarf Eye, 2 Surtling Core | 40 m |
-| 2 | Runed hide banner | Black Forest | 6 Leather Scraps, 2 Fine Wood, 4 Coal, 5 Tin | 55 m |
-| 3 | Sacred idol | Swamp | 20 Stone, 5 Iron, 3 Withered Bone | 70 m |
-| 4 | Offering cup | Mountain | 5 Silver, 5 Obsidian | 85 m |
-| 5-8 | Ritual candles (each) | Plains | 10 Tar, 10 Resin, 5 Candle Wick | 100-145 m |
+| 2 | Runed hide banner | Black Forest | 6 Leather Scraps, 2 Fine Wood, 4 Coal, 5 Tin | 60 m |
+| 3 | Sacred idol | Swamp | 20 Stone, 5 Iron, 3 Withered Bone | 80 m |
+| 4 | Offering cup | Mountain | 5 Silver, 5 Obsidian | 100 m |
+| 5-8 | Ritual candles (each) | Plains | 10 Tar, 10 Resin, 5 Candle Wick | 120-180 m |
 
 ## Configuration
 
@@ -36,7 +36,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | Key | Default | Description |
 | --- | --- | --- |
 | `BaseRadius` | 40 | Radius in meters without upgrades (4-128) |
-| `RadiusPerUpgrade` | 15 | Meters added per upgrade (0-64) |
+| `RadiusPerUpgrade` | 20 | Meters added per upgrade (0-64) |
 | `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20) |
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
 | `BlockEventSpawns` | false | Also block raid/event spawns |

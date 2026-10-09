@@ -34,7 +34,7 @@ namespace Warden
             BaseRadius = Config.Bind("General", "BaseRadius", 40f,
                 new ConfigDescription("Radius in meters of a warden stone without upgrades.",
                     new AcceptableValueRange<float>(4f, 128f), adminOnly));
-            RadiusPerUpgrade = Config.Bind("General", "RadiusPerUpgrade", 15f,
+            RadiusPerUpgrade = Config.Bind("General", "RadiusPerUpgrade", 20f,
                 new ConfigDescription("Radius in meters each distinct upgrade piece adds.",
                     new AcceptableValueRange<float>(0f, 64f), adminOnly));
             UpgradeRange = Config.Bind("General", "UpgradeRange", 5f,
