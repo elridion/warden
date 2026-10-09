@@ -5,7 +5,7 @@ and upgrade pieces that extend its reach.
 
 ## Features
 
-- Warden stone and its upgrades in the hammer's Base defense tab. The stone requires a workbench
+- Warden stone and its upgrades in the hammer's Defense tab. The stone requires a workbench
   nearby; upgrades only need a warden stone within range.
   Cost: 15 Stone, 10 Greydwarf Eye, 2 Surtling Core.
 - While active, random world spawns inside the radius are blocked.

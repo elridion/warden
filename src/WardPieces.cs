@@ -12,8 +12,11 @@ namespace Warden
     {
         public const string WardPrefabName = "piece_spawnward";
 
-        // Custom hammer tab; Jotunn creates it on first use.
-        private const string BuildCategory = "Base defense";
+        // A custom category name adds its own hammer tag, and an empty Usage lets Jotunn guess more
+        // tags from each piece's components and name. Vanilla Misc plus an explicit Defense usage
+        // lists every piece under Defense only, next to the vanilla ward.
+        private static readonly string BuildCategory = PieceCategories.Misc;
+        private static readonly string[] s_buildUsage = { PieceUsages.Defense };
 
         private const string WardBasePrefab = "guard_stone";
         private const string BannerBasePrefab = "piece_banner01";
@@ -70,6 +73,7 @@ namespace Warden
             Description = "$" + name + "_description",
             PieceTable = PieceTables.Hammer,
             Category = BuildCategory,
+            Usage = s_buildUsage,
             CraftingStation = craftingStation,
             Requirements = requirements,
         };

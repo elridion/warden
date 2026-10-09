@@ -13,7 +13,8 @@ Lessons this codebase already paid for. Follow them when adding or changing piec
   in `WardenPlugin.Awake`; it unsubscribes itself so it runs once. New pieces go there too.
 - Look vanilla prefabs up with `PrefabManager.Cache.GetPrefab<GameObject>(name)` and guard with
   `RequirePrefab`, so a renamed vanilla prefab skips one piece with a warning instead of breaking the mod.
-- Piece configs come from the `Config(...)` helper: hammer piece table, the `"Base defense"` category,
+- Piece configs come from the `Config(...)` helper: hammer piece table, vanilla `Misc` category with the `Defense` usage only
+  (a custom category or an empty usage adds extra hammer tags),
   `$`-prefixed localization tokens. Only the warden stone needs a crafting station (workbench);
   upgrades must not have one, since "near a warden stone" is their requirement.
 - Requirements use the `Req(item, amount)` helper with vanilla item prefab names (`"GreydwarfEye"`,
