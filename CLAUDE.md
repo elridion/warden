@@ -28,6 +28,7 @@ description, costs and config table live in `README.md`; release history in `CHA
 | `assets/` | Embedded resources (banner textures, cup OBJ); FBX kept as source only |
 | `tools/` | PowerShell generators for the banner albedo and normal map |
 | `package/icon.png` | Thunderstore icon |
+| `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release on `v*` tags |
 
 ## Commands
 

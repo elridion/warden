@@ -1,0 +1,110 @@
+﻿# Builds the mod on every push and pull request, and publishes a GitHub release with the
+# Thunderstore-format zip when a version tag (v1.2.3) is pushed.
+#
+# CI has no Valheim install, so it downloads the free dedicated server (Steam app 896660, anonymous
+# login) for the Unity/Valheim assemblies and the BepInExPack for the BepInEx/Harmony assemblies.
+# Jotunn's prebuild publicizes the assemblies from <install>/Valheim_Data/Managed; the server ships
+# them in valheim_server_Data, so a symlink bridges the name.
+
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Outside the checkout so the SDK's default item globs never walk the game files
+  CI_DIR: /home/runner/warden-ci
+  VALHEIM_DIR: /home/runner/warden-ci/valheim
+  BEPINEX_DIR: /home/runner/warden-ci/bepinex
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # One cache entry per ISO week; app_update below patches a stale copy in place
+      - id: week
+        run: echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore Valheim server cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.VALHEIM_DIR }}
+          key: valheim-server-${{ steps.week.outputs.week }}
+          restore-keys: valheim-server-
+
+      - name: Install or update Valheim dedicated server
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lib32gcc-s1
+          mkdir -p "$CI_DIR/steamcmd" "$VALHEIM_DIR"
+          curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz -C "$CI_DIR/steamcmd"
+          # steamcmd can exit non-zero after a successful self-update; the test below is the real check
+          "$CI_DIR/steamcmd"/steamcmd.sh +force_install_dir "$VALHEIM_DIR" +login anonymous +app_update 896660 validate +quit || true
+          test -d "$VALHEIM_DIR/valheim_server_Data/Managed"
+          ln -sfn valheim_server_Data "$VALHEIM_DIR/Valheim_Data"
+
+      - name: Download BepInExPack_Valheim
+        run: |
+          url=$(curl -fsSL https://thunderstore.io/api/experimental/package/denikson/BepInExPack_Valheim/ | jq -r '.latest.download_url')
+          curl -fsSL "$url" -o "$CI_DIR/bepinex.zip"
+          unzip -q "$CI_DIR/bepinex.zip" -d "$CI_DIR/bepinexpack"
+          mv "$CI_DIR/bepinexpack"/BepInExPack_Valheim/BepInEx "$BEPINEX_DIR"
+          test -f "$BEPINEX_DIR/core/BepInEx.dll"
+
+      - name: Check version tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          csproj=$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Warden.csproj)
+          plugin=$(sed -n 's:.*PluginVersion = "\(.*\)";.*:\1:p' src/WardenPlugin.cs)
+          echo "tag=$tag csproj=$csproj plugin=$plugin"
+          [ "$tag" = "$csproj" ] && [ "$tag" = "$plugin" ] || { echo "::error::Tag, Warden.csproj and WardenPlugin.PluginVersion must match"; exit 1; }
+          grep -q "^## $tag\$" CHANGELOG.md || { echo "::error::CHANGELOG.md has no '## $tag' section"; exit 1; }
+
+      - name: Build and package
+        run: >
+          dotnet build -c Release -t:Package
+          -p:DeployToGame=false
+          -p:VALHEIM_INSTALL="$VALHEIM_DIR"
+          -p:BEPINEX_PATH="$BEPINEX_DIR"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: warden-package
+          path: dist/*.zip
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: warden-package
+          path: dist
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v h="## $version" '$0 == h {on=1; next} on && /^## / {exit} on' CHANGELOG.md > notes.md
+          gh release create "$GITHUB_REF_NAME" dist/*.zip --title "Warden $version" --notes-file notes.md

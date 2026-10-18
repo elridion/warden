@@ -58,3 +58,12 @@ four stacking candle clusters, a fully upgraded stone has level 8 and 180 m.
   `-p:DeployToGame=false`.
 - `package/icon.png` is the Thunderstore icon (256 x 256 PNG).
 - Publishing the zip to Thunderstore or another mod site is outward-facing; only the user does that.
+
+## CI (`.github/workflows/build.yml`)
+
+- Every push to `main` and every pull request builds the package on Ubuntu against the Valheim
+  dedicated server (SteamCMD, anonymous) and the latest BepInExPack_Valheim, and uploads the zip as
+  the `warden-package` artifact.
+- Pushing a tag `vX.Y.Z` also fails unless the tag, `<Version>` and `PluginVersion` match and
+  `CHANGELOG.md` has a `## X.Y.Z` section, then creates a GitHub release with the zip and that
+  section as notes. Tagging and pushing is a release; only do it when the user asks.
