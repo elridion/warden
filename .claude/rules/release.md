@@ -67,3 +67,7 @@ four stacking candle clusters, a fully upgraded stone has level 8 and 180 m.
 - Pushing a tag `vX.Y.Z` also fails unless the tag, `<Version>` and `PluginVersion` match and
   `CHANGELOG.md` has a `## X.Y.Z` section, then creates a GitHub release with the zip and that
   section as notes. Tagging and pushing is a release; only do it when the user asks.
+- After the GitHub release, the `hexium` job uploads the same zip to Hexium as team `el_team`
+  through `.github/scripts/publish-hexium.sh`, using the `HEXIUM_TOKEN` secret and the `hexium`
+  GitHub environment. Categories default to the list in that script (`HEXIUM_CATEGORIES` overrides).
+  Hexium's API is undocumented (see `docs/hexium-release.md`).

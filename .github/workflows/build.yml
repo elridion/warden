@@ -108,3 +108,24 @@ jobs:
           version="${GITHUB_REF_NAME#v}"
           awk -v h="## $version" '$0 == h {on=1; next} on && /^## / {exit} on' CHANGELOG.md > notes.md
           gh release create "$GITHUB_REF_NAME" dist/*.zip --title "Warden $version" --notes-file notes.md
+
+  # Publishing is public and cannot be taken back from here. Add required reviewers to the
+  # "hexium" environment in the repo settings to approve each publish by hand.
+  hexium:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: release
+    runs-on: ubuntu-latest
+    environment: hexium
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: warden-package
+          path: dist
+
+      - name: Publish to Hexium
+        env:
+          HEXIUM_TOKEN: ${{ secrets.HEXIUM_TOKEN }}
+          HEXIUM_AUTHOR: el_team
+        run: bash .github/scripts/publish-hexium.sh dist/Warden-"${GITHUB_REF_NAME#v}".zip
