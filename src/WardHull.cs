@@ -117,13 +117,15 @@ namespace Warden
         public void SetRadius(float radius)
         {
             if (Mathf.Approximately(radius, m_radius)) return;
+            bool firstCall = m_radius < 0f;
             m_radius = radius;
 
             for (int i = 0; i < s_unitSphere.Length; i++) m_vertices[i] = s_unitSphere[i] * radius;
             m_mesh.vertices = m_vertices;
             m_mesh.uv = s_baseUvs;
             m_mesh.colors32 = m_colors;
-            if (m_mesh.triangles.Length == 0) m_mesh.triangles = s_triangles;
+            // Triangles need the vertices in place first. Set them once: reading m_mesh.triangles copies the array.
+            if (firstCall) m_mesh.triangles = s_triangles;
             m_mesh.RecalculateBounds();
 
             if (m_motes)

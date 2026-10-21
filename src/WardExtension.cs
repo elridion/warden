@@ -54,7 +54,7 @@ namespace Warden
         {
             m_piece = GetComponent<Piece>();
             var nview = GetComponent<ZNetView>();
-            if (nview && nview.GetZDO() != null) s_instances.Add(this);
+            if (nview && nview.IsValid()) s_instances.Add(this);
         }
 
         private void OnDestroy()

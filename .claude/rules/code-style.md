@@ -51,6 +51,6 @@ game classes it extends.
   failed piece build). No `Debug.Log`.
 - Do not leave diagnostic logging in committed code; remove it once a problem is understood.
 - A missing vanilla prefab or resource should log a warning and skip that feature, not throw.
-  Upgrade pieces are guarded this way (`RequirePrefab` plus the try/catch in `AddExtension`). The
-  warden stone itself (`AddWard`) is not: if `guard_stone` were missing, `Register` would throw and the
-  upgrades after it would not register. Guard any new piece like the upgrades.
+  Every piece is guarded this way (`RequirePrefab` plus a try/catch, in `AddWard` and
+  `AddExtension`), so one broken piece never stops the others from registering. Guard any new piece
+  the same way.

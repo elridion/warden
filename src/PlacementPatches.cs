@@ -10,8 +10,16 @@ namespace Warden
     [HarmonyPatch(typeof(Player), "UpdatePlacementGhost")]
     internal static class PlacementPatches
     {
-        private static readonly Action<Player, bool> s_setPlacementGhostValid =
-            AccessTools.MethodDelegate<Action<Player, bool>>(AccessTools.Method(typeof(Player), "SetPlacementGhostValid"));
+        // Null if a game update renames the method. Throwing here instead would fail the type
+        // initializer and break this postfix, and with it placement of every piece. Without the
+        // delegate the status still blocks placement; only the ghost's red tint is lost.
+        private static readonly Action<Player, bool> s_setPlacementGhostValid = CreateSetPlacementGhostValid();
+
+        private static Action<Player, bool> CreateSetPlacementGhostValid()
+        {
+            var method = AccessTools.Method(typeof(Player), "SetPlacementGhostValid");
+            return method != null ? AccessTools.MethodDelegate<Action<Player, bool>>(method) : null;
+        }
 
         private static void Postfix(Player __instance, GameObject ___m_placementGhost, ref Player.PlacementStatus ___m_placementStatus)
         {
@@ -31,10 +39,9 @@ namespace Warden
             if (___m_placementStatus == Player.PlacementStatus.Valid)
             {
                 ___m_placementStatus = Player.PlacementStatus.ExtensionMissingStation;
-                s_setPlacementGhostValid(__instance, false);
+                s_setPlacementGhostValid?.Invoke(__instance, false);
             }
         }
-
     }
 
     /// <summary>

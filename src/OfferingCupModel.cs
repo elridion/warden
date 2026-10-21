@@ -27,7 +27,15 @@ namespace Warden
 
         public static void Build(Transform parent, Material silver)
         {
-            var model = ObjLoader.LoadEmbedded(CupModelResource, "warden_cup_chalice");
+            Mesh model = null;
+            try
+            {
+                model = ObjLoader.LoadEmbedded(CupModelResource, "warden_cup_chalice");
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Offering cup model failed to load; using the fallback chalice: {e.Message}");
+            }
             if (model) AddPart(parent, "cup", model, silver, CupModelScale);
             else AddPart(parent, "cup", Lathe("warden_cup_chalice", s_fallbackProfile), silver, 1f);
 

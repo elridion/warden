@@ -26,10 +26,11 @@ namespace Warden
         private bool m_isGhost;
         private bool m_hovered;
         private int m_level = 1;
-        private float m_radius;
         private WardHull m_hull;
 
-        public float Radius => m_radius;
+        // Read from config every time, so server-synced radius changes apply at once. The level
+        // follows placed and removed upgrades once per second (UpdateStatus).
+        public float Radius => WardenPlugin.BaseRadius.Value + WardenPlugin.RadiusPerUpgrade.Value * (m_level - 1);
         public Vector3 ConnectionPoint => transform.position + Vector3.up * 1.2f;
 
         public static bool IsInsideActiveWard(Vector3 point)
@@ -41,7 +42,8 @@ namespace Warden
                 Vector3 pos = ward.transform.position;
                 float dx = pos.x - point.x;
                 float dz = pos.z - point.z;
-                if (dx * dx + dz * dz <= ward.m_radius * ward.m_radius) return true;
+                float radius = ward.Radius;
+                if (dx * dx + dz * dz <= radius * radius) return true;
             }
             return false;
         }
@@ -103,8 +105,7 @@ namespace Warden
         private void RefreshLevel()
         {
             m_level = 1 + WardExtension.CountUpgrades(transform.position);
-            m_radius = WardenPlugin.BaseRadius.Value + WardenPlugin.RadiusPerUpgrade.Value * (m_level - 1);
-            if (m_areaMarker) m_areaMarker.m_radius = m_radius;
+            if (m_areaMarker) m_areaMarker.m_radius = Radius;
         }
 
         // Other visible hulls close enough to overlap this one, as (center, radius), so the hull
@@ -113,17 +114,19 @@ namespace Warden
         {
             spheres.Clear();
             Vector3 pos = transform.position;
+            float radius = Radius;
 
             foreach (var other in s_instances)
             {
                 if (!other || other == this || !other.m_hull || !other.m_hull.IsVisible) continue;
 
                 Vector3 otherPos = other.transform.position;
+                float otherRadius = other.Radius;
                 float distance = Vector3.Distance(pos, otherPos);
-                if (distance >= m_radius + other.m_radius) continue;
+                if (distance >= radius + otherRadius) continue;
                 if (distance < 0.1f && !m_isGhost && other.GetInstanceID() > GetInstanceID()) continue;
 
-                spheres.Add(new Vector4(otherPos.x, otherPos.y, otherPos.z, other.m_radius));
+                spheres.Add(new Vector4(otherPos.x, otherPos.y, otherPos.z, otherRadius));
             }
         }
 
@@ -139,7 +142,7 @@ namespace Warden
                 default: show = false; break;
             }
 
-            m_hull.SetRadius(m_radius);
+            m_hull.SetRadius(Radius);
             m_hull.SetVisible(show);
         }
 
@@ -183,7 +186,7 @@ namespace Warden
             string state = enabled ? "$piece_guardstone_active" : "$piece_guardstone_inactive";
             string action = enabled ? "$piece_guardstone_deactivate" : "$piece_guardstone_activate";
             return Localization.instance.Localize(
-                $"{m_name} ( {state} )\n<color=#c0c0c0>$spawnward_level {m_level} · {m_radius:0} m</color>\n" +
+                $"{m_name} ( {state} )\n<color=#c0c0c0>$spawnward_level {m_level} · {Radius:0} m</color>\n" +
                 $"[<color=yellow><b>$KEY_Use</b></color>] {action}");
         }
 
@@ -193,7 +196,7 @@ namespace Warden
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
-            if (hold) return false;
+            if (hold || !m_nview || !m_nview.IsValid()) return false;
             if (!PrivateArea.CheckAccess(transform.position)) return true;
 
             m_nview.InvokeRPC(RpcToggle);

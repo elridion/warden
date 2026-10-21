@@ -15,10 +15,11 @@ namespace Warden
         // A custom category name adds its own hammer tag, and an empty Usage lets Jotunn guess more
         // tags from each piece's components and name. Vanilla Misc plus an explicit Defense usage
         // lists every piece under Defense only, next to the vanilla ward.
-        private static readonly string BuildCategory = PieceCategories.Misc;
+        private static readonly string s_buildCategory = PieceCategories.Misc;
         private static readonly string[] s_buildUsage = { PieceUsages.Defense };
 
         private const string WardBasePrefab = "guard_stone";
+        private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
         private const string BannerBasePrefab = "piece_banner01";
         private const string BannerTextureResource = "Warden.banner_runed_hide.png";
         private const string BannerNormalResource = "Warden.banner_runed_hide_n.png";
@@ -81,13 +82,26 @@ namespace Warden
             Name = "$" + name,
             Description = "$" + name + "_description",
             PieceTable = PieceTables.Hammer,
-            Category = BuildCategory,
+            Category = s_buildCategory,
             Usage = s_buildUsage,
             CraftingStation = craftingStation,
             Requirements = requirements,
         };
 
         private static void AddWard()
+        {
+            if (!RequirePrefab(WardBasePrefab)) return;
+            try
+            {
+                BuildWard();
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogError($"Failed to build {WardPrefabName}: {e}");
+            }
+        }
+
+        private static void BuildWard()
         {
             var config = Config(WardPrefabName, new[] { Req("Stone", 15), Req("GreydwarfEye", 10), Req("SurtlingCore", 2) }, CraftingStations.Workbench);
             var piece = new CustomPiece(WardPrefabName, WardBasePrefab, config);
@@ -112,7 +126,6 @@ namespace Warden
             PieceManager.Instance.AddPiece(piece);
         }
 
-        private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
         // Grey stone, so the warden stone reads apart from the vanilla ward. The runes, light and
         // sparks keep the vanilla ward's amber glow: it is already amber, and recolouring the
         // sparks lost their faint per-particle alpha and made the stone glare.
@@ -203,7 +216,7 @@ namespace Warden
                     uvRect = new Rect(0f, 0f, 1f, 1f);
                 }
                 var atlas = BuildAtlas(design, uvRect, s_atlasOutside, false);
-                var normalAtlas = normalDesign ? BuildAtlas(normalDesign, uvRect, s_flatNormal, true) : null;
+                var normalAtlas = normalDesign ? BuildAtlas(normalDesign, uvRect, s_flatNormal, true) : FlatNormalTexture();
 
                 for (int i = 0; i < materials.Length; i++)
                 {
@@ -347,6 +360,16 @@ namespace Warden
             return atlas;
         }
 
+        // Stands in for the banner normal map if it fails to load: a cleared _BumpMap slot falls back
+        // to whatever default the shader declares.
+        private static Texture2D FlatNormalTexture()
+        {
+            var texture = new Texture2D(1, 1, TextureFormat.RGBA32, false, true) { name = "warden_flat_normal" };
+            texture.SetPixels32(new[] { s_flatNormal });
+            texture.Apply(false, true);
+            return texture;
+        }
+
         // Matte parchment: swap the cloth's normal map for ours (the vanilla one doesn't line up with
         // our design), remove sheen, and alpha-clip the torn edges when the shader supports it.
         private static Material MakeParchmentMaterial(Material source, Texture2D atlas, Texture2D normalAtlas)
@@ -384,12 +407,16 @@ namespace Warden
                     return null;
                 }
 
+                // Stream.Read may return fewer bytes than asked for; read until the buffer is full.
                 var bytes = new byte[stream.Length];
-                stream.Read(bytes, 0, bytes.Length);
+                int read = 0, count;
+                while (read < bytes.Length && (count = stream.Read(bytes, read, bytes.Length - read)) > 0) read += count;
+
                 var texture = new Texture2D(2, 2, TextureFormat.RGBA32, true, linear) { name = resourceName };
                 if (!Jotunn.Utils.AssetUtils.LoadImage(texture, bytes))
                 {
                     Jotunn.Logger.LogWarning($"Embedded texture '{resourceName}' failed to decode.");
+                    Object.Destroy(texture);
                     return null;
                 }
                 texture.wrapMode = TextureWrapMode.Clamp;
@@ -422,7 +449,8 @@ namespace Warden
             }
 
             var collider = prefab.AddComponent<BoxCollider>();
-            var all = MeshBounds(prefab.transform, prefab.transform, true);            collider.center = all.center;
+            var all = MeshBounds(prefab.transform, prefab.transform, true);
+            collider.center = all.center;
             collider.size = all.size;
             SetupLoosePiece(prefab);
 
@@ -617,6 +645,8 @@ namespace Warden
 
         private static Sprite RenderIcon(GameObject prefab)
         {
+            // Dedicated servers have no graphics device to render with, and never show icons.
+            if (SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null) return null;
             try
             {
                 return RenderManager.Instance.Render(prefab, RenderManager.IsometricRotation);
@@ -639,7 +669,7 @@ namespace Warden
         private static bool RequirePrefab(string prefabName)
         {
             if (PrefabManager.Cache.GetPrefab<GameObject>(prefabName)) return true;
-            Jotunn.Logger.LogWarning($"Vanilla prefab '{prefabName}' not found; skipping its upgrade piece.");
+            Jotunn.Logger.LogWarning($"Vanilla prefab '{prefabName}' not found; skipping the piece built from it.");
             return false;
         }
 
