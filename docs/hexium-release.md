@@ -19,7 +19,15 @@ account, so it may only live in a GitHub Actions secret.
 
 ### Upload API
 
-There is no official API documentation. The flow below is taken from the source of the community
+Update 2026-10-21: Hexium publishes an OpenAPI spec at https://hexium.gg/api/openapi.json (rendered
+at https://hexium.gg/api/docs/). It confirms the flow below and adds
+`POST /api/mod/{namespace}/{name}/set-metadata` with `install_location` (`client`, `server`,
+`both`, `client_opt_server`) and `categories`. The 0.3.0 submit did not apply the categories it was sent, and a
+new listing defaults to install location `client` ("Client-only"), so the script calls
+`set-metadata` after submitting. "Client-only", "Client & Server" and similar are derived from the
+install location, not sent as categories.
+
+Originally there was no official API documentation. The flow below is taken from the source of the community
 action [Klastic/publish-to-hexium](https://github.com/Klastic/publish-to-hexium)
 ([`src/hexium.ts`](https://raw.githubusercontent.com/Klastic/publish-to-hexium/main/src/hexium.ts)).
 It is the same flow as Thunderstore's experimental API.

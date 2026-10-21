@@ -3,26 +3,32 @@
 #
 # Usage: HEXIUM_TOKEN=... publish-hexium.sh <package.zip>
 # Optional env: HEXIUM_AUTHOR (team namespace), HEXIUM_CATEGORIES (JSON array of category names),
-# HEXIUM_API (API base URL).
+# HEXIUM_INSTALL_LOCATION (client, server, both or client_opt_server), HEXIUM_API (API base URL).
 #
-# Hexium has no published API docs; this is the Thunderstore-style flow its API accepts:
-# initiate a multipart upload, PUT each part to its presigned URL, finish the upload with the
-# parts' ETags, then submit the upload for the Valheim community.
+# The flow follows Hexium's OpenAPI spec (https://hexium.gg/api/openapi.json): initiate a multipart
+# upload, PUT each part to its presigned URL, finish the upload with the parts' ETags, submit the
+# upload for the Valheim community, then set the listing's install location and categories.
+# Submitting does not apply either: a new listing defaults to the "Client-only" install location.
 
 set -Eeuo pipefail
 
 zip="${1:?usage: publish-hexium.sh <package.zip>}"
 : "${HEXIUM_TOKEN:?HEXIUM_TOKEN is not set}"
 author="${HEXIUM_AUTHOR:-el_team}"
-categories="${HEXIUM_CATEGORIES:-[\"Client & Server\", \"Building\", \"Pieces\", \"Valheim 1.0\", \"Open Source\"]}"
+# "Client & Server" and friends are not categories to send: Hexium derives them from the install location.
+categories="${HEXIUM_CATEGORIES:-[\"Building\", \"Pieces\", \"Valheim 1.0\", \"Open Source\"]}"
+# Every client and the server need the mod (NetworkCompatibility EveryoneMustHaveMod).
+install_location="${HEXIUM_INSTALL_LOCATION:-both}"
 api="${HEXIUM_API:-https://hexium.gg/api/experimental}"
 api="${api%/}"
+site="${api%/api/experimental}"
+name=$(unzip -p "$zip" manifest.json | jq -r '.name')
 
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
 post() {
-  curl -sS --fail-with-body -X POST "$api$1" \
+  curl -sS --fail-with-body -X POST "${3:-$api}$1" \
     -H "Authorization: Bearer $HEXIUM_TOKEN" \
     -H "Content-Type: application/json" \
     --data "$2"
@@ -78,3 +84,7 @@ echo "Submitted to Hexium as $author (hidden: $hidden)"
 if [ "$hidden" = "true" ]; then
   echo "::notice::Hexium accepted the package but reports it as hidden (it may still be scanning)."
 fi
+
+metadata=$(jq -n --arg l "$install_location" --argjson c "$categories" '{install_location: $l, categories: $c}')
+post "/api/mod/$author/$name/set-metadata" "$metadata" "$site" > "$work/metadata.json"
+echo "Set $author-$name metadata: $(jq -c '{install_location, categories}' "$work/metadata.json")"
