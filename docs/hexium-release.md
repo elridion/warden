@@ -40,7 +40,7 @@ Steps 1 to 3 only upload a file; step 4 is the publish. An accepted submission c
 
 ### Package format
 
-The zip needs `manifest.json`, `README.md` and `icon.png` at its root, and the manifest needs
+The zip needs `manifest.json`, `README.md` (from `package/README.md`) and `icon.png` at its root, and the manifest needs
 `name`, `version_number` (semver), `description`, `website_url` and `dependencies`. The zip that
 `dotnet build -c Release -t:Package` already writes for Thunderstore meets this.
 
@@ -69,8 +69,8 @@ means trusting unreviewed third-party code with publish rights.
 
 ## Open questions
 
-- Final category list. The script defaults to `Client & Server`, `Building`, `Pieces` and
-  `Valheim 1.0`; `Open Source` is left out because the GitHub repo was not publicly visible.
+- Final category list. The script defaults to `Client & Server`, `Building`, `Pieces`,
+  `Valheim 1.0` and `Open Source`; the last one assumes the GitHub repo is public when releasing.
 - Whether publishing should require approval through a protected environment (recommended).
 - Whether Jotunn is listed on Hexium as `ValheimModding-Jotunn`, so the manifest dependency
   `ValheimModding-Jotunn-2.30.2` resolves there.

@@ -2,7 +2,8 @@
 
 Valheim mod (BepInEx + Jotunn) adding the **Warden stone**: a buildable ward that blocks random
 creature spawns inside its radius, plus upgrade pieces that raise its level and radius. Player-facing
-description, costs and config table live in `README.md`; release history in `CHANGELOG.md`.
+description, costs and config table live in `package/README.md` (the mod page shipped in the package);
+the root `README.md` is the GitHub page for developers; release history in `CHANGELOG.md`.
 
 ## Stack
 
@@ -27,7 +28,8 @@ description, costs and config table live in `README.md`; release history in `CHA
 | `src/ObjLoader.cs`, `src/OfferingCupModel.cs` | Minimal OBJ reader and the offering cup model (with lathed fallback) |
 | `assets/` | Embedded resources (banner textures, cup OBJ); FBX kept as source only |
 | `tools/` | PowerShell generators for the banner albedo and normal map |
-| `package/icon.png` | Thunderstore icon |
+| `package/README.md`, `package/icon.png` | Mod page and icon shipped in the package (Thunderstore/Hexium) |
+| `docs/` | Design notes and research (crafting-station idea, Hexium publishing) |
 | `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release and the Hexium upload on `v*` tags |
 | `.github/scripts/publish-hexium.sh` | Uploads and submits the package zip to Hexium (called by the workflow) |
 
@@ -74,15 +76,16 @@ behaviour works on the strength of a successful build.
   place; clone first (see `.claude/rules/valheim-modding.md`).
 - **Every client and the server need the mod** (`NetworkCompatibility(EveryoneMustHaveMod, VersionStrictness.Minor)`);
   peers whose major or minor version differs cannot connect.
-- **Docs follow code.** Costs, radii, config keys/defaults/ranges and tiers appear in `README.md`;
-  keep the README tables in sync with `WardPieces.Register` and `WardenPlugin.Awake` in the same change.
+- **Docs follow code.** Costs, radii, config keys/defaults/ranges and tiers appear in `package/README.md`;
+  keep its tables in sync with `WardPieces.Register` and `WardenPlugin.Awake` in the same change.
+  The root `README.md` carries no tables, only build and project information.
 
 ## Commits
 
 History uses plain imperative, sentence-case subjects with no type prefix and no trailing period
 (e.g. "Stack ritual candles, lower the banner header, fix the ward glow"), and a wrapped body that
 explains why and any non-obvious in-game reason behind the change. User-visible changes update
-`CHANGELOG.md` (and `README.md` where relevant) in the same commit. Do not commit `bin/`, `obj/` or `dist/`.
+`CHANGELOG.md` (and `package/README.md` where relevant) in the same commit. Do not commit `bin/`, `obj/` or `dist/`.
 
 ## Detailed rules
 

@@ -14,7 +14,7 @@ set -Eeuo pipefail
 zip="${1:?usage: publish-hexium.sh <package.zip>}"
 : "${HEXIUM_TOKEN:?HEXIUM_TOKEN is not set}"
 author="${HEXIUM_AUTHOR:-el_team}"
-categories="${HEXIUM_CATEGORIES:-[\"Client & Server\", \"Building\", \"Pieces\", \"Valheim 1.0\"]}"
+categories="${HEXIUM_CATEGORIES:-[\"Client & Server\", \"Building\", \"Pieces\", \"Valheim 1.0\", \"Open Source\"]}"
 api="${HEXIUM_API:-https://hexium.gg/api/experimental}"
 api="${api%/}"
 

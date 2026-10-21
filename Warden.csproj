@@ -6,7 +6,7 @@
     <RootNamespace>Warden</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>0.3.0</Version>
+    <Version>0.3.1</Version>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
@@ -57,10 +57,11 @@
     <PackageOutputDir>$(MSBuildProjectDirectory)\dist\</PackageOutputDir>
   </PropertyGroup>
 
+  <!-- The mod page is package\README.md; the root README.md is the GitHub page for developers. -->
   <Target Name="Package" DependsOnTargets="Build">
     <RemoveDir Directories="$(PackageStagingDir)" />
     <MakeDir Directories="$(PackageStagingDir);$(PackageOutputDir)" />
-    <Copy SourceFiles="$(TargetPath);package\icon.png;README.md;CHANGELOG.md" DestinationFolder="$(PackageStagingDir)" />
+    <Copy SourceFiles="$(TargetPath);package\icon.png;package\README.md;CHANGELOG.md" DestinationFolder="$(PackageStagingDir)" />
     <WriteLinesToFile File="$(PackageStagingDir)manifest.json" Overwrite="true" Lines="{;  &quot;name&quot;: &quot;$(AssemblyName)&quot;,;  &quot;description&quot;: &quot;$(PackageDescription)&quot;,;  &quot;version_number&quot;: &quot;$(Version)&quot;,;  &quot;website_url&quot;: &quot;$(PackageWebsite)&quot;,;  &quot;dependencies&quot;: [$(PackageDependencies)];}" />
     <Delete Files="$(PackageOutputDir)$(AssemblyName)-$(Version).zip" />
     <ZipDirectory SourceDirectory="$(PackageStagingDir)" DestinationFile="$(PackageOutputDir)$(AssemblyName)-$(Version).zip" />

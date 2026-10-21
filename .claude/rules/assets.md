@@ -25,7 +25,7 @@ paths:
 
 - Only use assets whose license allows redistribution in a mod (CC0 preferred). Record the source
   and license in a `README.md` next to the asset (see `assets/models/offering_cup/README.md`) and in
-  the Credits section of the root `README.md`.
+  the Credits section of `package/README.md` (the mod page).
 - Keep the original source file (e.g. the FBX) beside the converted one that is embedded.
 
 ## Banner textures (`tools/make_banner_*.ps1`)

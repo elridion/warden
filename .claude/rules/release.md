@@ -1,6 +1,7 @@
 ---
 paths:
   - "README.md"
+  - "package/README.md"
   - "CHANGELOG.md"
   - "Warden.csproj"
   - "src/WardenPlugin.cs"
@@ -28,10 +29,17 @@ gameplay and network data identical between peers.
 The Jotunn version appears twice in `Warden.csproj`: the `JotunnLib` `PackageReference` and
 `PackageDependencies` (`ValheimModding-Jotunn-x.y.z`, the Thunderstore dependency string). Update both together.
 
-## README.md
+## README files
 
-`README.md` is shipped inside the Thunderstore package and is the mod's store page, so write it for
-players. Keep it in sync with the code in the same change:
+There are two, for two audiences:
+
+- `package/README.md` is shipped inside the package as its `README.md` and is the mod's store page
+  on Thunderstore and Hexium, so write it for players. Store pages render images only from absolute
+  URLs (e.g. raw.githubusercontent.com), never relative paths.
+- The root `README.md` is the GitHub page for developers: build, layout, releases, license. It links
+  to `package/README.md` instead of repeating its tables.
+
+Keep `package/README.md` in sync with the code in the same change:
 
 - the upgrade table (level, piece, biome, cost, radius) with `WardPieces.Register` and the config defaults;
 - the Features cost line for the warden stone;
@@ -51,7 +59,7 @@ four stacking candle clusters, a fully upgraded stone has level 8 and 180 m.
 
 ## Packaging
 
-- `dotnet build -c Release -t:Package` stages the DLL, `package/icon.png`, `README.md`,
+- `dotnet build -c Release -t:Package` stages the DLL, `package/icon.png`, `package/README.md`,
   `CHANGELOG.md` and a generated `manifest.json` in `obj/package/`, then zips them to
   `dist/Warden-<version>.zip`. `dist/` is gitignored.
 - `Package` depends on `Build`, so it also deploys into the game profile unless you add

@@ -80,7 +80,7 @@ Lessons this codebase already paid for. Follow them when adding or changing piec
   `new ConfigurationManagerAttributes { IsAdminOnly = true }` so Jotunn syncs them from the server.
   Client-only visuals go in `Visuals` without that attribute.
 - Give numeric settings an `AcceptableValueRange` and a description that states the unit.
-- A new or changed setting updates the README configuration table (Key, Default, and Description
+- A new or changed setting updates the configuration table in `package/README.md` (Key, Default, and Description
   with the range in parentheses, e.g. "(4-128)").
 
 ## Harmony patches
