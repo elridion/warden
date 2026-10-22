@@ -62,8 +62,6 @@ four stacking candle clusters, a fully upgraded stone has level 8 and 180 m.
 - `dotnet build -c Release -t:Package` stages the DLL, `package/icon.png`, `package/README.md`,
   `CHANGELOG.md` and a generated `manifest.json` in `obj/package/`, then zips them to
   `dist/Warden-<version>.zip`. `dist/` is gitignored.
-- `Package` depends on `Build`, so it also deploys into the game profile unless you add
-  `-p:DeployToGame=false`.
 - `package/icon.png` is the Thunderstore icon (256 x 256 PNG).
 - Publishing the zip to Thunderstore or another mod site is outward-facing; only the user does that.
 

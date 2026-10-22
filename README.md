@@ -12,24 +12,22 @@ Requires the .NET SDK (8+) and a Valheim install. The build locates Valheim thro
 registry entry; override with `-p:VALHEIM_INSTALL="<path>"`.
 
 ```
-dotnet build -c Release                           # build and copy to BepInEx/plugins/Warden
-dotnet build -c Release -p:DeployToGame=false     # build only
+dotnet build -c Release                           # build bin/Release/Warden.dll
 dotnet build -c Release -t:Package                # also write dist/Warden-<version>.zip
 ```
 
 The first build generates publicized Valheim assemblies in `Valheim_Data/Managed/publicized_assemblies`.
 
-The deploy step copies the DLL into the [Gale](https://github.com/Kesomannen/gale) profile
-`Default` when it exists (pick another with `-p:GaleProfile=<name>`), otherwise into
-`<Valheim>/BepInEx`. Point it anywhere with `-p:DeployBepInEx="<BepInEx folder>"`.
+The build touches nothing outside the repo. To test in game, install the zip with a mod manager
+(e.g. import it into a [Gale](https://github.com/Kesomannen/gale) profile).
 
 ## Project layout
 
 | Path | Purpose |
 | --- | --- |
 | `src/` | Plugin source: pieces, ward and upgrade components, spawn and placement patches, hull effect |
-| `assets/` | Resources embedded in the DLL (banner textures, offering cup model) |
-| `tools/` | PowerShell generators for the banner texture and normal map |
+| `assets/` | Resources embedded in the DLL (banner textures, offering cup and rune stone models and textures) |
+| `tools/` | PowerShell generators for the banner texture and normal map, and the rune stone texture converter |
 | `package/` | Mod page README and icon shipped in the package |
 | `docs/` | Design notes |
 
@@ -44,3 +42,6 @@ and has a `CHANGELOG.md` section, then creates a GitHub release and publishes to
 ## License
 
 [MIT](LICENSE). The offering cup model is from [The Base Mesh](https://www.thebasemesh.com/) (CC0).
+The warden stone model and textures are "Rune Stone Low Poly" (https://skfb.ly/6pxsp) by KaguKin,
+licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/), modified (textures resized,
+ambient occlusion baked in and brightened, rune glow mask derived; model rescaled at runtime).

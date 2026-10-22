@@ -20,11 +20,18 @@ namespace Warden
 
         private const string WardBasePrefab = "guard_stone";
         private static readonly Color s_wardStoneTint = new Color(0.66f, 0.66f, 0.64f);
+        // The rune stone model replaces the vanilla ward's stone. Its textures go on a copy of the
+        // vanilla stone's material (Unity's Standard shader).
+        private const string RuneStoneModelResource = "Warden.rune_stone.obj";
+        private const string RuneStoneTextureResource = "Warden.rune_stone_albedo.png";
+        private const string RuneStoneNormalResource = "Warden.rune_stone_n.png";
+        private const string RuneStoneGlowResource = "Warden.rune_stone_glow.png";
+        private const float RuneStoneGlossiness = 0.15f;
         private const string BannerBasePrefab = "piece_banner01";
         private const string BannerTextureResource = "Warden.banner_runed_hide.png";
         private const string BannerNormalResource = "Warden.banner_runed_hide_n.png";
         private static readonly Color32 s_atlasOutside = new Color32(60, 45, 30, 0);
-        // Flat normal in the DXT5nm-style layout the banner normal map uses (X in alpha, Y in green).
+        // Flat normal in the DXT5nm-style layout the banner and rune stone normal maps use (X in alpha, Y in green).
         private static readonly Color32 s_flatNormal = new Color32(255, 128, 255, 128);
         private static readonly Color s_parchmentTint = new Color(0.8f, 0.78f, 0.75f);
         // Banner build-menu icon: the mirrored design hanging from a crossbar, in a square sprite.
@@ -118,12 +125,120 @@ namespace Warden
                 ward.m_activateEffect = privateArea.m_activateEffect;
                 ward.m_deactivateEffect = privateArea.m_deactivateEffect;
                 ward.m_hoverOffset = privateArea.m_hoverOffset;
+                // The glowing stone; ReplaceWardModel points it at the rune stone instead.
+                ward.m_model = privateArea.m_model;
                 Object.DestroyImmediate(privateArea);
             }
 
+            // Recolour first: the tint is for the vanilla stone, which stays if the model fails to
+            // load, and would only darken the rune stone's own texture.
             RecolorWard(prefab, ward);
+            if (ReplaceWardModel(prefab, ward))
+            {
+                // The clone keeps the vanilla ward's icon, which shows the old stone.
+                var icon = RenderIcon(prefab);
+                if (icon) s_wardPiece.m_icon = icon;
+            }
 
             PieceManager.Instance.AddPiece(piece);
+        }
+
+        // Swaps the vanilla stone for the embedded rune stone, keeping the light, sparks and area marker.
+        // The model is fitted to the vanilla stone's height and base, so the effects placed for that
+        // stone still sit on it. If the model or its albedo fails to load, the vanilla stone stays:
+        // vanilla textures on the rune stone's UVs would look scrambled.
+        private static bool ReplaceWardModel(GameObject prefab, SpawnWard ward)
+        {
+            Mesh mesh = null;
+            try
+            {
+                mesh = ObjLoader.LoadEmbedded(RuneStoneModelResource, "warden_rune_stone");
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Rune stone model failed to load; keeping the vanilla ward stone: {e.Message}");
+            }
+            if (!mesh) return false;
+            var albedo = LoadEmbeddedTexture(RuneStoneTextureResource, false);
+            if (!albedo) return false;
+
+            var marker = ward.m_areaMarker ? ward.m_areaMarker.transform : null;
+            var effect = ward.m_enabledEffect ? ward.m_enabledEffect.transform : null;
+            // Everything outside the area marker and the enabled effect is the stone, including the
+            // worn and broken states WearNTear switches to.
+            bool IsEffect(Transform t) => (marker && t.IsChildOf(marker)) || (effect && t.IsChildOf(effect));
+
+            // Build and fit the model before stripping the vanilla stone, so a failure here leaves the
+            // ward as it was instead of losing the whole piece to BuildWard's catch.
+            // PrivateArea.m_model names the stone renderer; scan for one only if it is missing.
+            var vanilla = ward.m_model && ward.m_model.sharedMaterial && !IsEffect(ward.m_model.transform) ? ward.m_model : null;
+            if (!vanilla)
+            {
+                foreach (var renderer in prefab.GetComponentsInChildren<MeshRenderer>(true))
+                {
+                    if (IsEffect(renderer.transform) || !renderer.sharedMaterial) continue;
+                    vanilla = renderer;
+                    break;
+                }
+            }
+            if (!vanilla)
+            {
+                Jotunn.Logger.LogWarning("No vanilla ward stone renderer found; keeping the vanilla ward stone.");
+                return false;
+            }
+
+            GameObject model = null;
+            Bounds bounds;
+            try
+            {
+                var stone = MeshBounds(prefab.transform, prefab.transform, true, IsEffect);
+
+                // Other pieces' materials are no use as a base: the stone wall's first renderer is
+                // its snow overlay, whose shader ignores the main texture. The vanilla ward stone
+                // uses the Standard shader, which takes our albedo and normal map as they are.
+                model = new GameObject("rune_stone");
+                model.transform.SetParent(prefab.transform, false);
+                model.AddComponent<MeshFilter>().sharedMesh = mesh;
+                var modelRenderer = model.AddComponent<MeshRenderer>();
+                modelRenderer.sharedMaterial = MakeRuneStoneMaterial(vanilla.sharedMaterial, albedo);
+                // Lights in Valheim cull by layer, and probes and shadows are per renderer; take them
+                // from the vanilla stone so the rune stone is lit the same way.
+                model.layer = vanilla.gameObject.layer;
+                modelRenderer.shadowCastingMode = vanilla.shadowCastingMode;
+                modelRenderer.receiveShadows = vanilla.receiveShadows;
+                modelRenderer.lightProbeUsage = vanilla.lightProbeUsage;
+                modelRenderer.reflectionProbeUsage = vanilla.reflectionProbeUsage;
+
+                float height = stone.size.y > 0f ? stone.size.y : mesh.bounds.size.y * 0.01f;
+                FitToHeight(model, height);
+                model.transform.localPosition += new Vector3(stone.center.x, stone.min.y, stone.center.z);
+                bounds = MeshBounds(model.transform, prefab.transform);
+            }
+            catch (System.Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Rune stone model failed to build; keeping the vanilla ward stone: {e.Message}");
+                if (model) Object.DestroyImmediate(model);
+                return false;
+            }
+            ward.m_model = model.GetComponent<MeshRenderer>();
+
+            for (int pass = 0; pass < 3; pass++)
+            {
+                foreach (var component in prefab.GetComponentsInChildren<Component>(true))
+                {
+                    if (IsEffect(component.transform) || component.transform.IsChildOf(model.transform)) continue;
+                    if (component is MeshRenderer || component is MeshFilter || component is LODGroup ||
+                        (component is Collider collider && !collider.isTrigger))
+                        Object.DestroyImmediate(component);
+                }
+            }
+
+            // Placement only snaps to convex colliders; a box around the model is enough to place,
+            // hover and hit it.
+            var box = prefab.AddComponent<BoxCollider>();
+            box.center = bounds.center;
+            box.size = bounds.size;
+            return true;
         }
 
         // Grey stone, so the warden stone reads apart from the vanilla ward. The runes, light and
@@ -151,6 +266,44 @@ namespace Warden
                 }
                 renderer.sharedMaterials = materials;
             }
+        }
+
+        // The rune stone's own maps on a copy of the vanilla stone's material. Every other map the
+        // source may carry belongs to the old stone's UVs, so each slot is set explicitly: the emission
+        // map becomes the front runes' mask, the rest neutral textures with their keywords off (a
+        // cleared slot would fall back to the shader's default, which can be white). Emission starts
+        // black; SpawnWard lights it while the ward is active.
+        private static Material MakeRuneStoneMaterial(Material source, Texture2D albedo)
+        {
+            var material = new Material(source) { name = "warden_rune_stone" };
+
+            // The model's UVs map the texture once; drop any tiling and offset of the source.
+            material.mainTexture = albedo;
+            material.mainTextureScale = Vector2.one;
+            material.mainTextureOffset = Vector2.zero;
+            // The texture carries the colour; the source is already tinted by RecolorWard.
+            if (material.HasProperty("_Color")) material.SetColor("_Color", Color.white);
+            var normal = LoadEmbeddedTexture(RuneStoneNormalResource, true);
+            if (material.HasProperty("_BumpMap")) material.SetTexture("_BumpMap", normal ? normal : FlatNormalTexture());
+            if (material.HasProperty("_BumpScale")) material.SetFloat("_BumpScale", 1f);
+            var glow = LoadEmbeddedTexture(RuneStoneGlowResource, false);
+            if (material.HasProperty("_EmissionMap")) material.SetTexture("_EmissionMap", glow ? glow : Texture2D.blackTexture);
+            if (material.HasProperty("_EmissionColor")) material.SetColor("_EmissionColor", Color.black);
+            material.EnableKeyword("_EMISSION");
+            if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", RuneStoneGlossiness);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", RuneStoneGlossiness);
+            if (material.HasProperty("_Metallic")) material.SetFloat("_Metallic", 0f);
+
+            // With a metallic/gloss map bound, the two values above would be ignored.
+            if (material.HasProperty("_MetallicGlossMap")) material.SetTexture("_MetallicGlossMap", Texture2D.blackTexture);
+            if (material.HasProperty("_OcclusionMap")) material.SetTexture("_OcclusionMap", Texture2D.whiteTexture);
+            if (material.HasProperty("_ParallaxMap")) material.SetTexture("_ParallaxMap", Texture2D.blackTexture);
+            if (material.HasProperty("_DetailMask")) material.SetTexture("_DetailMask", Texture2D.blackTexture);
+            material.DisableKeyword("_METALLICGLOSSMAP");
+            material.DisableKeyword("_PARALLAXMAP");
+            material.DisableKeyword("_DETAIL_MULX2");
+            material.DisableKeyword("_SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A");
+            return material;
         }
 
         private delegate CustomPiece PieceFactory(string name, PieceConfig config);
@@ -360,7 +513,7 @@ namespace Warden
             return atlas;
         }
 
-        // Stands in for the banner normal map if it fails to load: a cleared _BumpMap slot falls back
+        // Stands in for the banner or rune stone normal map if it fails to load: a cleared _BumpMap slot falls back
         // to whatever default the shader declares.
         private static Texture2D FlatNormalTexture()
         {
@@ -550,7 +703,8 @@ namespace Warden
 
         // Combined mesh bounds of everything under root, expressed in space's local coordinates.
         // With visibleOnly, meshes on disabled branches below root (e.g. a fireplace's unlit state) are skipped.
-        private static Bounds MeshBounds(Transform root, Transform space, bool visibleOnly = false)
+        // Meshes for which skip returns true are always left out.
+        private static Bounds MeshBounds(Transform root, Transform space, bool visibleOnly = false, System.Func<Transform, bool> skip = null)
         {
             var toSpace = space.worldToLocalMatrix;
             bool any = false;
@@ -559,6 +713,7 @@ namespace Warden
             {
                 if (!filter.sharedMesh) continue;
                 if (visibleOnly && !ActiveBelow(filter.transform, root)) continue;
+                if (skip != null && skip(filter.transform)) continue;
                 var renderer = filter.GetComponent<Renderer>();
                 if (visibleOnly && (!renderer || !renderer.enabled)) continue;
                 var b = filter.sharedMesh.bounds;

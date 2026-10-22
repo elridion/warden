@@ -77,7 +77,6 @@ jobs:
       - name: Build and package
         run: >
           dotnet build -c Release -t:Package
-          -p:DeployToGame=false
           -p:VALHEIM_INSTALL="$VALHEIM_DIR"
           -p:BEPINEX_PATH="$BEPINEX_DIR"
 

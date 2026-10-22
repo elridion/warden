@@ -51,6 +51,9 @@ Every client and the server need the mod installed, at the same minor version.
 
 ## Credits
 
+- Warden stone model: "Rune Stone Low Poly" (https://skfb.ly/6pxsp) by KaguKin, licensed under
+  [Creative Commons Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). Modified: textures
+  resized, ambient occlusion baked in and brightened, rune glow mask derived; model rescaled in game.
 - Offering cup model: [The Base Mesh](https://www.thebasemesh.com/) (CC0).
 
 ## Source and issues

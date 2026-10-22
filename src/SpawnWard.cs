@@ -12,9 +12,15 @@ namespace Warden
         private static readonly List<SpawnWard> s_instances = new List<SpawnWard>();
         private static readonly int s_enabledHash = "spawnward_enabled".GetStableHashCode();
         private const string RpcToggle = "SpawnWard_Toggle";
+        private static readonly int s_emissionColor = Shader.PropertyToID("_EmissionColor");
+        // The vanilla ward's amber rune glow; above 1 so the runes bloom.
+        private static readonly Color s_runeGlow = new Color(1.934f, 1.017f, 0.185f);
+        // Dedicated servers render nothing, so the glow is not worth setting there.
+        private static readonly bool s_headless = SystemInfo.graphicsDeviceType == UnityEngine.Rendering.GraphicsDeviceType.Null;
 
         public string m_name = "$piece_spawnward";
         public GameObject m_enabledEffect;
+        public MeshRenderer m_model;
         public CircleProjector m_areaMarker;
         public EffectList m_activateEffect = new EffectList();
         public EffectList m_deactivateEffect = new EffectList();
@@ -155,6 +161,7 @@ namespace Warden
         {
             bool enabled = IsEnabled();
             if (m_enabledEffect) m_enabledEffect.SetActive(enabled);
+            UpdateRuneGlow(enabled);
             RefreshLevel();
 
             if (m_statusInitialized && enabled != m_lastEnabled)
@@ -166,6 +173,15 @@ namespace Warden
             m_lastEnabled = enabled;
             m_statusInitialized = true;
             UpdateHull();
+        }
+
+        // Lights the runes while the ward is active, as the vanilla ward does. MaterialMan keeps the
+        // value per renderer, so the shared material stays as it is. Set every status tick because
+        // hover highlighting resets the emission when it ends.
+        private void UpdateRuneGlow(bool enabled)
+        {
+            if (s_headless || !m_model || !MaterialMan.instance) return;
+            MaterialMan.instance.SetValue(m_model.gameObject, s_emissionColor, enabled ? s_runeGlow : Color.black);
         }
 
         private void RPC_Toggle(long sender)

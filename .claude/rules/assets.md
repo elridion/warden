@@ -53,3 +53,18 @@ paths:
   `WardPieces.s_flatNormal`, is written at half the albedo's resolution (`-Scale 0.5`, 170 x 850),
   and is loaded as linear.
 - Commit the regenerated PNGs together with the script change that produced them.
+
+## Rune stone textures (`tools/make_rune_stone_textures.ps1`)
+
+- `assets/textures/rune_stone_albedo.png`, `rune_stone_n.png` and `rune_stone_glow.png` are converted
+  from KaguKin's 2048 px source maps in `assets/textures/rune_stone/`. Never edit the three PNGs by
+  hand; change the script's parameters or code and rerun it from the repo root:
+  `powershell -File tools/make_rune_stone_textures.ps1`. It is deterministic.
+- Albedo: AO baked in (`-Occlusion`) and brightened (`-Brightness`, default 1.8; the source is near
+  charcoal in game). Normal map: the banner's DXT5nm-style layout, loaded as linear; the source's
+  magenta fill outside the UV islands is treated as flat. Glow: the AO high-passed, limited to the UV
+  island under `-GlowSeedU/-GlowSeedV` (the front face) after eroding all islands by `-GlowErode`.
+- The CC BY 4.0 credits must say the work was modified. If the conversion changes in kind (not just
+  in parameters), update the modification note in `package/README.md`, the root `README.md` and
+  `assets/models/rune_stone/README.md`.
+- Commit the regenerated PNGs together with the script change that produced them.

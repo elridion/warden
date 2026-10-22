@@ -6,7 +6,7 @@
     <RootNamespace>Warden</RootNamespace>
     <LangVersion>latest</LangVersion>
     <Nullable>disable</Nullable>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
@@ -15,7 +15,6 @@
     <!-- Lets Jotunn generate publicized Valheim assemblies on first build -->
     <ExecutePrebuild>true</ExecutePrebuild>
     <!-- Override if Valheim lives elsewhere: dotnet build -p:VALHEIM_INSTALL="D:\...\Valheim" -->
-    <DeployToGame Condition="'$(DeployToGame)' == ''">true</DeployToGame>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,24 +28,13 @@
 
   <ItemGroup>
     <EmbeddedResource Include="assets\models\offering_cup\greek_cup.obj" LogicalName="Warden.offering_cup.obj" />
+    <EmbeddedResource Include="assets\models\rune_stone\Rune_stone_LowPoly.obj" LogicalName="Warden.rune_stone.obj" />
     <EmbeddedResource Include="assets\textures\banner_runed_hide.png" LogicalName="Warden.banner_runed_hide.png" />
     <EmbeddedResource Include="assets\textures\banner_runed_hide_n.png" LogicalName="Warden.banner_runed_hide_n.png" />
+    <EmbeddedResource Include="assets\textures\rune_stone_albedo.png" LogicalName="Warden.rune_stone_albedo.png" />
+    <EmbeddedResource Include="assets\textures\rune_stone_n.png" LogicalName="Warden.rune_stone_n.png" />
+    <EmbeddedResource Include="assets\textures\rune_stone_glow.png" LogicalName="Warden.rune_stone_glow.png" />
   </ItemGroup>
-
-  <!-- Deploy into the Gale mod manager profile when present, else the game's own BepInEx.
-       Override with -p:DeployBepInEx="<path to BepInEx folder>". -->
-  <PropertyGroup>
-    <GaleProfile Condition="'$(GaleProfile)' == ''">Default</GaleProfile>
-    <GaleBepInEx>$(APPDATA)\com.kesomannen.gale\valheim\profiles\$(GaleProfile)\BepInEx</GaleBepInEx>
-    <DeployBepInEx Condition="'$(DeployBepInEx)' == '' And Exists('$(GaleBepInEx)')">$(GaleBepInEx)</DeployBepInEx>
-    <DeployBepInEx Condition="'$(DeployBepInEx)' == ''">$(BEPINEX_PATH)</DeployBepInEx>
-  </PropertyGroup>
-
-  <Target Name="DeployPlugin" AfterTargets="Build" Condition="'$(DeployToGame)' == 'true' And Exists('$(DeployBepInEx)')">
-    <MakeDir Directories="$(DeployBepInEx)\plugins\Warden" />
-    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(DeployBepInEx)\plugins\Warden" />
-    <Message Importance="High" Text="Deployed $(TargetFileName) to $(DeployBepInEx)\plugins\Warden" />
-  </Target>
 
   <!-- Thunderstore/Hexium package: dotnet build -c Release -t:Package -->
   <PropertyGroup>

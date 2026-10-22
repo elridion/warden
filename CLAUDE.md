@@ -26,8 +26,8 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 | `src/SpawnPatches.cs` | `SpawnSystem` patches that reject spawn points inside active wards |
 | `src/PlacementPatches.cs` | Placement rule: upgrades need a warden stone within `UpgradeRange` |
 | `src/ObjLoader.cs`, `src/OfferingCupModel.cs` | Minimal OBJ reader and the offering cup model (with lathed fallback) |
-| `assets/` | Embedded resources (banner textures, cup OBJ); FBX kept as source only |
-| `tools/` | PowerShell generators for the banner albedo and normal map |
+| `assets/` | Embedded resources (banner and rune stone textures, cup and rune stone OBJs); FBX and 2048 px rune stone maps kept as source only |
+| `tools/` | PowerShell generators for the banner albedo and normal map, and the rune stone texture converter |
 | `package/README.md`, `package/icon.png` | Mod page and icon shipped in the package (Thunderstore/Hexium) |
 | `docs/` | Design notes and research (crafting-station idea, Hexium publishing) |
 | `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release and the Hexium upload on `v*` tags |
@@ -38,26 +38,22 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 Run from the repo root (Windows, PowerShell).
 
 ```
-dotnet build -c Release                           # build and deploy to the BepInEx plugins folder
-dotnet build -c Release -p:DeployToGame=false     # build only, touches nothing outside the repo
-dotnet build -c Release -t:Package                # also writes dist/Warden-<version>.zip (and deploys)
+dotnet build -c Release                           # build bin/Release/Warden.dll, touches nothing outside the repo
+dotnet build -c Release -t:Package                # also writes dist/Warden-<version>.zip
 powershell -File tools/make_banner_texture.ps1    # regenerate the banner albedo
 powershell -File tools/make_banner_normal.ps1     # then regenerate its normal map
+powershell -File tools/make_rune_stone_textures.ps1  # regenerate the warden stone's textures
 ```
 
-- Deploy target: the Gale mod manager profile (`%APPDATA%\com.kesomannen.gale\valheim\profiles\<GaleProfile>\BepInEx`,
-  `-p:GaleProfile=<name>`, default `Default`) when it exists, else `$(BEPINEX_PATH)` (Jotunn defaults it
-  to `<Valheim>\BepInEx`); override with `-p:DeployBepInEx="<BepInEx folder>"`. The DLL and PDB are
-  copied to `plugins\Warden`. If the target folder doesn't exist, deploy is skipped silently; the
-  "Deployed ..." build message is the only sign it ran.
-- Use `-p:DeployToGame=false` when only checking that the code compiles. A deploying build overwrites
-  `plugins/Warden/Warden.dll` in the user's game profile, and the copy fails while the game has the DLL loaded.
+- The build never copies anything into the game. The user tests by importing the packaged zip into
+  their mod manager (Gale), which installs its own copy; never copy the DLL into a game or Gale
+  profile by hand, since the mod manager would overwrite it again.
 - A clean build prints one known warning, `MSB3245` for `UnityEngine.ProfilerModule`. It is harmless;
   any other warning is new.
 
 ## Verification
 
-There is no test project. "Done" means: `dotnet build -c Release -p:DeployToGame=false` succeeds with no
+There is no test project. "Done" means: `dotnet build -c Release` succeeds with no
 new warnings, and behaviour that needs the game (placement, spawning, visuals, multiplayer sync) is
 called out as untested-in-game unless the user has confirmed it in Valheim. Never claim in-game
 behaviour works on the strength of a successful build.

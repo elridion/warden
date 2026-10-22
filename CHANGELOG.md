@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.2
+
+- The warden stone has a new model: a standing rune stone ("Rune Stone Low Poly" by KaguKin,
+  CC BY 4.0) in place of the vanilla ward's stone. Existing warden stones change look on their own.
+- The runes carved into the stone's front glow amber while the ward is active and go dark when it
+  is switched off.
+
 ## 0.3.1
 
 First public release.
