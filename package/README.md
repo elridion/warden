@@ -1,7 +1,23 @@
 # Warden
 
-Adds the **Warden stone**, a buildable ward that stops creatures from spawning around your base,
-and upgrade pieces that extend its reach.
+Spawn-proof your base without a ring of workbenches.
+
+In vanilla Valheim, creatures only stop spawning close to player structures, and the vanilla ward
+only keeps other players out, not creatures. Keeping a larger base free of spawns means
+scattering workbenches and fires across it and along its edges, just for their side effect.
+
+Warden replaces that chore with one dedicated piece: the **Warden stone**, a rune stone that keeps
+random creature spawns out of its radius while active. Upgrade pieces built next to it, like
+crafting station extensions, widen the protected area as you progress.
+
+## Vanilla in spirit
+
+- Built with the hammer from ordinary materials, next to a workbench, like any other piece.
+- Its reach grows with progression: each upgrade needs materials from the next biome, from the
+  Black Forest to the Plains.
+- It only stops creatures from appearing out of nowhere. Raids still happen (unless you turn that on
+  in the config), creatures from outside can still walk in, and fixed spawners such as greydwarf
+  nests and dungeon spawns keep working, so your walls and defenses still matter.
 
 ## Features
 
