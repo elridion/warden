@@ -14,7 +14,7 @@ namespace Warden
     {
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
-        public const string PluginVersion = "0.3.2";
+        public const string PluginVersion = "0.3.3";
 
         public enum HullVisibility { Always, OnHover, Off }
 
@@ -44,7 +44,7 @@ namespace Warden
                 new ConfigDescription("How many ritual candles around one warden stone count; each adds RadiusPerUpgrade. " +
                     "Other upgrades count once each.",
                     new AcceptableValueRange<int>(1, 16), adminOnly));
-            BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", false,
+            BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", true,
                 new ConfigDescription("Also block raid/event spawns inside the radius, so raiders must spawn beyond it. " +
                     "With a large radius and players near the stone, raids may spawn few or no creatures.",
                     null, adminOnly));

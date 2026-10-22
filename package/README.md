@@ -15,8 +15,8 @@ crafting station extensions, widen the protected area as you progress.
 - Built with the hammer from ordinary materials, next to a workbench, like any other piece.
 - Its reach grows with progression: each upgrade needs materials from the next biome, from the
   Black Forest to the Plains.
-- It only stops creatures from appearing out of nowhere. Raids work as in vanilla by default,
-  creatures from outside can still walk in, and fixed spawners such as greydwarf nests and dungeon
+- It only stops creatures from appearing out of nowhere. Raids still happen, but their creatures
+  spawn outside the radius and walk in, creatures from outside can still walk in, and fixed spawners such as greydwarf nests and dungeon
   spawns keep working, so your walls and defenses still matter.
 
 ## Features
@@ -28,9 +28,9 @@ crafting station extensions, widen the protected area as you progress.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
 - An animated amber haze sphere marks the protected area while the ward is active.
   Overlapping wards merge into one common hull.
-- Optional (off by default): keep raid/event spawns out of the whole radius as well. Raiders then
-  spawn beyond the radius and walk in; with a large radius and everyone near the stone, a raid may
-  find nowhere to spawn and bring few or no creatures.
+- Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
+  large radius and everyone near the stone, a raid may find nowhere to spawn and bring few or no
+  creatures; turn `BlockEventSpawns` off to let raiders spawn inside the radius as in vanilla.
 
 ## Upgrades
 
@@ -57,7 +57,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | `RadiusPerUpgrade` | 20 | Meters added per upgrade (0-64) |
 | `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20) |
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
-| `BlockEventSpawns` | false | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
+| `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
 | `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
 
 ## Requirements

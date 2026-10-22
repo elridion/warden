@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3
+
+- Raid creatures now spawn outside an active warden stone's radius by default and have to walk in
+  (`BlockEventSpawns` now defaults to on). Existing config files keep their current value; set it
+  to `true` there to get the new behaviour.
+
 ## 0.3.2
 
 - The warden stone has a new model: a standing rune stone ("Rune Stone Low Poly" by KaguKin,
