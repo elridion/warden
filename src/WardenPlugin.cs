@@ -45,7 +45,8 @@ namespace Warden
                     "Other upgrades count once each.",
                     new AcceptableValueRange<int>(1, 16), adminOnly));
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", false,
-                new ConfigDescription("Also block raid/event spawns inside the radius. Event creatures can still walk in from outside.",
+                new ConfigDescription("Also block raid/event spawns inside the radius, so raiders must spawn beyond it. " +
+                    "With a large radius and players near the stone, raids may spawn few or no creatures.",
                     null, adminOnly));
             ShowHull = Config.Bind("Visuals", "ShowHull", HullVisibility.Always,
                 "When to show the amber haze marking an active ward's radius. Client-side only.");
