@@ -28,9 +28,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
 
@@ -39,7 +39,7 @@ jobs:
         run: echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
 
       - name: Restore Valheim server cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.VALHEIM_DIR }}
           key: valheim-server-${{ steps.week.outputs.week }}
@@ -80,7 +80,7 @@ jobs:
           -p:VALHEIM_INSTALL="$VALHEIM_DIR"
           -p:BEPINEX_PATH="$BEPINEX_DIR"
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: warden-package
           path: dist/*.zip
@@ -93,9 +93,9 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: warden-package
           path: dist
@@ -116,9 +116,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: hexium
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: warden-package
           path: dist
