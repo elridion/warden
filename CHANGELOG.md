@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- New mod icon: an amber standing stone.
+
 ## 0.3.3
 
 - Raid creatures now spawn outside an active warden stone's radius by default and have to walk in
