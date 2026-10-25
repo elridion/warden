@@ -5,3 +5,4 @@ dist/
 .idea/
 *.user
 .claude/worktrees/
+assets/source/*.zip

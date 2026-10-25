@@ -73,6 +73,8 @@ Every client and the server need the mod installed, at the same minor version.
   [Creative Commons Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). Modified: textures
   resized, ambient occlusion baked in and brightened, rune glow mask derived; model rescaled in game.
 - Offering cup model: [The Base Mesh](https://www.thebasemesh.com/) (CC0).
+- Mod icon: "Menhir" by Delapouite from [game-icons.net](https://game-icons.net), licensed under
+  [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Recoloured and outlined.
 
 ## Source and issues
 

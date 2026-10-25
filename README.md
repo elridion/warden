@@ -27,7 +27,7 @@ The build touches nothing outside the repo. To test in game, install the zip wit
 | --- | --- |
 | `src/` | Plugin source: pieces, ward and upgrade components, spawn and placement patches, hull effect |
 | `assets/` | Resources embedded in the DLL (banner textures, offering cup and rune stone models and textures) |
-| `tools/` | PowerShell generators for the banner texture and normal map, and the rune stone texture converter |
+| `tools/` | PowerShell generators for the banner texture and normal map, the rune stone texture converter and the mod icon |
 | `package/` | Mod page README and icon shipped in the package |
 | `docs/` | Design notes |
 
@@ -45,3 +45,5 @@ and has a `CHANGELOG.md` section, then creates a GitHub release and publishes to
 The warden stone model and textures are "Rune Stone Low Poly" (https://skfb.ly/6pxsp) by KaguKin,
 licensed under [CC BY 4.0](http://creativecommons.org/licenses/by/4.0/), modified (textures resized,
 ambient occlusion baked in and brightened, rune glow mask derived; model rescaled at runtime).
+The mod icon is "Menhir" by Delapouite from [game-icons.net](https://game-icons.net), licensed under
+[CC BY 3.0](https://creativecommons.org/licenses/by/3.0/), recoloured (`tools/make_icon.ps1`).

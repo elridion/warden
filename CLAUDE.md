@@ -27,7 +27,7 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 | `src/PlacementPatches.cs` | Placement rule: upgrades need a warden stone within `UpgradeRange` |
 | `src/ObjLoader.cs`, `src/OfferingCupModel.cs` | Minimal OBJ reader and the offering cup model (with lathed fallback) |
 | `assets/` | Embedded resources (banner and rune stone textures, cup and rune stone OBJs); FBX and 2048 px rune stone maps kept as source only |
-| `tools/` | PowerShell generators for the banner albedo and normal map, and the rune stone texture converter |
+| `tools/` | PowerShell generators for the banner albedo and normal map, the rune stone texture converter, and the mod icon (`make_icon.ps1`, game-icons.net "menhir", CC BY 3.0) |
 | `package/README.md`, `package/icon.png` | Mod page and icon shipped in the package (Thunderstore/Hexium) |
 | `docs/` | Design notes and research (crafting-station idea, Hexium publishing) |
 | `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release and the Hexium upload on `v*` tags |
@@ -43,6 +43,7 @@ dotnet build -c Release -t:Package                # also writes dist/Warden-<ver
 powershell -File tools/make_banner_texture.ps1    # regenerate the banner albedo
 powershell -File tools/make_banner_normal.ps1     # then regenerate its normal map
 powershell -File tools/make_rune_stone_textures.ps1  # regenerate the warden stone's textures
+powershell -File tools/make_icon.ps1              # regenerate package/icon.png
 ```
 
 - The build never copies anything into the game. The user tests by importing the packaged zip into
