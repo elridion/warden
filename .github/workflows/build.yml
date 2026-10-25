@@ -1,10 +1,10 @@
-﻿# Builds the mod on every push and pull request, and publishes a GitHub release with the
+# Builds the mod on every push and pull request, and publishes a GitHub release with the
 # Thunderstore-format zip when a version tag (v1.2.3) is pushed.
 #
-# CI has no Valheim install, so it downloads the free dedicated server (Steam app 896660, anonymous
-# login) for the Unity/Valheim assemblies and the BepInExPack for the BepInEx/Harmony assemblies.
-# Jotunn's prebuild publicizes the assemblies from <install>/Valheim_Data/Managed; the server ships
-# them in valheim_server_Data, so a symlink bridges the name.
+# CI has no Valheim install, so it takes the Unity/Valheim assemblies from the free dedicated server
+# (Steam app 896660, anonymous login) and the BepInEx/Harmony assemblies from the BepInExPack.
+# Only valheim_server_Data/Managed is kept, at <install>/Valheim_Data/Managed where Jotunn's
+# prebuild expects it, and cached per Steam build id: until Valheim patches, steamcmd never runs.
 
 name: Build
 
@@ -27,34 +27,51 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # gh release create on tags
     steps:
       - uses: actions/checkout@v7
 
-      - uses: actions/setup-dotnet@v6
+      # Runner images have shipped the .NET 8 SDK; install it only when an image no longer does.
+      - name: Check for .NET 8 SDK
+        id: dotnet
+        run: echo "found=$(dotnet --list-sdks 2>/dev/null | grep -c '^8\.' || true)" | tee -a "$GITHUB_OUTPUT"
+
+      - if: steps.dotnet.outputs.found == '0'
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 8.0.x
 
-      # One cache entry per ISO week; app_update below patches a stale copy in place
-      - id: week
-        run: echo "week=$(date +%G-%V)" >> "$GITHUB_OUTPUT"
+      # The public branch's build id from api.steamcmd.net (third party); if it is unreachable the
+      # key falls back to the ISO week, which costs at most one server download a week.
+      - name: Look up Valheim server build
+        id: valheim
+        run: |
+          build=$(curl -fsS --max-time 15 https://api.steamcmd.net/v1/info/896660 | jq -r '.data."896660".depots.branches.public.buildid // empty' || true)
+          echo "key=valheim-managed-${build:-week-$(date +%G-%V)}" | tee -a "$GITHUB_OUTPUT"
 
-      - name: Restore Valheim server cache
+      - name: Restore Valheim assemblies
+        id: cache
         uses: actions/cache@v6
         with:
-          path: ${{ env.VALHEIM_DIR }}
-          key: valheim-server-${{ steps.week.outputs.week }}
-          restore-keys: valheim-server-
+          path: ${{ env.VALHEIM_DIR }}/Valheim_Data/Managed
+          key: ${{ steps.valheim.outputs.key }}
 
-      - name: Install or update Valheim dedicated server
+      - name: Download Valheim dedicated server
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y -qq lib32gcc-s1
-          mkdir -p "$CI_DIR/steamcmd" "$VALHEIM_DIR"
+          mkdir -p "$CI_DIR/steamcmd" "$CI_DIR/server" "$VALHEIM_DIR/Valheim_Data"
           curl -fsSL https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz | tar -xz -C "$CI_DIR/steamcmd"
-          # steamcmd can exit non-zero after a successful self-update; the test below is the real check
-          "$CI_DIR/steamcmd"/steamcmd.sh +force_install_dir "$VALHEIM_DIR" +login anonymous +app_update 896660 validate +quit || true
-          test -d "$VALHEIM_DIR/valheim_server_Data/Managed"
-          ln -sfn valheim_server_Data "$VALHEIM_DIR/Valheim_Data"
+          # steamcmd can exit non-zero after a successful self-update, and a fresh install often fails
+          # once with "Missing configuration"; retry, and let the test below be the real check
+          for attempt in 1 2 3; do
+            "$CI_DIR/steamcmd"/steamcmd.sh +force_install_dir "$CI_DIR/server" +login anonymous +app_update 896660 +quit || true
+            [ -d "$CI_DIR/server/valheim_server_Data/Managed" ] && break
+          done
+          test -d "$CI_DIR/server/valheim_server_Data/Managed"
+          mv "$CI_DIR/server/valheim_server_Data/Managed" "$VALHEIM_DIR/Valheim_Data/Managed"
 
       - name: Download BepInExPack_Valheim
         run: |
@@ -86,21 +103,8 @@ jobs:
           path: dist/*.zip
           if-no-files-found: error
 
-  release:
-    if: startsWith(github.ref, 'refs/tags/v')
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: warden-package
-          path: dist
-
       - name: Create GitHub release
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -112,7 +116,7 @@ jobs:
   # "hexium" environment in the repo settings to approve each publish by hand.
   hexium:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: release
+    needs: build
     runs-on: ubuntu-latest
     environment: hexium
     steps:
