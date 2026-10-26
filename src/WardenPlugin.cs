@@ -23,6 +23,7 @@ namespace Warden
         public static ConfigEntry<float> UpgradeRange;
         public static ConfigEntry<int> MaxStackedUpgrades;
         public static ConfigEntry<bool> BlockEventSpawns;
+        public static ConfigEntry<bool> KeepDroppedItems;
         public static ConfigEntry<HullVisibility> ShowHull;
         public static ConfigEntry<bool> FlashOnDamage;
 
@@ -48,6 +49,10 @@ namespace Warden
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", true,
                 new ConfigDescription("Also block raid/event spawns inside the radius, so raiders must spawn beyond it. " +
                     "With a large radius and players near the stone, raids may spawn few or no creatures.",
+                    null, adminOnly));
+            KeepDroppedItems = Config.Bind("General", "KeepDroppedItems", true,
+                new ConfigDescription("Dropped items inside an active warden stone's radius never despawn, " +
+                    "as items inside a vanilla base (near a workbench or fire) don't.",
                     null, adminOnly));
             ShowHull = Config.Bind("Visuals", "ShowHull", HullVisibility.Always,
                 "When to show the amber haze marking an active ward's radius. Client-side only.");

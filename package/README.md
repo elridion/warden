@@ -28,6 +28,8 @@ crafting station extensions, widen the protected area as you progress.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
 - An animated amber haze sphere marks the protected area while the ward is active.
   Overlapping wards merge into one common hull.
+- Items dropped inside an active stone's radius never despawn, as in a vanilla base (near a
+  workbench or fire). Turn `KeepDroppedItems` off for vanilla despawning.
 - Like the vanilla ward, an active stone flashes when something inside its radius takes damage, so
   you notice when creatures attack your walls.
 - Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
@@ -60,6 +62,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20) |
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
 | `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
+| `KeepDroppedItems` | true | Dropped items inside an active stone's radius never despawn |
 | `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
 | `FlashOnDamage` | true | Flash the stone when something inside its radius is damaged |
 

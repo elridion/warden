@@ -24,6 +24,7 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 | `src/WardExtension.cs` | Upgrade component: counts upgrades in range of a stone, connection beam effect |
 | `src/WardHull.cs` | Runtime-generated animated haze sphere; merges with overlapping hulls |
 | `src/SpawnPatches.cs` | `SpawnSystem` patches that reject spawn points inside active wards |
+| `src/ItemPatches.cs` | `ItemDrop.IsInsideBase` postfix: dropped items inside active wards don't despawn |
 | `src/FlashPatches.cs` | `PrivateArea.OnObjectDamaged` postfix that flashes the closest active ward when something inside it is damaged |
 | `src/PlacementPatches.cs` | Placement rule: upgrades need a warden stone within `UpgradeRange` |
 | `src/ObjLoader.cs`, `src/OfferingCupModel.cs` | Minimal OBJ reader and the offering cup model (with lathed fallback) |
