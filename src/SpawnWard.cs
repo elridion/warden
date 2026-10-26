@@ -12,6 +12,7 @@ namespace Warden
         private static readonly List<SpawnWard> s_instances = new List<SpawnWard>();
         private static readonly int s_enabledHash = "spawnward_enabled".GetStableHashCode();
         private const string RpcToggle = "SpawnWard_Toggle";
+        private const string RpcFlash = "SpawnWard_Flash";
         private static readonly int s_emissionColor = Shader.PropertyToID("_EmissionColor");
         // The vanilla ward's amber rune glow; above 1 so the runes bloom.
         private static readonly Color s_runeGlow = new Color(1.934f, 1.017f, 0.185f);
@@ -24,9 +25,11 @@ namespace Warden
         public CircleProjector m_areaMarker;
         public EffectList m_activateEffect = new EffectList();
         public EffectList m_deactivateEffect = new EffectList();
+        public EffectList m_flashEffect = new EffectList();
         public float m_hoverOffset = 1f;
 
         private ZNetView m_nview;
+        private bool m_flashAvailable = true;
         private bool m_lastEnabled;
         private bool m_statusInitialized;
         private bool m_isGhost;
@@ -52,6 +55,29 @@ namespace Warden
                 if (dx * dx + dz * dz <= radius * radius) return true;
             }
             return false;
+        }
+
+        // Flashes the closest active ward covering the point, as the vanilla ward does when something
+        // inside it is damaged. Only the closest, so overlapping wards don't all flash for one hit.
+        public static void FlashWardAt(Vector3 point)
+        {
+            SpawnWard closest = null;
+            float best = float.MaxValue;
+            foreach (var ward in s_instances)
+            {
+                if (!ward || !ward.IsEnabled()) continue;
+
+                Vector3 pos = ward.transform.position;
+                float dx = pos.x - point.x;
+                float dz = pos.z - point.z;
+                float distanceSqr = dx * dx + dz * dz;
+                float radius = ward.Radius;
+                if (distanceSqr > radius * radius || distanceSqr >= best) continue;
+
+                best = distanceSqr;
+                closest = ward;
+            }
+            if (closest) closest.Flash();
         }
 
         public static SpawnWard FindClosestWard(Vector3 point, float maxDistance)
@@ -88,6 +114,9 @@ namespace Warden
 
             if (m_areaMarker) m_areaMarker.gameObject.SetActive(false);
             m_nview.Register(RpcToggle, RPC_Toggle);
+            m_nview.Register(RpcFlash, RPC_Flash);
+            var wearNTear = GetComponent<WearNTear>();
+            if (wearNTear) wearNTear.m_onDamaged += OnDamaged;
             s_instances.Add(this);
             InvokeRepeating(nameof(UpdateStatus), 0f, 1f);
         }
@@ -161,6 +190,8 @@ namespace Warden
         {
             bool enabled = IsEnabled();
             if (m_enabledEffect) m_enabledEffect.SetActive(enabled);
+            // At most one flash per second, so a creature chewing on a wall doesn't flash every hit.
+            m_flashAvailable = true;
             UpdateRuneGlow(enabled);
             RefreshLevel();
 
@@ -189,6 +220,26 @@ namespace Warden
             if (!m_nview.IsOwner()) return;
             m_nview.GetZDO().Set(s_enabledHash, !IsEnabled());
             UpdateStatus();
+        }
+
+        // Damage to the stone itself, raised by WearNTear on the stone's owner.
+        private void OnDamaged()
+        {
+            if (IsEnabled()) Flash();
+        }
+
+        // Runs on whichever peer applied the damage, so the flash is sent to everybody.
+        private void Flash()
+        {
+            if (!m_flashAvailable || !m_nview || !m_nview.IsValid()) return;
+            m_flashAvailable = false;
+            m_nview.InvokeRPC(ZNetView.Everybody, RpcFlash);
+        }
+
+        private void RPC_Flash(long sender)
+        {
+            if (!WardenPlugin.FlashOnDamage.Value) return;
+            m_flashEffect?.Create(transform.position, Quaternion.identity);
         }
 
         public string GetHoverText()

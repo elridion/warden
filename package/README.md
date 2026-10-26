@@ -28,6 +28,8 @@ crafting station extensions, widen the protected area as you progress.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
 - An animated amber haze sphere marks the protected area while the ward is active.
   Overlapping wards merge into one common hull.
+- Like the vanilla ward, an active stone flashes when something inside its radius takes damage, so
+  you notice when creatures attack your walls.
 - Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
   large radius and everyone near the stone, a raid may find nowhere to spawn and bring few or no
   creatures; turn `BlockEventSpawns` off to let raiders spawn inside the radius as in vanilla.
@@ -49,7 +51,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 ## Configuration
 
 `BepInEx/config/elridion.warden.cfg`. Everything under `General` is server-synced and admin-only;
-`ShowHull` is per client.
+`Visuals` (`ShowHull`, `FlashOnDamage`) is per client.
 
 | Key | Default | Description |
 | --- | --- | --- |
@@ -59,6 +61,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
 | `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
 | `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
+| `FlashOnDamage` | true | Flash the stone when something inside its radius is damaged |
 
 ## Requirements
 

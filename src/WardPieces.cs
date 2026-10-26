@@ -124,6 +124,7 @@ namespace Warden
                 ward.m_areaMarker = privateArea.m_areaMarker;
                 ward.m_activateEffect = privateArea.m_activateEffect;
                 ward.m_deactivateEffect = privateArea.m_deactivateEffect;
+                ward.m_flashEffect = privateArea.m_flashEffect;
                 ward.m_hoverOffset = privateArea.m_hoverOffset;
                 // The glowing stone; ReplaceWardModel points it at the rune stone instead.
                 ward.m_model = privateArea.m_model;

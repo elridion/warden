@@ -24,6 +24,7 @@ namespace Warden
         public static ConfigEntry<int> MaxStackedUpgrades;
         public static ConfigEntry<bool> BlockEventSpawns;
         public static ConfigEntry<HullVisibility> ShowHull;
+        public static ConfigEntry<bool> FlashOnDamage;
 
         private Harmony _harmony;
 
@@ -50,6 +51,8 @@ namespace Warden
                     null, adminOnly));
             ShowHull = Config.Bind("Visuals", "ShowHull", HullVisibility.Always,
                 "When to show the amber haze marking an active ward's radius. Client-side only.");
+            FlashOnDamage = Config.Bind("Visuals", "FlashOnDamage", true,
+                "Flash an active warden stone, as the vanilla ward does, when something inside its radius is damaged. Client-side only.");
 
             AddLocalizations();
             PrefabManager.OnVanillaPrefabsAvailable += WardPieces.Register;

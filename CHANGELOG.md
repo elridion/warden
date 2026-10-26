@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- An active warden stone now flashes like the vanilla ward when a building, rock or other object
+  inside its radius takes damage, or when the stone itself is hit. Turn it off per client with the
+  new `FlashOnDamage` setting.
+
 ## 0.3.5
 
 - Bug reports and feedback now go to the #warden channel on Discord: https://discord.gg/TsJGEmKj6V
