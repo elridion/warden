@@ -13,6 +13,8 @@
 - New server setting `PlayerBaseArea` (off by default): also marks an active warden stone's radius as a
   vanilla player base, for mods that only respect those. It also stops nests inside and counts
   toward raids; see the mod page.
+- Piece names, descriptions and messages are translated into every language Valheim offers except
+  Abenaki, and follow the game's language setting.
 - Everyone on a server needs 0.4.x; players on 0.3.x cannot join.
 
 ## 0.3.5

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Камен на чуварот",
+  "piece_spawnward_description": "Диви суштества не се појавуваат таму каде што бдее овој камен.",
+  "piece_spawnward_ext1": "Рунско знаме од кожа",
+  "piece_spawnward_ext1_description": "Руни на примирје, исцртани со калај. Бдеењето на каменот на чуварот допира подалеку.",
+  "piece_spawnward_ext2": "Свет идол",
+  "piece_spawnward_ext2_description": "Железно срце чука во каменот. Духовите на земјата забележуваат.",
+  "piece_spawnward_ext3": "Чаша за жртви",
+  "piece_spawnward_ext3_description": "Наполнета за духовите, никогаш испразнета.",
+  "piece_spawnward_ext4": "Ритуални свеќи",
+  "piece_spawnward_ext4_description": "Восок и катран, изгорени заедно. Никогаш не згаснуваат и ништо не се прикрадува блиску.",
+  "spawnward_level": "Ниво",
+  "spawnward_connected": "Зајакнува камен на чуварот",
+  "spawnward_notconnected": "Нема камен на чуварот во близина",
+  "spawnward_needstone": "Мора да се постави најмногу $1 м од камен на чуварот"
+}

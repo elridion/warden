@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Vogtersten",
+  "piece_spawnward_description": "Vilde væsner rejser sig ikke, hvor denne sten holder vagt.",
+  "piece_spawnward_ext1": "Runebanner af skind",
+  "piece_spawnward_ext1_description": "Våbenhvilens runer, tegnet med tin. Vogterstenens vagt rækker længere.",
+  "piece_spawnward_ext2": "Helligt idol",
+  "piece_spawnward_ext2_description": "Et jernhjerte banker i stenen. Landets ånder lægger mærke til det.",
+  "piece_spawnward_ext3": "Offerbæger",
+  "piece_spawnward_ext3_description": "Fyldt for ånderne, aldrig tømt.",
+  "piece_spawnward_ext4": "Rituelle lys",
+  "piece_spawnward_ext4_description": "Voks og tjære, brændt ned sammen. De blafrer aldrig ud, og intet sniger sig nær.",
+  "spawnward_level": "Niveau",
+  "spawnward_connected": "Styrker en vogtersten",
+  "spawnward_notconnected": "Ingen vogtersten i nærheden",
+  "spawnward_needstone": "Skal placeres inden for $1 m af en vogtersten"
+}

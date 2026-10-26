@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Kamen čuvara",
+  "piece_spawnward_description": "Divlja stvorenja ne niču tamo gde ovaj kamen bdi.",
+  "piece_spawnward_ext1": "Runski barjak od kože",
+  "piece_spawnward_ext1_description": "Rune primirja, ispisane kalajem. Bdenje kamena čuvara seže dalje.",
+  "piece_spawnward_ext2": "Sveti idol",
+  "piece_spawnward_ext2_description": "U kamenu kuca gvozdeno srce. Duhovi zemlje to primećuju.",
+  "piece_spawnward_ext3": "Žrtvena čaša",
+  "piece_spawnward_ext3_description": "Napunjena za duhove, nikad ispražnjena.",
+  "piece_spawnward_ext4": "Obredne sveće",
+  "piece_spawnward_ext4_description": "Vosak i katran, izgoreli zajedno. Nikad se ne gase i ništa se ne prikrada blizu.",
+  "spawnward_level": "Nivo",
+  "spawnward_connected": "Jača kamen čuvara",
+  "spawnward_notconnected": "Nema kamena čuvara u blizini",
+  "spawnward_needstone": "Mora se postaviti unutar $1 m od kamena čuvara"
+}

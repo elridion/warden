@@ -81,6 +81,13 @@ stone's radius as a vanilla player base. That brings vanilla's other base effect
 - Vanilla may keep raid creatures out of the radius even with `BlockEventSpawns` off.
 - Dropped items inside never despawn, even with `KeepDroppedItems` off.
 
+## Languages
+
+Piece names, descriptions and messages follow the game's language setting, in every language
+Valheim offers except Abenaki, which shows English. The translations have not been checked by
+native speakers yet; corrections are welcome on GitHub (see below). Configuration descriptions stay
+in English.
+
 ## Requirements
 
 - BepInEx for Valheim

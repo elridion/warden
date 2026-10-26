@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Piedra del celador",
+  "piece_spawnward_description": "Las criaturas salvajes no surgen donde esta piedra vigila.",
+  "piece_spawnward_ext1": "Estandarte rúnico de piel",
+  "piece_spawnward_ext1_description": "Runas de tregua, trazadas con estaño. La vigilancia de la piedra del celador llega más lejos.",
+  "piece_spawnward_ext2": "Ídolo sagrado",
+  "piece_spawnward_ext2_description": "Un corazón de hierro late en la piedra. Los espíritus de la tierra se dan cuenta.",
+  "piece_spawnward_ext3": "Copa de ofrendas",
+  "piece_spawnward_ext3_description": "Llena para los espíritus, nunca vaciada.",
+  "piece_spawnward_ext4": "Velas rituales",
+  "piece_spawnward_ext4_description": "Cera y brea, consumidas juntas. Nunca se apagan, y nada se acerca a hurtadillas.",
+  "spawnward_level": "Nivel",
+  "spawnward_connected": "Refuerza una piedra del celador",
+  "spawnward_notconnected": "No hay ninguna piedra del celador cerca",
+  "spawnward_needstone": "Debe colocarse a menos de $1 m de una piedra del celador"
+}

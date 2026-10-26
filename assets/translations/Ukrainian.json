@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Камінь вартового",
+  "piece_spawnward_description": "Там, де пильнує цей камінь, дикі істоти не з’являються.",
+  "piece_spawnward_ext1": "Рунічний стяг зі шкури",
+  "piece_spawnward_ext1_description": "Руни перемир’я, накреслені оловом. Пильність каменя вартового сягає далі.",
+  "piece_spawnward_ext2": "Священний ідол",
+  "piece_spawnward_ext2_description": "У камені б’ється залізне серце. Духи землі звертають на це увагу.",
+  "piece_spawnward_ext3": "Чаша підношень",
+  "piece_spawnward_ext3_description": "Наповнена для духів і ніколи не спорожніла.",
+  "piece_spawnward_ext4": "Ритуальні свічки",
+  "piece_spawnward_ext4_description": "Віск і смола, що згоріли разом. Вони ніколи не гаснуть, і ніщо не підкрадається близько.",
+  "spawnward_level": "Рівень",
+  "spawnward_connected": "Посилює камінь вартового",
+  "spawnward_notconnected": "Поблизу немає каменя вартового",
+  "spawnward_needstone": "Потрібно розмістити не далі ніж за $1 м від каменя вартового"
+}

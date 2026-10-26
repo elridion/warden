@@ -36,6 +36,12 @@
     <EmbeddedResource Include="assets\textures\rune_stone_glow.png" LogicalName="Warden.rune_stone_glow.png" />
   </ItemGroup>
 
+  <!-- Player-facing text, one Jotunn JSON file per Valheim language, loaded by
+       WardenPlugin.AddLocalizations as Warden.translations.<Language>.json. -->
+  <ItemGroup>
+    <EmbeddedResource Include="assets\translations\*.json" LogicalName="Warden.translations.%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <!-- Thunderstore/Hexium package: dotnet build -c Release -t:Package -->
   <PropertyGroup>
     <PackageDescription>Spawn-proof your base without a ring of workbenches: a buildable rune stone that blocks random creature spawns in its radius, with upgrades from each biome that extend its reach.</PackageDescription>

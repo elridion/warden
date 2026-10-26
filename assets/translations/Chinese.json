@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "守望石",
+  "piece_spawnward_description": "此石守望之处，野物不生。",
+  "piece_spawnward_ext1": "符文皮旗",
+  "piece_spawnward_ext1_description": "以锡书写的休战符文。守望石的守望范围更远。",
+  "piece_spawnward_ext2": "圣像",
+  "piece_spawnward_ext2_description": "石中跳动着一颗铁之心。大地之灵为之瞩目。",
+  "piece_spawnward_ext3": "祭杯",
+  "piece_spawnward_ext3_description": "为众灵斟满，永不倒空。",
+  "piece_spawnward_ext4": "仪式蜡烛",
+  "piece_spawnward_ext4_description": "蜡与焦油一同燃尽。烛火从不熄灭，也无物敢悄然靠近。",
+  "spawnward_level": "等级",
+  "spawnward_connected": "强化守望石",
+  "spawnward_notconnected": "附近没有守望石",
+  "spawnward_needstone": "必须放置在守望石 $1 米范围内"
+}

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Wachtersteen",
+  "piece_spawnward_description": "Waar deze steen de wacht houdt, rijzen geen wilde wezens op.",
+  "piece_spawnward_ext1": "Runenbanier van huid",
+  "piece_spawnward_ext1_description": "Runen van wapenstilstand, met tin getekend. De wacht van de wachtersteen reikt verder.",
+  "piece_spawnward_ext2": "Heilig afgodsbeeld",
+  "piece_spawnward_ext2_description": "Een ijzeren hart klopt in de steen. De geesten van het land merken het op.",
+  "piece_spawnward_ext3": "Offerbeker",
+  "piece_spawnward_ext3_description": "Gevuld voor de geesten, nooit geleegd.",
+  "piece_spawnward_ext4": "Rituele kaarsen",
+  "piece_spawnward_ext4_description": "Was en teer, samen opgebrand. Ze doven nooit, en niets sluipt dichterbij.",
+  "spawnward_level": "Niveau",
+  "spawnward_connected": "Versterkt een wachtersteen",
+  "spawnward_notconnected": "Geen wachtersteen in de buurt",
+  "spawnward_needstone": "Moet binnen $1 m van een wachtersteen worden geplaatst"
+}

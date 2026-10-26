@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Sargybos akmuo",
+  "piece_spawnward_description": "Ten, kur budi šis akmuo, laukiniai padarai nepakyla.",
+  "piece_spawnward_ext1": "Runomis išmarginta odos vėliava",
+  "piece_spawnward_ext1_description": "Paliaubų runos, išvedžiotos alavu. Sargybos akmens budėjimas siekia toliau.",
+  "piece_spawnward_ext2": "Šventas stabas",
+  "piece_spawnward_ext2_description": "Akmenyje plaka geležinė širdis. Žemės dvasios tai pastebi.",
+  "piece_spawnward_ext3": "Aukų taurė",
+  "piece_spawnward_ext3_description": "Pripildyta dvasioms, niekada neištuštinta.",
+  "piece_spawnward_ext4": "Ritualinės žvakės",
+  "piece_spawnward_ext4_description": "Vaškas ir derva, sudegę kartu. Jos niekada neužgęsta, ir niekas neprisėlina arti.",
+  "spawnward_level": "Lygis",
+  "spawnward_connected": "Sustiprina sargybos akmenį",
+  "spawnward_notconnected": "Netoliese nėra sargybos akmens",
+  "spawnward_needstone": "Turi būti pastatyta ne toliau kaip $1 m nuo sargybos akmens"
+}

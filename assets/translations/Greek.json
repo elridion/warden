@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Πέτρα του φύλακα",
+  "piece_spawnward_description": "Όπου αγρυπνεί αυτή η πέτρα, τα άγρια πλάσματα δεν ξεπροβάλλουν.",
+  "piece_spawnward_ext1": "Ρουνικό λάβαρο από δέρμα",
+  "piece_spawnward_ext1_description": "Ρούνοι ανακωχής, χαραγμένοι με κασσίτερο. Η επαγρύπνηση της πέτρας του φύλακα φτάνει μακρύτερα.",
+  "piece_spawnward_ext2": "Ιερό είδωλο",
+  "piece_spawnward_ext2_description": "Μια σιδερένια καρδιά χτυπά μέσα στην πέτρα. Τα πνεύματα της γης το προσέχουν.",
+  "piece_spawnward_ext3": "Κύπελλο προσφορών",
+  "piece_spawnward_ext3_description": "Γεμάτο για τα πνεύματα, ποτέ αδειανό.",
+  "piece_spawnward_ext4": "Τελετουργικά κεριά",
+  "piece_spawnward_ext4_description": "Κερί και πίσσα, λιωμένα μαζί. Ποτέ δεν σβήνουν, και τίποτα δεν πλησιάζει κρυφά.",
+  "spawnward_level": "Επίπεδο",
+  "spawnward_connected": "Ενισχύει μια πέτρα του φύλακα",
+  "spawnward_notconnected": "Καμία πέτρα του φύλακα κοντά",
+  "spawnward_needstone": "Πρέπει να τοποθετηθεί σε απόσταση έως $1 m από πέτρα του φύλακα"
+}

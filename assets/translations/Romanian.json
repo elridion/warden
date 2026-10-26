@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Piatra străjerului",
+  "piece_spawnward_description": "Făpturile sălbatice nu se ivesc acolo unde veghează această piatră.",
+  "piece_spawnward_ext1": "Stindard runic din piele",
+  "piece_spawnward_ext1_description": "Rune de armistițiu, trasate cu cositor. Veghea pietrei străjerului ajunge mai departe.",
+  "piece_spawnward_ext2": "Idol sacru",
+  "piece_spawnward_ext2_description": "O inimă de fier bate în piatră. Spiritele pământului iau aminte.",
+  "piece_spawnward_ext3": "Cupă de ofrandă",
+  "piece_spawnward_ext3_description": "Umplută pentru spirite, niciodată golită.",
+  "piece_spawnward_ext4": "Lumânări rituale",
+  "piece_spawnward_ext4_description": "Ceară și smoală, arse împreună. Nu se sting niciodată, și nimic nu se furișează aproape.",
+  "spawnward_level": "Nivel",
+  "spawnward_connected": "Întărește o piatră a străjerului",
+  "spawnward_notconnected": "Nicio piatră a străjerului în apropiere",
+  "spawnward_needstone": "Trebuie plasat la cel mult $1 m de o piatră a străjerului"
+}

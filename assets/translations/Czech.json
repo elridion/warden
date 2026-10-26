@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Hlídkový kámen",
+  "piece_spawnward_description": "Kde tento kámen drží stráž, divoká stvoření nepovstanou.",
+  "piece_spawnward_ext1": "Runový prapor z kůže",
+  "piece_spawnward_ext1_description": "Runy příměří, vepsané cínem. Stráž hlídkového kamene sahá dál.",
+  "piece_spawnward_ext2": "Posvátná modla",
+  "piece_spawnward_ext2_description": "V kameni tluče železné srdce. Duchové země si toho všímají.",
+  "piece_spawnward_ext3": "Obětní pohár",
+  "piece_spawnward_ext3_description": "Naplněný pro duchy, nikdy nevyprázdněný.",
+  "piece_spawnward_ext4": "Rituální svíce",
+  "piece_spawnward_ext4_description": "Vosk a dehet, dohořelé spolu. Nikdy nezhasnou a nic se nepřiplíží blízko.",
+  "spawnward_level": "Úroveň",
+  "spawnward_connected": "Posiluje hlídkový kámen",
+  "spawnward_notconnected": "Žádný hlídkový kámen poblíž",
+  "spawnward_needstone": "Musí být umístěno nejvýše $1 m od hlídkového kamene"
+}

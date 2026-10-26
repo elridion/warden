@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Vērotāja akmens",
+  "piece_spawnward_description": "Kur šis akmens tur sardzi, savvaļas radības necelsies.",
+  "piece_spawnward_ext1": "Rūnots ādas karogs",
+  "piece_spawnward_ext1_description": "Pamiera rūnas, ievilktas ar alvu. Vērotāja akmens sardze sniedzas tālāk.",
+  "piece_spawnward_ext2": "Svēts elks",
+  "piece_spawnward_ext2_description": "Akmenī pukst dzelzs sirds. Zemes gari to pamana.",
+  "piece_spawnward_ext3": "Upura kauss",
+  "piece_spawnward_ext3_description": "Piepildīts gariem, nekad neiztukšots.",
+  "piece_spawnward_ext4": "Rituāla sveces",
+  "piece_spawnward_ext4_description": "Vasks un darva, nodeguši kopā. Tās nekad nenodziest, un nekas nepielavās tuvu.",
+  "spawnward_level": "Līmenis",
+  "spawnward_connected": "Stiprina vērotāja akmeni",
+  "spawnward_notconnected": "Tuvumā nav vērotāja akmens",
+  "spawnward_needstone": "Jānovieto ne tālāk kā $1 m no vērotāja akmens"
+}

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Камък на стража",
+  "piece_spawnward_description": "Диви твари не се надигат там, където бди този камък.",
+  "piece_spawnward_ext1": "Руническо знаме от кожа",
+  "piece_spawnward_ext1_description": "Руни на примирие, изписани с калай. Бдението на камъка на стража стига по-далеч.",
+  "piece_spawnward_ext2": "Свещен идол",
+  "piece_spawnward_ext2_description": "Железно сърце бие в камъка. Духовете на земята го забелязват.",
+  "piece_spawnward_ext3": "Чаша за дарове",
+  "piece_spawnward_ext3_description": "Пълна за духовете, никога не се изпразва.",
+  "piece_spawnward_ext4": "Ритуални свещи",
+  "piece_spawnward_ext4_description": "Восък и катран, изгорели заедно. Никога не угасват и нищо не се прокрадва наблизо.",
+  "spawnward_level": "Ниво",
+  "spawnward_connected": "Укрепва камък на стража",
+  "spawnward_notconnected": "Няма камък на стража наблизо",
+  "spawnward_needstone": "Трябва да се постави на не повече от $1 м от камък на стража"
+}

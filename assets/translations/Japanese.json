@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "番人の石",
+  "piece_spawnward_description": "この石が見張る地に、野の獣は湧かない。",
+  "piece_spawnward_ext1": "ルーンの毛皮旗",
+  "piece_spawnward_ext1_description": "錫で描かれた休戦のルーン。番人の石の見張りがより遠くまで届く。",
+  "piece_spawnward_ext2": "聖なる偶像",
+  "piece_spawnward_ext2_description": "石の中で鉄の心臓が脈打つ。大地の精霊がそれに気づく。",
+  "piece_spawnward_ext3": "供物の杯",
+  "piece_spawnward_ext3_description": "精霊のために満たされ、決して空にならない。",
+  "piece_spawnward_ext4": "儀式のろうそく",
+  "piece_spawnward_ext4_description": "蝋とタールが共に燃え尽きた。決して消えず、何者も忍び寄らない。",
+  "spawnward_level": "レベル",
+  "spawnward_connected": "番人の石を強化する",
+  "spawnward_notconnected": "近くに番人の石がない",
+  "spawnward_needstone": "番人の石から$1 m以内に設置する必要がある"
+}

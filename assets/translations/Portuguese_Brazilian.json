@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Pedra do guardião",
+  "piece_spawnward_description": "Criaturas selvagens não surgem onde esta pedra vigia.",
+  "piece_spawnward_ext1": "Estandarte rúnico de couro",
+  "piece_spawnward_ext1_description": "Runas de trégua, traçadas com estanho. A vigília da pedra do guardião alcança mais longe.",
+  "piece_spawnward_ext2": "Ídolo sagrado",
+  "piece_spawnward_ext2_description": "Um coração de ferro bate na pedra. Os espíritos da terra percebem.",
+  "piece_spawnward_ext3": "Taça de oferendas",
+  "piece_spawnward_ext3_description": "Cheia para os espíritos, nunca esvaziada.",
+  "piece_spawnward_ext4": "Velas rituais",
+  "piece_spawnward_ext4_description": "Cera e piche, queimados juntos. Elas nunca se apagam, e nada se aproxima de fininho.",
+  "spawnward_level": "Nível",
+  "spawnward_connected": "Fortalece uma pedra do guardião",
+  "spawnward_notconnected": "Nenhuma pedra do guardião por perto",
+  "spawnward_needstone": "Precisa ser colocado a até $1 m de uma pedra do guardião"
+}

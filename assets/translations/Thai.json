@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "ศิลาผู้พิทักษ์",
+  "piece_spawnward_description": "ที่ใดที่ศิลานี้เฝ้าระวัง สิ่งป่าเถื่อนจะไม่ผุดขึ้น",
+  "piece_spawnward_ext1": "ธงหนังสลักรูน",
+  "piece_spawnward_ext1_description": "รูนแห่งการสงบศึก เขียนด้วยดีบุก การเฝ้าระวังของศิลาผู้พิทักษ์แผ่ไกลขึ้น",
+  "piece_spawnward_ext2": "รูปเคารพศักดิ์สิทธิ์",
+  "piece_spawnward_ext2_description": "หัวใจเหล็กเต้นอยู่ในศิลา วิญญาณแห่งผืนดินสังเกตเห็น",
+  "piece_spawnward_ext3": "ถ้วยบูชา",
+  "piece_spawnward_ext3_description": "เติมไว้ให้วิญญาณ ไม่เคยว่างเปล่า",
+  "piece_spawnward_ext4": "เทียนพิธีกรรม",
+  "piece_spawnward_ext4_description": "ขี้ผึ้งและน้ำมันดิน มอดไหม้ไปด้วยกัน ไม่เคยดับ และไม่มีสิ่งใดย่องเข้าใกล้",
+  "spawnward_level": "ระดับ",
+  "spawnward_connected": "เสริมพลังศิลาผู้พิทักษ์",
+  "spawnward_notconnected": "ไม่มีศิลาผู้พิทักษ์อยู่ใกล้ๆ",
+  "spawnward_needstone": "ต้องวางไว้ภายใน $1 ม. จากศิลาผู้พิทักษ์"
+}

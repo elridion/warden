@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Väktarsten",
+  "piece_spawnward_description": "Vilda väsen reser sig inte där denna sten håller vakt.",
+  "piece_spawnward_ext1": "Runmärkt hudbaner",
+  "piece_spawnward_ext1_description": "Fredsrunor, tecknade i tenn. Väktarstenens vakt når längre.",
+  "piece_spawnward_ext2": "Helig idol",
+  "piece_spawnward_ext2_description": "Ett järnhjärta slår i stenen. Landets andar lägger märke till det.",
+  "piece_spawnward_ext3": "Offerbägare",
+  "piece_spawnward_ext3_description": "Fylld åt andarna, aldrig tömd.",
+  "piece_spawnward_ext4": "Ritualljus",
+  "piece_spawnward_ext4_description": "Vax och tjära, nedbrunna tillsammans. De fladdrar aldrig ut, och inget smyger nära.",
+  "spawnward_level": "Nivå",
+  "spawnward_connected": "Stärker en väktarsten",
+  "spawnward_notconnected": "Ingen väktarsten i närheten",
+  "spawnward_needstone": "Måste placeras inom $1 m från en väktarsten"
+}

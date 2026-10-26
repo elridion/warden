@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System.IO;
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
@@ -15,6 +15,8 @@ namespace Warden
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
         public const string PluginVersion = "0.4.0";
+
+        private const string TranslationPrefix = "Warden.translations.";
 
         public enum HullVisibility { Always, OnHover, Off }
 
@@ -77,25 +79,19 @@ namespace Warden
             _harmony?.UnpatchSelf();
         }
 
+        // Each embedded assets/translations/<Language>.json is named after a Valheim language. Jotunn
+        // falls back to English for languages and keys without a translation.
         private static void AddLocalizations()
         {
-            LocalizationManager.Instance.GetLocalization().AddTranslation("English", new Dictionary<string, string>
+            var localization = LocalizationManager.Instance.GetLocalization();
+            var assembly = typeof(WardenPlugin).Assembly;
+            foreach (string resource in assembly.GetManifestResourceNames())
             {
-                { "piece_spawnward", "Warden stone" },
-                { "piece_spawnward_description", "Wild things will not rise where this stone keeps watch." },
-                { "piece_spawnward_ext1", "Runed hide banner" },
-                { "piece_spawnward_ext1_description", "Runes of truce, inked in tin. The warden stone's watch reaches further." },
-                { "piece_spawnward_ext2", "Sacred idol" },
-                { "piece_spawnward_ext2_description", "An iron heart beats in the stone. The spirits of the land take notice." },
-                { "piece_spawnward_ext3", "Offering cup" },
-                { "piece_spawnward_ext3_description", "Filled for the spirits, never emptied." },
-                { "piece_spawnward_ext4", "Ritual candles" },
-                { "piece_spawnward_ext4_description", "Wax and tar, burned down together. They never gutter, and nothing creeps close." },
-                { "spawnward_level", "Level" },
-                { "spawnward_connected", "Strengthens a warden stone" },
-                { "spawnward_notconnected", "No warden stone nearby" },
-                { "spawnward_needstone", "Must be placed within $1 m of a warden stone" },
-            });
+                if (!resource.StartsWith(TranslationPrefix) || !resource.EndsWith(".json")) continue;
+                string language = resource.Substring(TranslationPrefix.Length, resource.Length - TranslationPrefix.Length - ".json".Length);
+                using (var reader = new StreamReader(assembly.GetManifestResourceStream(resource)))
+                    localization.AddJsonFile(language, reader.ReadToEnd());
+            }
         }
     }
 }

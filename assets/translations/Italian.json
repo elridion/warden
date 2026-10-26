@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Pietra della sentinella",
+  "piece_spawnward_description": "Le creature selvagge non sorgono dove questa pietra veglia.",
+  "piece_spawnward_ext1": "Stendardo di pelle runica",
+  "piece_spawnward_ext1_description": "Rune di tregua, tracciate con lo stagno. La veglia della pietra della sentinella si spinge più lontano.",
+  "piece_spawnward_ext2": "Idolo sacro",
+  "piece_spawnward_ext2_description": "Un cuore di ferro batte nella pietra. Gli spiriti della terra se ne accorgono.",
+  "piece_spawnward_ext3": "Coppa delle offerte",
+  "piece_spawnward_ext3_description": "Riempita per gli spiriti, mai svuotata.",
+  "piece_spawnward_ext4": "Candele rituali",
+  "piece_spawnward_ext4_description": "Cera e catrame, consumati insieme. Non si spengono mai, e nulla si avvicina strisciando.",
+  "spawnward_level": "Livello",
+  "spawnward_connected": "Rafforza una pietra della sentinella",
+  "spawnward_notconnected": "Nessuna pietra della sentinella nelle vicinanze",
+  "spawnward_needstone": "Deve essere posizionato entro $1 m da una pietra della sentinella"
+}

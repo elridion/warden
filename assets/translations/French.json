@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Pierre du gardien",
+  "piece_spawnward_description": "Les créatures sauvages ne surgissent pas là où veille cette pierre.",
+  "piece_spawnward_ext1": "Bannière de peau runique",
+  "piece_spawnward_ext1_description": "Des runes de trêve, tracées à l'étain. La veille de la pierre du gardien porte plus loin.",
+  "piece_spawnward_ext2": "Idole sacrée",
+  "piece_spawnward_ext2_description": "Un cœur de fer bat dans la pierre. Les esprits de la terre y prêtent attention.",
+  "piece_spawnward_ext3": "Coupe d'offrande",
+  "piece_spawnward_ext3_description": "Remplie pour les esprits, jamais vidée.",
+  "piece_spawnward_ext4": "Bougies rituelles",
+  "piece_spawnward_ext4_description": "Cire et goudron, consumés ensemble. Elles ne vacillent jamais, et rien ne s'approche en rampant.",
+  "spawnward_level": "Niveau",
+  "spawnward_connected": "Renforce une pierre du gardien",
+  "spawnward_notconnected": "Aucune pierre du gardien à proximité",
+  "spawnward_needstone": "Doit être placé à moins de $1 m d'une pierre du gardien"
+}

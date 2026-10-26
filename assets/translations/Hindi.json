@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "प्रहरी पत्थर",
+  "piece_spawnward_description": "जहाँ यह पत्थर पहरा देता है, वहाँ जंगली जीव नहीं उठते।",
+  "piece_spawnward_ext1": "रूनों वाला खाल का ध्वज",
+  "piece_spawnward_ext1_description": "टिन से अंकित संधि के रून। प्रहरी पत्थर का पहरा और दूर तक पहुँचता है।",
+  "piece_spawnward_ext2": "पवित्र मूर्ति",
+  "piece_spawnward_ext2_description": "पत्थर में एक लौह हृदय धड़कता है। धरती की आत्माएँ इस पर ध्यान देती हैं।",
+  "piece_spawnward_ext3": "चढ़ावे का प्याला",
+  "piece_spawnward_ext3_description": "आत्माओं के लिए भरा गया, कभी खाली नहीं हुआ।",
+  "piece_spawnward_ext4": "अनुष्ठान की मोमबत्तियाँ",
+  "piece_spawnward_ext4_description": "मोम और तारकोल, एक साथ जलकर खत्म हुए। वे कभी नहीं बुझतीं, और कुछ भी पास नहीं रेंगता।",
+  "spawnward_level": "स्तर",
+  "spawnward_connected": "एक प्रहरी पत्थर को मज़बूत करता है",
+  "spawnward_notconnected": "पास में कोई प्रहरी पत्थर नहीं",
+  "spawnward_needstone": "किसी प्रहरी पत्थर से $1 मी. के भीतर रखा जाना चाहिए"
+}

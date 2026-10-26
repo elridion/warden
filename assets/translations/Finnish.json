@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Vartijakivi",
+  "piece_spawnward_description": "Villit olennot eivät nouse siellä, missä tämä kivi valvoo.",
+  "piece_spawnward_ext1": "Riimutettu nahkalippu",
+  "piece_spawnward_ext1_description": "Rauhan riimuja tinalla piirrettyinä. Vartijakiven valvonta ulottuu kauemmas.",
+  "piece_spawnward_ext2": "Pyhä idoli",
+  "piece_spawnward_ext2_description": "Kivessä sykkii rautainen sydän. Maan henget huomaavat sen.",
+  "piece_spawnward_ext3": "Uhrimalja",
+  "piece_spawnward_ext3_description": "Täytetty hengille, ei koskaan tyhjennetty.",
+  "piece_spawnward_ext4": "Rituaalikynttilät",
+  "piece_spawnward_ext4_description": "Vahaa ja tervaa, palaneet yhdessä loppuun. Ne eivät koskaan sammu, eikä mikään hiivi lähelle.",
+  "spawnward_level": "Taso",
+  "spawnward_connected": "Vahvistaa vartijakiveä",
+  "spawnward_notconnected": "Ei vartijakiveä lähellä",
+  "spawnward_needstone": "On sijoitettava enintään $1 m:n päähän vartijakivestä"
+}

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Vokterstein",
+  "piece_spawnward_description": "Ville vesener reiser seg ikke der denne steinen holder vakt.",
+  "piece_spawnward_ext1": "Runebanner av skinn",
+  "piece_spawnward_ext1_description": "Fredsruner, tegnet med tinn. Voktersteinens vakt rekker lenger.",
+  "piece_spawnward_ext2": "Hellig idol",
+  "piece_spawnward_ext2_description": "Et jernhjerte slår i steinen. Landets ånder legger merke til det.",
+  "piece_spawnward_ext3": "Offerbeger",
+  "piece_spawnward_ext3_description": "Fylt for åndene, aldri tømt.",
+  "piece_spawnward_ext4": "Rituelle lys",
+  "piece_spawnward_ext4_description": "Voks og tjære, brent ned sammen. De blafrer aldri ut, og ingenting sniker seg nær.",
+  "spawnward_level": "Nivå",
+  "spawnward_connected": "Styrker en vokterstein",
+  "spawnward_notconnected": "Ingen vokterstein i nærheten",
+  "spawnward_needstone": "Må plasseres innenfor $1 m fra en vokterstein"
+}

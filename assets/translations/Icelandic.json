@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Vökusteinn",
+  "piece_spawnward_description": "Villtar verur rísa ekki þar sem þessi steinn heldur vörð.",
+  "piece_spawnward_ext1": "Rúnaskreyttur skinnfáni",
+  "piece_spawnward_ext1_description": "Griðarúnir, dregnar með tini. Vaka vökusteinsins nær lengra.",
+  "piece_spawnward_ext2": "Heilagt goðalíkneski",
+  "piece_spawnward_ext2_description": "Járnhjarta slær í steininum. Landvættirnir taka eftir því.",
+  "piece_spawnward_ext3": "Fórnarbikar",
+  "piece_spawnward_ext3_description": "Fylltur handa vættunum, aldrei tæmdur.",
+  "piece_spawnward_ext4": "Helgikerti",
+  "piece_spawnward_ext4_description": "Vax og tjara, brunnin niður saman. Þau slokkna aldrei og ekkert læðist nærri.",
+  "spawnward_level": "Stig",
+  "spawnward_connected": "Styrkir vökustein",
+  "spawnward_notconnected": "Enginn vökusteinn nálægt",
+  "spawnward_needstone": "Verður að vera innan $1 m frá vökusteini"
+}

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Камень стража",
+  "piece_spawnward_description": "Там, где бдит этот камень, дикие твари не появляются.",
+  "piece_spawnward_ext1": "Рунное знамя из шкуры",
+  "piece_spawnward_ext1_description": "Руны перемирия, начертанные оловом. Взор камня стража простирается дальше.",
+  "piece_spawnward_ext2": "Священный идол",
+  "piece_spawnward_ext2_description": "В камне бьётся железное сердце. Духи земли обращают на это внимание.",
+  "piece_spawnward_ext3": "Чаша подношений",
+  "piece_spawnward_ext3_description": "Наполнена для духов и никогда не пустеет.",
+  "piece_spawnward_ext4": "Ритуальные свечи",
+  "piece_spawnward_ext4_description": "Воск и смола, сгоревшие вместе. Они никогда не гаснут, и ничто не подкрадывается близко.",
+  "spawnward_level": "Уровень",
+  "spawnward_connected": "Усиливает камень стража",
+  "spawnward_notconnected": "Поблизости нет камня стража",
+  "spawnward_needstone": "Нужно разместить не дальше $1 м от камня стража"
+}

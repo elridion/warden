@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Őrkő",
+  "piece_spawnward_description": "Ahol ez a kő őrködik, ott nem kelnek vad lények.",
+  "piece_spawnward_ext1": "Rovásos bőrzászló",
+  "piece_spawnward_ext1_description": "A fegyverszünet rúnái ónnal rajzolva. Az őrkő őrsége messzebbre ér.",
+  "piece_spawnward_ext2": "Szent bálvány",
+  "piece_spawnward_ext2_description": "Vasszív dobog a kőben. A föld szellemei felfigyelnek rá.",
+  "piece_spawnward_ext3": "Áldozati kupa",
+  "piece_spawnward_ext3_description": "A szellemeknek töltve, soha ki nem ürítve.",
+  "piece_spawnward_ext4": "Szertartási gyertyák",
+  "piece_spawnward_ext4_description": "Viasz és kátrány, együtt leégve. Sosem alszanak ki, és semmi sem lopakodik a közelükbe.",
+  "spawnward_level": "Szint",
+  "spawnward_connected": "Megerősít egy őrkövet",
+  "spawnward_notconnected": "Nincs őrkő a közelben",
+  "spawnward_needstone": "Egy őrkőtől legfeljebb $1 m-re kell elhelyezni"
+}

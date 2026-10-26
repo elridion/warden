@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Hüterstein",
+  "piece_spawnward_description": "Wo dieser Stein wacht, erhebt sich nichts Wildes.",
+  "piece_spawnward_ext1": "Runenbanner aus Fell",
+  "piece_spawnward_ext1_description": "Runen des Friedens, mit Zinn gezeichnet. Die Wacht des Hütersteins reicht weiter.",
+  "piece_spawnward_ext2": "Heiliges Idol",
+  "piece_spawnward_ext2_description": "Ein eisernes Herz schlägt im Stein. Die Geister des Landes werden aufmerksam.",
+  "piece_spawnward_ext3": "Opferkelch",
+  "piece_spawnward_ext3_description": "Für die Geister gefüllt, nie geleert.",
+  "piece_spawnward_ext4": "Ritualkerzen",
+  "piece_spawnward_ext4_description": "Wachs und Teer, gemeinsam heruntergebrannt. Sie flackern nie aus, und nichts schleicht sich heran.",
+  "spawnward_level": "Stufe",
+  "spawnward_connected": "Stärkt einen Hüterstein",
+  "spawnward_notconnected": "Kein Hüterstein in der Nähe",
+  "spawnward_needstone": "Muss innerhalb von $1 m um einen Hüterstein platziert werden"
+}

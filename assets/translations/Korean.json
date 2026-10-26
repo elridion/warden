@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "파수석",
+  "piece_spawnward_description": "이 돌이 지키는 곳에는 야생의 것들이 일어나지 않습니다.",
+  "piece_spawnward_ext1": "룬 가죽 깃발",
+  "piece_spawnward_ext1_description": "주석으로 새긴 휴전의 룬. 파수석의 감시가 더 멀리 닿습니다.",
+  "piece_spawnward_ext2": "신성한 우상",
+  "piece_spawnward_ext2_description": "돌 속에서 쇠 심장이 고동칩니다. 땅의 정령들이 이를 알아챕니다.",
+  "piece_spawnward_ext3": "제물 잔",
+  "piece_spawnward_ext3_description": "정령을 위해 채워졌고, 결코 비워지지 않습니다.",
+  "piece_spawnward_ext4": "의식용 양초",
+  "piece_spawnward_ext4_description": "밀랍과 타르가 함께 타들어 갔습니다. 결코 꺼지지 않으며, 아무것도 가까이 숨어들지 못합니다.",
+  "spawnward_level": "레벨",
+  "spawnward_connected": "파수석을 강화합니다",
+  "spawnward_notconnected": "근처에 파수석이 없습니다",
+  "spawnward_needstone": "파수석에서 $1m 이내에 배치해야 합니다"
+}

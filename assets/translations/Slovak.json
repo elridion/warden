@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Hliadkový kameň",
+  "piece_spawnward_description": "Kde tento kameň drží stráž, divé tvory nepovstanú.",
+  "piece_spawnward_ext1": "Runová zástava z kože",
+  "piece_spawnward_ext1_description": "Runy prímeria, vpísané cínom. Stráž hliadkového kameňa siaha ďalej.",
+  "piece_spawnward_ext2": "Posvätná modla",
+  "piece_spawnward_ext2_description": "V kameni bije železné srdce. Duchovia zeme si to všímajú.",
+  "piece_spawnward_ext3": "Obetný pohár",
+  "piece_spawnward_ext3_description": "Naplnený pre duchov, nikdy nevyprázdnený.",
+  "piece_spawnward_ext4": "Rituálne sviece",
+  "piece_spawnward_ext4_description": "Vosk a decht, dohorené spolu. Nikdy nezhasnú a nič sa nepriplíži blízko.",
+  "spawnward_level": "Úroveň",
+  "spawnward_connected": "Posilňuje hliadkový kameň",
+  "spawnward_notconnected": "Žiadny hliadkový kameň nablízku",
+  "spawnward_needstone": "Musí byť umiestnené najviac $1 m od hliadkového kameňa"
+}

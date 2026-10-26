@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "მცველის ქვა",
+  "piece_spawnward_description": "სადაც ეს ქვა დარაჯობს, იქ ველური არსებები არ ჩნდებიან.",
+  "piece_spawnward_ext1": "რუნებიანი ტყავის დროშა",
+  "piece_spawnward_ext1_description": "ზავის რუნები, კალით დახატული. მცველის ქვის დარაჯობა უფრო შორს აღწევს.",
+  "piece_spawnward_ext2": "წმინდა კერპი",
+  "piece_spawnward_ext2_description": "ქვაში რკინის გული ძგერს. მიწის სულები ამას ამჩნევენ.",
+  "piece_spawnward_ext3": "შესაწირი თასი",
+  "piece_spawnward_ext3_description": "სულებისთვის შევსებული, არასოდეს დაცლილი.",
+  "piece_spawnward_ext4": "რიტუალური სანთლები",
+  "piece_spawnward_ext4_description": "ცვილი და ფისი, ერთად ჩამწვარი. ისინი არასოდეს ქრება და ახლოს არაფერი იპარება.",
+  "spawnward_level": "დონე",
+  "spawnward_connected": "აძლიერებს მცველის ქვას",
+  "spawnward_notconnected": "ახლოს მცველის ქვა არ არის",
+  "spawnward_needstone": "უნდა განთავსდეს მცველის ქვიდან $1 მ-ის ფარგლებში"
+}

@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Bekçi taşı",
+  "piece_spawnward_description": "Bu taşın nöbet tuttuğu yerde vahşi yaratıklar ortaya çıkmaz.",
+  "piece_spawnward_ext1": "Rünlü post sancağı",
+  "piece_spawnward_ext1_description": "Kalayla çizilmiş ateşkes rünleri. Bekçi taşının nöbeti daha uzağa ulaşır.",
+  "piece_spawnward_ext2": "Kutsal put",
+  "piece_spawnward_ext2_description": "Taşın içinde demirden bir kalp atıyor. Toprağın ruhları bunu fark ediyor.",
+  "piece_spawnward_ext3": "Adak kâsesi",
+  "piece_spawnward_ext3_description": "Ruhlar için dolduruldu, hiç boşaltılmadı.",
+  "piece_spawnward_ext4": "Ayin mumları",
+  "piece_spawnward_ext4_description": "Balmumu ve katran, birlikte yanıp eridi. Asla sönmezler ve hiçbir şey yakına sokulamaz.",
+  "spawnward_level": "Seviye",
+  "spawnward_connected": "Bir bekçi taşını güçlendirir",
+  "spawnward_notconnected": "Yakında bekçi taşı yok",
+  "spawnward_needstone": "Bir bekçi taşına en fazla $1 m uzaklıkta yerleştirilmelidir"
+}

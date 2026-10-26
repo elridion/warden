@@ -1,0 +1,16 @@
+{
+  "piece_spawnward": "Kamień wartownika",
+  "piece_spawnward_description": "Tam, gdzie czuwa ten kamień, dzikie stwory nie powstają.",
+  "piece_spawnward_ext1": "Runiczny sztandar ze skóry",
+  "piece_spawnward_ext1_description": "Runy rozejmu, wypisane cyną. Straż kamienia wartownika sięga dalej.",
+  "piece_spawnward_ext2": "Święty idol",
+  "piece_spawnward_ext2_description": "W kamieniu bije żelazne serce. Duchy ziemi to dostrzegają.",
+  "piece_spawnward_ext3": "Czara ofiarna",
+  "piece_spawnward_ext3_description": "Napełniona dla duchów, nigdy nieopróżniona.",
+  "piece_spawnward_ext4": "Rytualne świece",
+  "piece_spawnward_ext4_description": "Wosk i smoła, wypalone razem. Nigdy nie gasną i nic nie podkrada się blisko.",
+  "spawnward_level": "Poziom",
+  "spawnward_connected": "Wzmacnia kamień wartownika",
+  "spawnward_notconnected": "Brak kamienia wartownika w pobliżu",
+  "spawnward_needstone": "Musi stać najwyżej $1 m od kamienia wartownika"
+}
