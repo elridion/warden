@@ -14,7 +14,7 @@ namespace Warden
     {
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
-        public const string PluginVersion = "0.3.4";
+        public const string PluginVersion = "0.3.5";
 
         public enum HullVisibility { Always, OnHover, Off }
 

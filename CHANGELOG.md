@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.5
+
+- Bug reports and feedback now go to the #warden channel on Discord: https://discord.gg/TsJGEmKj6V
+- Players on 0.3.x can still play together.
+
 ## 0.3.4
 
 - New mod icon: an amber standing stone.
