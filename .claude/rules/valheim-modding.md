@@ -70,9 +70,10 @@ Lessons this codebase already paid for. Follow them when adding or changing piec
   RPCs or join the static instance lists (`s_instances`), and anything per-frame for it stays cheap.
 - Both `SpawnWard` and `WardExtension` keep a static `s_instances` list, added in `Awake` and removed
   in `OnDestroy`. Range queries iterate those lists; skip destroyed entries with `if (!x) continue;`.
-- Prefer squared distances (`sqrMagnitude`) in loops that run often. Spawn blocking is a horizontal
-  (XZ) circle; hull merging and upgrade range are full 3D distances. Keep each check consistent with
-  its counterpart rather than mixing the two.
+- Prefer squared distances (`sqrMagnitude`) in loops that run often. Ward coverage (spawn
+  blocking, kept items, damage flash) is a 3D sphere of `Radius` around the stone, the same sphere the
+  hull draws and the optional `PlayerBase` area fills; hull merging and upgrade range are 3D distances
+  too. Keep new checks consistent with that sphere.
 - Dedicated servers have no graphics device: anything visual (`WardHull.Create`) returns null there,
   so callers null-check visual objects. Never make spawn logic depend on a visual object.
 - Config values are read live through the static `ConfigEntry` fields on `WardenPlugin`

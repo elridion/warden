@@ -43,17 +43,16 @@ namespace Warden
         public float Radius => WardenPlugin.BaseRadius.Value + WardenPlugin.RadiusPerUpgrade.Value * (m_level - 1);
         public Vector3 ConnectionPoint => transform.position + Vector3.up * 1.2f;
 
+        // The ward covers a sphere around the stone, the one the hull shows and the optional PlayerBase
+        // area fills, so ground far above or below the stone near the rim is outside it.
         public static bool IsInsideActiveWard(Vector3 point)
         {
             foreach (var ward in s_instances)
             {
                 if (!ward || !ward.IsEnabled()) continue;
 
-                Vector3 pos = ward.transform.position;
-                float dx = pos.x - point.x;
-                float dz = pos.z - point.z;
                 float radius = ward.Radius;
-                if (dx * dx + dz * dz <= radius * radius) return true;
+                if ((ward.transform.position - point).sqrMagnitude <= radius * radius) return true;
             }
             return false;
         }
@@ -68,10 +67,7 @@ namespace Warden
             {
                 if (!ward || !ward.IsEnabled()) continue;
 
-                Vector3 pos = ward.transform.position;
-                float dx = pos.x - point.x;
-                float dz = pos.z - point.z;
-                float distanceSqr = dx * dx + dz * dz;
+                float distanceSqr = (ward.transform.position - point).sqrMagnitude;
                 float radius = ward.Radius;
                 if (distanceSqr > radius * radius || distanceSqr >= best) continue;
 

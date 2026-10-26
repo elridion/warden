@@ -2,6 +2,9 @@
 
 ## 0.4.0
 
+- A warden stone now protects the sphere its amber haze shows, not a column of unlimited height. Near
+  the edge of a large radius, ground far above or below the stone (a cliff top, a valley floor) is
+  no longer protected; build the stone closer to the middle height of the area you want covered.
 - An active warden stone now flashes like the vanilla ward when a building, rock or other object
   inside its radius takes damage, or when the stone itself is hit. Turn it off per client with the
   new `FlashOnDamage` setting.

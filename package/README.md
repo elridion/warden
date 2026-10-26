@@ -24,7 +24,9 @@ crafting station extensions, widen the protected area as you progress.
 - Warden stone and its upgrades in the hammer's Defense tab. The stone requires a workbench
   nearby; upgrades only need a warden stone within range.
   Cost: 15 Stone, 10 Greydwarf Eye, 2 Surtling Core.
-- While active, random world spawns inside the radius are blocked.
+- While active, random world spawns inside the radius are blocked. The radius reaches up and down
+  as well as outwards: the protected area is the sphere the haze shows, so build the stone near the
+  middle height of the area you want covered.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
 - An animated amber haze sphere marks the protected area while the ward is active.
   Overlapping wards merge into one common hull.
