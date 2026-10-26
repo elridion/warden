@@ -73,9 +73,12 @@ four stacking candle clusters, a fully upgraded stone has level 8 and 180 m.
 - Pushing a tag `vX.Y.Z` also fails unless the tag, `<Version>` and `PluginVersion` match and
   `CHANGELOG.md` has a `## X.Y.Z` section, then creates a GitHub release with the zip and that
   section as notes. Tagging and pushing is a release; only do it when the user asks.
-- After the GitHub release, the `hexium` job uploads the same zip to Hexium as team `el_team`
-  through `.github/scripts/publish-hexium.sh`, using the `HEXIUM_TOKEN` secret and the `hexium`
-  GitHub environment. After submitting, it sets the listing's install location (`both`, shown as
-  "Client & Server") and categories through `set-metadata`, because submit applies neither
-  (`HEXIUM_INSTALL_LOCATION` and `HEXIUM_CATEGORIES` override). Hexium's OpenAPI spec is at
-  https://hexium.gg/api/openapi.json (see also `docs/hexium-release.md`).
+- After the GitHub release, the `hexium` job publishes the same zip to Hexium as team `el_team`
+  with the shared action `elridion/publish-hexium@v1` (local clone `../publish-hexium`), using the
+  `HEXIUM_TOKEN` secret and the `hexium` GitHub environment. The listing's categories and install
+  location (`both`, shown as "Client & Server") live in `hexium.json` at the repo root, with the
+  package name; the action sets them right after submitting, because submit applies neither.
+  Categories edited on the site are overwritten by the next release; change them in `hexium.json`.
+  Change the publish flow in `../publish-hexium`, never by adding a script here. Hexium's API has
+  no license field; the listing's license is set in the Hexium web UI. API research:
+  `../publish-hexium/docs/hexium-api.md`.

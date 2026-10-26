@@ -29,9 +29,9 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 | `assets/` | Embedded resources (banner and rune stone textures, cup and rune stone OBJs); FBX and 2048 px rune stone maps kept as source only |
 | `tools/` | PowerShell generators for the banner albedo and normal map, the rune stone texture converter, and the mod icon (`make_icon.ps1`, game-icons.net "menhir", CC BY 3.0) |
 | `package/README.md`, `package/icon.png` | Mod page and icon shipped in the package (Thunderstore/Hexium) |
-| `docs/` | Design notes and research (crafting-station idea, Hexium publishing) |
-| `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release and the Hexium upload on `v*` tags |
-| `.github/scripts/publish-hexium.sh` | Uploads and submits the package zip to Hexium (called by the workflow) |
+| `docs/` | Design notes (crafting-station idea) |
+| `.github/workflows/build.yml` | CI: builds the package on push/PR, publishes a GitHub release and the Hexium upload (shared action `elridion/publish-hexium`) on `v*` tags |
+| `hexium.json` | Hexium package name, listing categories and install location, read by the shared publish action |
 
 ## Commands
 

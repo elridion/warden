@@ -127,8 +127,10 @@ jobs:
           name: warden-package
           path: dist
 
+      # Shared action (github.com/elridion/publish-hexium); categories and install location come
+      # from hexium.json.
       - name: Publish to Hexium
-        env:
-          HEXIUM_TOKEN: ${{ secrets.HEXIUM_TOKEN }}
-          HEXIUM_AUTHOR: el_team
-        run: bash .github/scripts/publish-hexium.sh dist/Warden-"${GITHUB_REF_NAME#v}".zip
+        uses: elridion/publish-hexium@v1
+        with:
+          token: ${{ secrets.HEXIUM_TOKEN }}
+          package: dist/*.zip
