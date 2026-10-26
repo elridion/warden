@@ -1,10 +1,11 @@
 # Changelog
 
-## Unreleased
+## 0.4.0
 
 - An active warden stone now flashes like the vanilla ward when a building, rock or other object
   inside its radius takes damage, or when the stone itself is hit. Turn it off per client with the
   new `FlashOnDamage` setting.
+- Everyone on a server needs 0.4.x; players on 0.3.x cannot join.
 
 ## 0.3.5
 
