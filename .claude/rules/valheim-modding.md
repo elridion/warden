@@ -56,6 +56,10 @@ Lessons this codebase already paid for. Follow them when adding or changing piec
 - `WardHull` is deliberately its own root GameObject, not a child of the ward, so piece highlighting
   and the placement ghost tint leave it alone. It follows the ward in `LateUpdate`, and `SpawnWard`
   destroys it explicitly in `OnDestroy`. Treat any new detached visual the same way.
+- The optional `PlayerBase` area (`SpawnWard.UpdateBaseArea`, config `PlayerBaseArea`) is detached the
+  same way. Vanilla finds `EffectArea`s only through physics queries on the `character_trigger`
+  layer, so the area's object must be on that layer; build it inactive, because `EffectArea.Awake`
+  reads the collider. It is for compatibility only: Warden's own spawn and item checks never read it.
 
 ## Components and networking
 

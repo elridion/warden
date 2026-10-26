@@ -20,7 +20,7 @@ the root `README.md` is the GitHub page for developers; release history in `CHAN
 | --- | --- |
 | `src/WardenPlugin.cs` | BepInEx entry point: GUID/version, config binding, English localization, Harmony `PatchAll` |
 | `src/WardPieces.cs` | Builds and registers the stone and the four upgrade pieces from vanilla prefabs |
-| `src/SpawnWard.cs` | Ward component: enabled state (ZDO), level/radius, hover/interact, hull visibility |
+| `src/SpawnWard.cs` | Ward component: enabled state (ZDO), level/radius, hover/interact, hull visibility, damage flash, optional `PlayerBase` area |
 | `src/WardExtension.cs` | Upgrade component: counts upgrades in range of a stone, connection beam effect |
 | `src/WardHull.cs` | Runtime-generated animated haze sphere; merges with overlapping hulls |
 | `src/SpawnPatches.cs` | `SpawnSystem` patches that reject spawn points inside active wards |

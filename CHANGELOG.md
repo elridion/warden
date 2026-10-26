@@ -7,6 +7,9 @@
   new `FlashOnDamage` setting.
 - Items dropped inside an active warden stone's radius no longer despawn, as in a vanilla base near
   a workbench. The new server setting `KeepDroppedItems` turns this off.
+- New server setting `PlayerBaseArea` (off by default): also marks an active warden stone's radius as a
+  vanilla player base, for mods that only respect those. It also stops nests inside and counts
+  toward raids; see the mod page.
 - Everyone on a server needs 0.4.x; players on 0.3.x cannot join.
 
 ## 0.3.5

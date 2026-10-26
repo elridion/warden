@@ -63,8 +63,21 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
 | `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
 | `KeepDroppedItems` | true | Dropped items inside an active stone's radius never despawn |
+| `PlayerBaseArea` | false | Also mark the radius as a vanilla player base, for compatibility (see below) |
 | `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
 | `FlashOnDamage` | true | Flash the stone when something inside its radius is damaged |
+
+### PlayerBaseArea
+
+Warden blocks spawns with its own check, so the game and other mods don't see a warden stone as a
+player base the way they see a workbench or fire. Mods that only respect vanilla player bases (for
+example custom spawners) therefore ignore it. Turn `PlayerBaseArea` on to also mark each active
+stone's radius as a vanilla player base. That brings vanilla's other base effects with it:
+
+- Greydwarf nests and other creature spawners inside the radius stop spawning.
+- Each stone counts toward the base value raids need, wherever you stand inside its radius.
+- Vanilla may keep raid creatures out of the radius even with `BlockEventSpawns` off.
+- Dropped items inside never despawn, even with `KeepDroppedItems` off.
 
 ## Requirements
 

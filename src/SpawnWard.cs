@@ -36,6 +36,7 @@ namespace Warden
         private bool m_hovered;
         private int m_level = 1;
         private WardHull m_hull;
+        private SphereCollider m_baseArea;
 
         // Read from config every time, so server-synced radius changes apply at once. The level
         // follows placed and removed upgrades once per second (UpdateStatus).
@@ -125,6 +126,7 @@ namespace Warden
         {
             s_instances.Remove(this);
             if (m_hull) Destroy(m_hull.gameObject);
+            if (m_baseArea) Destroy(m_baseArea.gameObject);
         }
 
         private void Update()
@@ -194,6 +196,7 @@ namespace Warden
             m_flashAvailable = true;
             UpdateRuneGlow(enabled);
             RefreshLevel();
+            UpdateBaseArea(enabled);
 
             if (m_statusInitialized && enabled != m_lastEnabled)
             {
@@ -213,6 +216,37 @@ namespace Warden
         {
             if (s_headless || !m_model || !MaterialMan.instance) return;
             MaterialMan.instance.SetValue(m_model.gameObject, s_emissionColor, enabled ? s_runeGlow : Color.black);
+        }
+
+        // Optional vanilla PlayerBase effect area, for other mods and vanilla systems that only know
+        // that marker (nests, raid base value, item despawning). Spawn blocking never depends on it.
+        // The same sphere as the hull, so it covers what the player sees as the ward.
+        // Its own root object, like WardHull: a child collider would join the stone's WearNTear and
+        // hover handling. Physics queries find it only on the character_trigger layer.
+        private void UpdateBaseArea(bool enabled)
+        {
+            if (!enabled || !WardenPlugin.PlayerBaseArea.Value)
+            {
+                if (m_baseArea) m_baseArea.gameObject.SetActive(false);
+                return;
+            }
+
+            if (!m_baseArea)
+            {
+                var area = new GameObject("warden_playerbase");
+                // Inactive while being built: EffectArea.Awake reads its collider and type.
+                area.SetActive(false);
+                area.layer = LayerMask.NameToLayer("character_trigger");
+                area.transform.position = transform.position;
+                m_baseArea = area.AddComponent<SphereCollider>();
+                m_baseArea.isTrigger = true;
+                area.AddComponent<EffectArea>().m_type = EffectArea.Type.PlayerBase;
+            }
+
+            // Resizing a static collider rebuilds it, so only when the radius actually changed.
+            float radius = Radius;
+            if (!Mathf.Approximately(m_baseArea.radius, radius)) m_baseArea.radius = radius;
+            m_baseArea.gameObject.SetActive(true);
         }
 
         private void RPC_Toggle(long sender)
