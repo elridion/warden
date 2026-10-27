@@ -109,6 +109,6 @@ Every client and the server need the mod installed, at the same minor version.
 
 ## Source and issues
 
-Bug reports and feedback: the [#warden channel on Discord](https://discord.gg/TsJGEmKj6V).
+Bug reports and feedback: the [#warden channel on Discord](https://discord.gg/wqUA7vvvp2).
 
 Source code (MIT license): [github.com/elridion/warden](https://github.com/elridion/warden).

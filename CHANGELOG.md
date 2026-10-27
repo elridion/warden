@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The Discord link now points at the shared server, where #warden lives: https://discord.gg/wqUA7vvvp2
+
 ## 0.4.0
 
 - A warden stone now protects the sphere its amber haze shows, not a column of unlimited height. Near
