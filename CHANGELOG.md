@@ -18,6 +18,8 @@
 - The warden stone, idol, offering cup and ritual candles now collide close to their visible shape
   instead of with one large box around each, so you no longer bump into or stand on empty air
   around them.
+- Overlapping warden stones' hazes now meet in a clean seam along the circle where their spheres
+  cross, instead of overlapping and fading out in a jagged band, most visible on large radii.
 - Everyone on a server needs 0.4.x; players on 0.3.x cannot join.
 
 ## 0.3.5

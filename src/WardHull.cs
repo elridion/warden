@@ -4,8 +4,8 @@ using UnityEngine;
 namespace Warden
 {
     /// <summary>
-    /// Animated amber haze sphere that visualizes a ward's radius. Overlapping hulls hide the
-    /// parts of themselves that lie inside each other, so chained wards read as one shape.
+    /// Animated amber haze sphere that visualizes a ward's radius. Overlapping hulls cut themselves
+    /// off along the circle where their spheres cross, so chained wards read as one shape.
     /// Kept as a separate root object so piece highlighting and placement tinting leave it alone.
     /// </summary>
     internal class WardHull : MonoBehaviour
@@ -33,8 +33,9 @@ namespace Warden
         private const float SwirlAmount = 0.06f;
         private const float SwirlSpeed = 0.35f;
 
-        // Width in meters of the soft seam where chained hulls meet.
-        private const float MergeFade = 4f;
+        // How far in meters a vertex may sit outside another hull and still count as inside it, so
+        // coincident wards draw one hull instead of two.
+        private const float SeamTolerance = 0.01f;
 
         private static readonly Color s_color = new Color(1f, 0.66f, 0.25f, 1f);
 
@@ -50,7 +51,6 @@ namespace Warden
         private static int[] s_triangles;
         // Per-vertex sines and cosines of latitude/longitude terms, so the animation only needs
         // the time-dependent parts each update (sin(a + t) = sin a cos t + cos a sin t).
-        private static float[] s_bandLat;
         private static float[] s_sinLon3, s_cosLon3;
         private static float[] s_sinLat4, s_cosLat4;
         private static float[] s_sinLon2, s_cosLon2;
@@ -70,9 +70,11 @@ namespace Warden
         private float m_nextUpdate;
         private readonly List<Vector4> m_mergeSpheres = new List<Vector4>();
 
-        // Merge fading depends only on where the hulls are, so it is cached per vertex and
-        // recomputed when this hull or an overlapping one moves or resizes.
-        private float[] m_merge;
+        // The cut depends only on where the hulls are, so the snapped vertices and the remaining
+        // triangles are cached and rebuilt when this hull or an overlapping one moves or resizes.
+        private bool[] m_inside;
+        private bool[] m_used;
+        private readonly List<int> m_triangles = new List<int>();
         private readonly List<Vector4> m_cachedSpheres = new List<Vector4>();
         private Vector4 m_cachedSelf = new Vector4(float.NaN, 0f, 0f, 0f);
 
@@ -90,7 +92,8 @@ namespace Warden
             hull.m_vertices = new Vector3[s_unitSphere.Length];
             hull.m_uvs = new Vector2[s_unitSphere.Length];
             hull.m_colors = new Color32[s_unitSphere.Length];
-            hull.m_merge = new float[s_unitSphere.Length];
+            hull.m_inside = new bool[s_unitSphere.Length];
+            hull.m_used = new bool[s_unitSphere.Length];
             // Spread the updates of many hulls over different frames.
             hull.m_nextUpdate = Time.time + Random.value * UpdateInterval;
             hull.m_mesh = new Mesh { name = "warden_hull_sphere" };
@@ -179,7 +182,7 @@ namespace Warden
             UpdateMerge(center);
 
             Vector3 camPos = cam.transform.position;
-            float radius = m_radius;
+            float invRadius = 1f / m_radius;
 
             // Time-dependent halves of the band and swirl terms, shared by every vertex.
             float wobbleSin = Mathf.Sin(time * 0.25f), wobbleCos = Mathf.Cos(time * 0.25f);
@@ -189,23 +192,21 @@ namespace Warden
 
             for (int i = 0; i < s_unitSphere.Length; i++)
             {
-                float merge = m_merge[i];
-                if (merge <= 0f)
-                {
-                    m_colors[i] = new Color32(255, 255, 255, 0);
-                    continue;
-                }
+                if (!m_used[i]) continue;
 
-                Vector3 normal = s_unitSphere[i];
-                Vector3 toVertex = center + normal * radius - camPos;
+                // Snapped seam vertices moved along the sphere, so the normal comes from where the
+                // vertex is now rather than from the unit sphere.
+                Vector3 local = m_vertices[i];
+                Vector3 normal = local * invRadius;
+                Vector3 toVertex = center + local - camPos;
                 float facing = Mathf.Abs(Vector3.Dot(normal, toVertex)) / toVertex.magnitude;
                 float rim = Mathf.Pow(1f - facing, RimSharpness);
 
                 float wobble = s_sinLon3[i] * wobbleCos + s_cosLon3[i] * wobbleSin;
-                float band = Mathf.Sin(s_bandLat[i] - bandPhase + wobble * BandWobble);
+                float band = Mathf.Sin(normal.y * BandCount - bandPhase + wobble * BandWobble);
                 float bands = 1f + BandStrength * band;
 
-                float alpha = (BaseAlpha + RimAlpha * rim) * bands * merge;
+                float alpha = (BaseAlpha + RimAlpha * rim) * bands;
                 m_colors[i] = new Color32(255, 255, 255, (byte)(Mathf.Clamp01(alpha) * 255f));
 
                 Vector2 uv = s_baseUvs[i];
@@ -230,16 +231,65 @@ namespace Warden
 
             for (int i = 0; i < s_unitSphere.Length; i++)
             {
-                Vector3 worldPos = center + s_unitSphere[i] * m_radius;
-                float merge = 1f;
-                foreach (var other in m_mergeSpheres)
-                {
-                    float outside = Vector3.Distance(worldPos, (Vector3)other) - other.w;
-                    merge = Mathf.Min(merge, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-MergeFade, MergeFade * 0.5f, outside)));
-                    if (merge <= 0f) break;
-                }
-                m_merge[i] = merge;
+                Vector3 local = s_unitSphere[i] * m_radius;
+                m_inside[i] = SnapToSeam(center, ref local);
+                m_vertices[i] = local;
+                m_used[i] = false;
             }
+
+            // Triangles wholly inside other hulls are dropped. The ones crossing the seam keep their
+            // inside corners, now on the intersection circle, so the hull ends exactly where the other
+            // one begins instead of fading out over the coarse vertex grid.
+            m_triangles.Clear();
+            for (int t = 0; t < s_triangles.Length; t += 3)
+            {
+                int a = s_triangles[t], b = s_triangles[t + 1], c = s_triangles[t + 2];
+                if (m_inside[a] && m_inside[b] && m_inside[c]) continue;
+                m_triangles.Add(a);
+                m_triangles.Add(b);
+                m_triangles.Add(c);
+                m_used[a] = m_used[b] = m_used[c] = true;
+            }
+
+            m_mesh.vertices = m_vertices;
+            m_mesh.SetTriangles(m_triangles, 0, false);
+        }
+
+        // Moves a vertex that lies inside another hull along this sphere onto the circle where the two
+        // spheres cross, using the hull it is least deep in, since that is the seam it sits next to.
+        // Returns whether the vertex was inside another hull.
+        private bool SnapToSeam(Vector3 center, ref Vector3 local)
+        {
+            Vector3 world = center + local;
+            int seam = -1;
+            float shallowest = float.MaxValue;
+            for (int s = 0; s < m_mergeSpheres.Count; s++)
+            {
+                var other = m_mergeSpheres[s];
+                float depth = other.w - Vector3.Distance(world, (Vector3)other);
+                if (depth < -SeamTolerance || depth >= shallowest) continue;
+                shallowest = depth;
+                seam = s;
+            }
+            if (seam < 0) return false;
+
+            var sphere = m_mergeSpheres[seam];
+            Vector3 offset = (Vector3)sphere - center;
+            float distance = offset.magnitude;
+            // Coincident or wholly contained: no circle to snap to, the whole hull is hidden.
+            if (distance < 0.1f) return true;
+
+            float radius = m_radius;
+            float along = (distance * distance + radius * radius - sphere.w * sphere.w) / (2f * distance);
+            float circleSqr = radius * radius - along * along;
+            if (circleSqr <= 0f) return true;
+
+            Vector3 axis = offset / distance;
+            Vector3 across = local - axis * Vector3.Dot(local, axis);
+            if (across.sqrMagnitude < 1e-6f) return true;
+
+            local = axis * along + across.normalized * Mathf.Sqrt(circleSqr);
+            return true;
         }
 
         private static bool SameSpheres(List<Vector4> a, List<Vector4> b)
@@ -346,7 +396,6 @@ namespace Warden
             s_baseUvs = new Vector2[s_unitSphere.Length];
             s_triangles = new int[Segments * Rings * 6];
             int count = s_unitSphere.Length;
-            s_bandLat = new float[count];
             s_sinLon3 = new float[count];
             s_cosLon3 = new float[count];
             s_sinLat4 = new float[count];
@@ -372,7 +421,6 @@ namespace Warden
                     // The animation uses sin(latitude) (the vertex height) and the longitude
                     // atan2 would return, which wraps to the negative half past pi.
                     float animLon = Mathf.Atan2(Mathf.Sin(lon), Mathf.Cos(lon));
-                    s_bandLat[i] = y * BandCount;
                     s_sinLon3[i] = Mathf.Sin(animLon * 3f);
                     s_cosLon3[i] = Mathf.Cos(animLon * 3f);
                     s_sinLat4[i] = Mathf.Sin(y * 4f);
