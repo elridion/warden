@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.3
+
+- Players on 0.4.x can still play together.
+
 ## 0.4.2
 
 - The ward's hit sound plays again when something inside a warden stone is damaged. It now sounds
