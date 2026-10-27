@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.4.1
 
 - The Discord link now points at the shared server, where #warden lives: https://discord.gg/wqUA7vvvp2
 - The amber haze no longer covers the whole sphere. Within about 45 m of you it shows as a wall
@@ -10,6 +10,7 @@
   brightens when the stone flashes on damage. The motes still drift over the whole sphere, and haze
   and motes are a deeper amber.
 - Twice as many ember motes drift over a ward's sphere.
+- Players on 0.4.x can still play together.
 
 ## 0.4.0
 

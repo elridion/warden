@@ -14,7 +14,7 @@ namespace Warden
     {
         public const string PluginGuid = "elridion.warden";
         public const string PluginName = "Warden";
-        public const string PluginVersion = "0.4.0";
+        public const string PluginVersion = "0.4.1";
 
         private const string TranslationPrefix = "Warden.translations.";
 
