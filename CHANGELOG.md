@@ -9,6 +9,7 @@
   wall with a rounded joint where they meet. The wall ripples with slow waves, gently pulses and
   brightens when the stone flashes on damage. The motes still drift over the whole sphere, and haze
   and motes are a deeper amber.
+- Twice as many ember motes drift over a ward's sphere.
 
 ## 0.4.0
 

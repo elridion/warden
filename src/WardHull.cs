@@ -64,8 +64,8 @@ namespace Warden
                 var shape = m_motes.shape;
                 shape.radius = radius;
                 var emission = m_motes.emission;
-                // Keep mote density roughly constant across radii (~45/s at 60 m).
-                emission.rateOverTime = 45f * (radius * radius) / (60f * 60f);
+                // Keep mote density roughly constant across radii (~90/s at 60 m).
+                emission.rateOverTime = 90f * (radius * radius) / (60f * 60f);
             }
         }
 
@@ -121,8 +121,9 @@ namespace Warden
             main.startColor = s_color;
             main.simulationSpace = ParticleSystemSimulationSpace.Local;
             // Wards overlap and every hull is drawn while the camera is inside it, so keep the
-            // transparent mote overdraw per hull bounded.
-            main.maxParticles = 200;
+            // transparent mote overdraw per hull bounded. The motes are small, so this is mainly a
+            // guard; above ~55 m it is what sets how many show.
+            main.maxParticles = 400;
 
             var shape = ps.shape;
             shape.shapeType = ParticleSystemShapeType.Sphere;
