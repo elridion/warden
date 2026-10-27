@@ -108,9 +108,3 @@ Every client and the server need the mod installed, at the same minor version.
 - Offering cup model: [The Base Mesh](https://www.thebasemesh.com/) (CC0).
 - Mod icon: "Menhir" by Delapouite from [game-icons.net](https://game-icons.net), licensed under
   [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). Recoloured and outlined.
-
-## Source and issues
-
-Bug reports and feedback: the [#warden channel on Discord](https://discord.gg/wqUA7vvvp2).
-
-Source code (MIT license): [github.com/elridion/warden](https://github.com/elridion/warden).
