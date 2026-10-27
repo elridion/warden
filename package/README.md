@@ -34,7 +34,8 @@ crafting station extensions, widen the protected area as you progress.
 - Items dropped inside an active stone's radius never despawn, as in a vanilla base (near a
   workbench or fire). Turn `KeepDroppedItems` off for vanilla despawning.
 - Like the vanilla ward, an active stone flashes when something inside its radius takes damage, so
-  you notice when creatures attack your walls.
+  you notice when creatures attack your walls: the amber haze brightens and the ward's hit sound
+  plays where the damage happened.
 - Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
   large radius and everyone near the stone, a raid may find nowhere to spawn and bring few or no
   creatures; turn `BlockEventSpawns` off to let raiders spawn inside the radius as in vanilla.

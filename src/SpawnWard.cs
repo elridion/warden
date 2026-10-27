@@ -12,7 +12,9 @@ namespace Warden
         private static readonly List<SpawnWard> s_instances = new List<SpawnWard>();
         private static readonly int s_enabledHash = "spawnward_enabled".GetStableHashCode();
         private const string RpcToggle = "SpawnWard_Toggle";
-        private const string RpcFlash = "SpawnWard_Flash";
+        // Renamed from SpawnWard_Flash when it gained the hit point, so an older client's call without
+        // it finds no handler instead of failing to read the missing argument.
+        private const string RpcFlash = "SpawnWard_FlashAt";
         private static readonly int s_emissionColor = Shader.PropertyToID("_EmissionColor");
         // The vanilla ward's amber rune glow; above 1 so the runes bloom.
         private static readonly Color s_runeGlow = new Color(1.934f, 1.017f, 0.185f);
@@ -25,7 +27,10 @@ namespace Warden
         public CircleProjector m_areaMarker;
         public EffectList m_activateEffect = new EffectList();
         public EffectList m_deactivateEffect = new EffectList();
-        public EffectList m_flashEffect = new EffectList();
+        // Only the sound of the vanilla flash: its blue light clashes with the amber haze, which
+        // brightens instead. Played where the damage happened rather than at the stone, since a
+        // warden's radius reaches far past the range a vanilla sound carries.
+        public EffectList m_flashSoundEffect = new EffectList();
         public float m_hoverOffset = 1f;
 
         private ZNetView m_nview;
@@ -74,7 +79,7 @@ namespace Warden
                 best = distanceSqr;
                 closest = ward;
             }
-            if (closest) closest.Flash();
+            if (closest) closest.Flash(point);
         }
 
         public static SpawnWard FindClosestWard(Vector3 point, float maxDistance)
@@ -111,7 +116,7 @@ namespace Warden
 
             if (m_areaMarker) m_areaMarker.gameObject.SetActive(false);
             m_nview.Register(RpcToggle, RPC_Toggle);
-            m_nview.Register(RpcFlash, RPC_Flash);
+            m_nview.Register<Vector3>(RpcFlash, RPC_Flash);
             var wearNTear = GetComponent<WearNTear>();
             if (wearNTear) wearNTear.m_onDamaged += OnDamaged;
             s_instances.Add(this);
@@ -233,21 +238,21 @@ namespace Warden
         // Damage to the stone itself, raised by WearNTear on the stone's owner.
         private void OnDamaged()
         {
-            if (IsEnabled()) Flash();
+            if (IsEnabled()) Flash(transform.position);
         }
 
         // Runs on whichever peer applied the damage, so the flash is sent to everybody.
-        private void Flash()
+        private void Flash(Vector3 point)
         {
             if (!m_flashAvailable || !m_nview || !m_nview.IsValid()) return;
             m_flashAvailable = false;
-            m_nview.InvokeRPC(ZNetView.Everybody, RpcFlash);
+            m_nview.InvokeRPC(ZNetView.Everybody, RpcFlash, point);
         }
 
-        private void RPC_Flash(long sender)
+        private void RPC_Flash(long sender, Vector3 point)
         {
             if (!WardenPlugin.FlashOnDamage.Value) return;
-            m_flashEffect?.Create(transform.position, Quaternion.identity);
+            m_flashSoundEffect?.Create(point, Quaternion.identity);
             if (m_hull) m_hull.Flash();
         }
 

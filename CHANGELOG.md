@@ -1,8 +1,14 @@
 # Changelog
 
+## 0.4.2
+
+- The ward's hit sound plays again when something inside a warden stone is damaged. It now sounds
+  where the damage happens instead of at the stone, which was out of earshot in larger wards.
+  The vanilla ward's blue flash no longer plays: the amber haze brightening is the visual cue. Damage done by a player on 0.4.1 or older no longer flashes the stone for players on 0.4.2.
+- Players on 0.4.x can still play together.
+
 ## 0.4.1
 
-- The Discord link now points at the shared server, where #warden lives: https://discord.gg/wqUA7vvvp2
 - The amber haze no longer covers the whole sphere. Within about 45 m of you it shows as a wall
   where the ward's sphere passes, so at a cliff edge, on a tower or in a valley you see where
   protection ends, without a bubble filling the view inside your base. Overlapping wards form one

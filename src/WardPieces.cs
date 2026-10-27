@@ -127,7 +127,7 @@ namespace Warden
                 ward.m_areaMarker = privateArea.m_areaMarker;
                 ward.m_activateEffect = privateArea.m_activateEffect;
                 ward.m_deactivateEffect = privateArea.m_deactivateEffect;
-                ward.m_flashEffect = privateArea.m_flashEffect;
+                ward.m_flashSoundEffect = SoundEffectsOf(privateArea.m_flashEffect);
                 ward.m_hoverOffset = privateArea.m_hoverOffset;
                 // The glowing stone; ReplaceWardModel points it at the rune stone instead.
                 ward.m_model = privateArea.m_model;
@@ -145,6 +145,22 @@ namespace Warden
             }
 
             PieceManager.Instance.AddPiece(piece);
+        }
+
+        // A new list with only the entries of a vanilla effect list that play a sound; the entries are shared.
+        private static EffectList SoundEffectsOf(EffectList source)
+        {
+            var sounds = new List<EffectList.EffectData>();
+            if (source?.m_effectPrefabs != null)
+            {
+                foreach (var effect in source.m_effectPrefabs)
+                {
+                    if (effect != null && effect.m_prefab && effect.m_prefab.GetComponentInChildren<AudioSource>(true))
+                        sounds.Add(effect);
+                }
+            }
+            if (sounds.Count == 0) Jotunn.Logger.LogWarning("The vanilla ward's flash has no sound; warden stones flash silently.");
+            return new EffectList { m_effectPrefabs = sounds.ToArray() };
         }
 
         // Swaps the vanilla stone for the embedded rune stone, keeping the light, sparks and area marker.
