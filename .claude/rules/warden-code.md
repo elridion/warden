@@ -19,6 +19,13 @@ Adds to the workspace-wide `code-style.md` and `valheim-modding.md` in `../.clau
   and finish with `SetupLoosePiece` (Piece, place effect, `piece` layer on every child, persistent
   `ZNetView`). Strip vanilla props with `StripToVisual` / `StripToVisualAndEffects`; size them with
   `MeshBounds` / `FitToHeight`; icons through `RenderIcon`, which falls back to the ward's icon.
+- Solid colliders follow the visible shape, never one box around the whole model. Solid models get
+  `AddHullColliders`: `HullBands` horizontal bands, each a convex `MeshCollider` cooked from the
+  triangles reaching into it (convex, because placement only settles the ghost on convex colliders).
+  It returns false on an unreadable mesh; the caller then falls back to `AddBoxCollider` around the
+  bounds. Clusters of separate parts (the ritual candles) get one fitted box per part instead, since
+  a hull or box around the cluster fills the gaps. The vanilla banner keeps its own colliders, and
+  the ward's triggers are never replaced.
 - Materials are cloned with the `_warden` name suffix. The stone reuses vanilla tokens
   (`$piece_guardstone_active` etc.); new keys are `piece_spawnward*` for piece names/descriptions and
   `spawnward_*` for other UI strings.

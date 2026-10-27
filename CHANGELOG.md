@@ -15,6 +15,9 @@
   toward raids; see the mod page.
 - Piece names, descriptions and messages are translated into every language Valheim offers except
   Abenaki, and follow the game's language setting.
+- The warden stone, idol, offering cup and ritual candles now collide close to their visible shape
+  instead of with one large box around each, so you no longer bump into or stand on empty air
+  around them.
 - Everyone on a server needs 0.4.x; players on 0.3.x cannot join.
 
 ## 0.3.5

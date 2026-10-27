@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -62,6 +63,8 @@ namespace Warden
             new Vector3(0.02f, 0.17f, 0.6f),
         };
         private const string SilverMaterialPrefab = "Silver";
+        // Horizontal bands, each with its own convex hull collider; more bands fit the outline closer.
+        private const int HullBands = 4;
         private const string ConnectionSourcePrefab = "piece_workbench_ext1";
 
         private static GameObject s_connectionPrefab;
@@ -234,11 +237,8 @@ namespace Warden
                 }
             }
 
-            // Placement only snaps to convex colliders; a box around the model is enough to place,
-            // hover and hit it.
-            var box = prefab.AddComponent<BoxCollider>();
-            box.center = bounds.center;
-            box.size = bounds.size;
+            // A box around the rune stone's uneven outline leaves empty corners to bump into.
+            if (!AddHullColliders(prefab, model.transform, WardPrefabName)) AddBoxCollider(prefab, bounds);
             return true;
         }
 
@@ -600,12 +600,11 @@ namespace Warden
                 candle.transform.localPosition = Vector3.zero;
                 var bounds = MeshBounds(candle.transform, prefab.transform, true);
                 candle.transform.localPosition = new Vector3(spot.x, -bounds.min.y, spot.y);
+                // One box per candle, in its own space so it turns with it: a single box or hull
+                // around the cluster would fill the gaps between the candles.
+                AddBoxCollider(candle, MeshBounds(candle.transform, candle.transform, true));
             }
 
-            var collider = prefab.AddComponent<BoxCollider>();
-            var all = MeshBounds(prefab.transform, prefab.transform, true);
-            collider.center = all.center;
-            collider.size = all.size;
             SetupLoosePiece(prefab);
 
             // A rendered icon misses the flames; the vanilla candle's icon reads better.
@@ -633,7 +632,7 @@ namespace Warden
         }
 
         // Like StripToVisual, but keeps flames: particles, lights and their flicker. Colliders go too;
-        // the piece gets one box around everything.
+        // the caller fits its own.
         private static void StripToVisualAndEffects(GameObject root)
         {
             for (int pass = 0; pass < 3; pass++)
@@ -661,11 +660,9 @@ namespace Warden
             TintMaterials(model, s_blackMetalTint);
 
             // Placement only snaps to convex colliders; with just the statue's mesh collider the ghost
-            // floats 50 m up. Replace it with a box around the scaled model.
+            // floats 50 m up. Replace it with hulls fitted to the scaled model.
             foreach (var meshCollider in model.GetComponentsInChildren<Collider>(true)) Object.DestroyImmediate(meshCollider);
-            var box = prefab.AddComponent<BoxCollider>();
-            box.center = bounds.center;
-            box.size = bounds.size;
+            if (!AddHullColliders(prefab, model.transform, name)) AddBoxCollider(prefab, bounds);
 
             SetupLoosePiece(prefab);
 
@@ -678,9 +675,12 @@ namespace Warden
             var prefab = CreateBarePrefab(name);
             OfferingCupModel.Build(prefab.transform, FindMaterial(SilverMaterialPrefab));
 
-            var collider = prefab.AddComponent<BoxCollider>();
-            collider.center = new Vector3(0f, OfferingCupModel.Height * 0.5f, 0f);
-            collider.size = new Vector3(OfferingCupModel.Width, OfferingCupModel.Height, OfferingCupModel.Width);
+            // Hulls follow the foot, stem and bowl, where a box would stand out around the stem.
+            if (!AddHullColliders(prefab, prefab.transform, name))
+            {
+                AddBoxCollider(prefab, new Bounds(new Vector3(0f, OfferingCupModel.Height * 0.5f, 0f),
+                    new Vector3(OfferingCupModel.Width, OfferingCupModel.Height, OfferingCupModel.Width)));
+            }
             SetupLoosePiece(prefab);
 
             config.Icon = RenderIcon(prefab);
@@ -700,6 +700,109 @@ namespace Warden
             var scaled = MeshBounds(model.transform, parent);
             model.transform.localPosition -= new Vector3(scaled.center.x, scaled.min.y, scaled.center.z);
             return MeshBounds(model.transform, parent);
+        }
+
+        // A box around a whole model leaves wide empty corners wherever it tapers or narrows. Instead
+        // the model is cut into horizontal bands and each band gets the convex hull of the triangles
+        // reaching into it, so the stack follows the outline at every height. Placement only snaps to
+        // convex colliders, and these are convex. The meshes are the visible ones under root (first
+        // LOD only), taken into the prefab's space. Returns false and adds nothing if one of them is
+        // not readable, so the caller can fall back to a box instead of leaving part of the model
+        // without collision.
+        private static bool AddHullColliders(GameObject prefab, Transform root, string name)
+        {
+            var vertices = new List<Vector3>();
+            var triangles = new List<int>();
+            var lowerLods = LowerLodRenderers(root);
+            var toPrefab = prefab.transform.worldToLocalMatrix;
+            foreach (var filter in root.GetComponentsInChildren<MeshFilter>(true))
+            {
+                var mesh = filter.sharedMesh;
+                if (!mesh || !ActiveBelow(filter.transform, root)) continue;
+                var renderer = filter.GetComponent<Renderer>();
+                if (!renderer || !renderer.enabled || lowerLods.Contains(renderer)) continue;
+                if (!mesh.isReadable)
+                {
+                    Jotunn.Logger.LogWarning($"Mesh '{mesh.name}' of {name} is not readable; using a box collider.");
+                    return false;
+                }
+
+                var toLocal = toPrefab * filter.transform.localToWorldMatrix;
+                int offset = vertices.Count;
+                foreach (var vertex in mesh.vertices) vertices.Add(toLocal.MultiplyPoint3x4(vertex));
+                foreach (var index in mesh.triangles) triangles.Add(offset + index);
+            }
+            if (triangles.Count == 0) return false;
+
+            float minY = float.MaxValue, maxY = float.MinValue;
+            foreach (var vertex in vertices)
+            {
+                minY = Mathf.Min(minY, vertex.y);
+                maxY = Mathf.Max(maxY, vertex.y);
+            }
+            float band = (maxY - minY) / HullBands;
+            if (band <= 0f) return false;
+
+            for (int b = 0; b < HullBands; b++)
+            {
+                float bottom = minY + b * band;
+                float top = bottom + band;
+                var bandVertices = new List<Vector3>();
+                var bandTriangles = new List<int>();
+                var remap = new Dictionary<int, int>();
+                for (int t = 0; t + 2 < triangles.Count; t += 3)
+                {
+                    float y0 = vertices[triangles[t]].y, y1 = vertices[triangles[t + 1]].y, y2 = vertices[triangles[t + 2]].y;
+                    if (Mathf.Max(y0, Mathf.Max(y1, y2)) < bottom || Mathf.Min(y0, Mathf.Min(y1, y2)) > top) continue;
+                    for (int k = 0; k < 3; k++)
+                    {
+                        int index = triangles[t + k];
+                        if (!remap.TryGetValue(index, out int mapped))
+                        {
+                            mapped = bandVertices.Count;
+                            remap[index] = mapped;
+                            bandVertices.Add(vertices[index]);
+                        }
+                        bandTriangles.Add(mapped);
+                    }
+                }
+                // A band without triangles (a gap in the model) gets no collider.
+                if (bandTriangles.Count == 0) continue;
+
+                var hull = new Mesh { name = $"{name}_hull{b}" };
+                if (bandVertices.Count > 65535) hull.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+                hull.SetVertices(bandVertices);
+                hull.SetTriangles(bandTriangles, 0);
+                var collider = prefab.AddComponent<MeshCollider>();
+                collider.convex = true;
+                collider.sharedMesh = hull;
+            }
+            return true;
+        }
+
+        // Renderers that only appear in a model's lower LODs: they repeat it in less detail.
+        private static HashSet<Renderer> LowerLodRenderers(Transform root)
+        {
+            var lower = new HashSet<Renderer>();
+            var first = new HashSet<Renderer>();
+            foreach (var group in root.GetComponentsInChildren<LODGroup>(true))
+            {
+                var lods = group.GetLODs();
+                for (int i = 0; i < lods.Length; i++)
+                {
+                    foreach (var renderer in lods[i].renderers)
+                        if (renderer) (i == 0 ? first : lower).Add(renderer);
+                }
+            }
+            lower.ExceptWith(first);
+            return lower;
+        }
+
+        private static void AddBoxCollider(GameObject go, Bounds bounds)
+        {
+            var box = go.AddComponent<BoxCollider>();
+            box.center = bounds.center;
+            box.size = bounds.size;
         }
 
         // Combined mesh bounds of everything under root, expressed in space's local coordinates.
