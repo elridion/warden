@@ -7,7 +7,7 @@ and git workflow are shared by all mods: see `../CLAUDE.md` and `../.claude/rule
 ## Where things are
 
 - `src/WardPieces.cs` builds every piece; `src/SpawnWard.cs` is the ward component,
-  `src/WardExtension.cs` the upgrade component, `src/WardHull.cs` the haze sphere; `*Patches.cs` are
+  `src/WardExtension.cs` the upgrade component, `src/WardHull.cs` a ward's radius motes and `src/WardWall.cs` the haze wall near the player, one mesh for all wards; `*Patches.cs` are
   the Harmony patches (spawns, dropped items, damage flash, placement).
 - `assets/` embedded textures and OBJs (FBX and 2048 px rune stone maps kept as source only);
   `tools/` PowerShell generators for the banner, rune stone textures and the icon.

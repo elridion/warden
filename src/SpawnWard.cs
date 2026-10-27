@@ -141,28 +141,6 @@ namespace Warden
             if (m_areaMarker) m_areaMarker.m_radius = Radius;
         }
 
-        // Other visible hulls close enough to overlap this one, as (center, radius), so the hull
-        // can hide the parts of itself inside them. Coincident wards: only the lower instance id stays visible.
-        internal void CollectMergeSpheres(List<Vector4> spheres)
-        {
-            spheres.Clear();
-            Vector3 pos = transform.position;
-            float radius = Radius;
-
-            foreach (var other in s_instances)
-            {
-                if (!other || other == this || !other.m_hull || !other.m_hull.IsVisible) continue;
-
-                Vector3 otherPos = other.transform.position;
-                float otherRadius = other.Radius;
-                float distance = Vector3.Distance(pos, otherPos);
-                if (distance >= radius + otherRadius) continue;
-                if (distance < 0.1f && !m_isGhost && other.GetInstanceID() > GetInstanceID()) continue;
-
-                spheres.Add(new Vector4(otherPos.x, otherPos.y, otherPos.z, otherRadius));
-            }
-        }
-
         private void UpdateHull()
         {
             if (!m_hull) return;
@@ -270,6 +248,7 @@ namespace Warden
         {
             if (!WardenPlugin.FlashOnDamage.Value) return;
             m_flashEffect?.Create(transform.position, Quaternion.identity);
+            if (m_hull) m_hull.Flash();
         }
 
         public string GetHoverText()

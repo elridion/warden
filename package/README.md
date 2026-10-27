@@ -28,8 +28,9 @@ crafting station extensions, widen the protected area as you progress.
   as well as outwards: the protected area is the sphere the haze shows, so build the stone near the
   middle height of the area you want covered.
 - Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
-- An animated amber haze sphere marks the protected area while the ward is active.
-  Overlapping wards merge into one common hull.
+- Amber motes drift over the sphere of the protected area while the ward is active. Near its edge,
+  the sphere lights up as a haze wall around you, so you can see where protection ends above and
+  below you as well. Overlapping wards blend into one common wall.
 - Items dropped inside an active stone's radius never despawn, as in a vanilla base (near a
   workbench or fire). Turn `KeepDroppedItems` off for vanilla despawning.
 - Like the vanilla ward, an active stone flashes when something inside its radius takes damage, so

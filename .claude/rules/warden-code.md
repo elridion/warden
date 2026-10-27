@@ -39,6 +39,11 @@ Adds to the workspace-wide `code-style.md` and `valheim-modding.md` in `../.clau
 - `WardHull` is its own root GameObject, not a child of the ward, so piece highlighting and the
   ghost tint leave it alone; it follows the ward in `LateUpdate` and `SpawnWard.OnDestroy` destroys
   it. Treat any new detached visual the same way.
+- The haze wall is one `WardWall` per client, not one per ward: rays cast from the camera to the
+  smooth union of every visible hull's sphere, revealed around the local player, rebuilt at 30 Hz.
+  Rays that find nothing keep a transparent vertex: dropping their triangles drew grid-shaped edges. Per-ward patches joined at a
+  seam were tried and always showed it (different texture mapping, grid and glow on each side), so
+  keep every look term a function of world position and keep the wall a single mesh.
 - The optional `PlayerBase` area (`SpawnWard.UpdateBaseArea`, config `PlayerBaseArea`) is detached the
   same way, on the `character_trigger` layer (vanilla finds `EffectArea`s only through physics
   queries there), and built inactive because `EffectArea.Awake` reads the collider. It is for other

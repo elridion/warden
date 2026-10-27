@@ -3,6 +3,12 @@
 ## Unreleased
 
 - The Discord link now points at the shared server, where #warden lives: https://discord.gg/wqUA7vvvp2
+- The amber haze no longer covers the whole sphere. Within about 45 m of you it shows as a wall
+  where the ward's sphere passes, so at a cliff edge, on a tower or in a valley you see where
+  protection ends, without a bubble filling the view inside your base. Overlapping wards form one
+  wall with a rounded joint where they meet. The wall ripples with slow waves, gently pulses and
+  brightens when the stone flashes on damage. The motes still drift over the whole sphere, and haze
+  and motes are a deeper amber.
 
 ## 0.4.0
 
