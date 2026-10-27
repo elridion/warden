@@ -25,6 +25,7 @@ namespace Warden
         public static ConfigEntry<float> UpgradeRange;
         public static ConfigEntry<int> MaxStackedUpgrades;
         public static ConfigEntry<bool> BlockEventSpawns;
+        public static ConfigEntry<string> AllowedCreatures;
         public static ConfigEntry<bool> KeepDroppedItems;
         public static ConfigEntry<bool> PlayerBaseArea;
         public static ConfigEntry<HullVisibility> ShowHull;
@@ -52,6 +53,11 @@ namespace Warden
             BlockEventSpawns = Config.Bind("General", "BlockEventSpawns", true,
                 new ConfigDescription("Also block raid/event spawns inside the radius, so raiders must spawn beyond it. " +
                     "With a large radius and players near the stone, raids may spawn few or no creatures.",
+                    null, adminOnly));
+            AllowedCreatures = Config.Bind("General", "AllowedCreatures", "",
+                new ConfigDescription("Comma-separated creature prefab names (e.g. Deer, Hare, Neck) that may still spawn " +
+                    "inside an active warden stone's radius, from the world's random and raid spawns. Not case-sensitive. " +
+                    "With PlayerBaseArea on, vanilla's own base rules can still keep them out.",
                     null, adminOnly));
             KeepDroppedItems = Config.Bind("General", "KeepDroppedItems", true,
                 new ConfigDescription("Dropped items inside an active warden stone's radius never despawn, " +

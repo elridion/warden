@@ -51,3 +51,7 @@ Adds to the workspace-wide `code-style.md` and `valheim-modding.md` in `../.clau
 - The placement postfix runs every frame while building and the spawn postfix on every spawn
   attempt: bail out on the cheapest check first (is the ghost a `WardExtension`?). The placement
   rejection reuses `PlacementStatus.ExtensionMissingStation` and rewrites its text only for upgrades.
+- `AllowedCreatures` (comma-separated prefab names, case-insensitive) exempts creatures from the
+  spawn block, using the `SpawnData` vanilla passes to `IsSpawnPointGood`. `SpawnPatches` reparses
+  it whenever the config string changes (server sync included) and caches the verdict per prefab,
+  since reading `GameObject.name` allocates on the spawn path; an empty list skips the lookup.

@@ -37,6 +37,8 @@ crafting station extensions, widen the protected area as you progress.
 - Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
   large radius and everyone near the stone, a raid may find nowhere to spawn and bring few or no
   creatures; turn `BlockEventSpawns` off to let raiders spawn inside the radius as in vanilla.
+- Creatures you want around anyway, such as deer or hares, can be let through: list their prefab
+  names in `AllowedCreatures` (for example `Deer, Hare`) and they spawn inside the radius as usual.
 
 ## Upgrades
 
@@ -64,6 +66,7 @@ candles stack: every cluster in range counts, up to 4, so a fully upgraded stone
 | `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20) |
 | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
 | `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
+| `AllowedCreatures` | (empty) | Comma-separated creature prefab names that may still spawn inside the radius, e.g. `Deer, Hare` |
 | `KeepDroppedItems` | true | Dropped items inside an active stone's radius never despawn |
 | `PlayerBaseArea` | false | Also mark the radius as a vanilla player base, for compatibility (see below) |
 | `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |

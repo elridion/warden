@@ -13,6 +13,8 @@
 - New server setting `PlayerBaseArea` (off by default): also marks an active warden stone's radius as a
   vanilla player base, for mods that only respect those. It also stops nests inside and counts
   toward raids; see the mod page.
+- New server setting `AllowedCreatures`: a comma-separated list of creature prefab names (for example
+  `Deer, Hare`) that still spawn inside an active warden stone's radius. Empty by default.
 - Piece names, descriptions and messages are translated into every language Valheim offers except
   Abenaki, and follow the game's language setting.
 - The warden stone, idol, offering cup and ritual candles now collide close to their visible shape
