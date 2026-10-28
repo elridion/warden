@@ -192,13 +192,34 @@ namespace Warden
         }
 
         // Only the owner writes, and only on a real change, so the ZDO gets no revision every second.
+        // The level counts only upgrades that are instantiated, so near a zone border (or right after
+        // an ownership hand-off) it can be too low while the upgrades' zone is still loading; the radius
+        // is saved only once every zone the upgrade range touches is loaded with its objects created.
         private void SaveRadius()
         {
             if (!m_nview.IsOwner()) return;
 
             var zdo = m_nview.GetZDO();
             float radius = Radius;
-            if (Mathf.Abs(zdo.GetFloat(s_radiusHash, -1f) - radius) > 0.01f) zdo.Set(s_radiusHash, radius);
+            if (Mathf.Abs(zdo.GetFloat(s_radiusHash, -1f) - radius) <= 0.01f) return;
+            if (!UpgradeRangeLoaded()) return;
+            zdo.Set(s_radiusHash, radius);
+        }
+
+        // The range is far below a zone's 64 m, so the zones of the four corners of the square around
+        // the stone are every zone an upgrade can stand in. IsAreaReady is true when the point's zone is
+        // loaded and every object around it has an instance.
+        private bool UpgradeRangeLoaded()
+        {
+            ZNetScene scene = ZNetScene.instance;
+            if (!scene || !ZoneSystem.instance) return false;
+
+            float range = WardExtension.Range;
+            Vector3 p = transform.position;
+            return scene.IsAreaReady(p + new Vector3(range, 0f, range)) &&
+                scene.IsAreaReady(p + new Vector3(-range, 0f, range)) &&
+                scene.IsAreaReady(p + new Vector3(range, 0f, -range)) &&
+                scene.IsAreaReady(p + new Vector3(-range, 0f, -range));
         }
 
         // Lights the runes while the ward is active, as the vanilla ward does. MaterialMan keeps the

@@ -53,7 +53,9 @@ Adds to the workspace-wide `code-style.md` and `valheim-modding.md` in `../.clau
   range are 3D distances too. Keep new checks consistent with that sphere.
 - Each stone saves its radius in the ZDO (`spawnward_radius`, owner only, on change) because the
   level comes from upgrade pieces that exist only while loaded; Weathering reads it to protect
-  ground around stones in unloaded zones.
+  ground around stones in unloaded zones. It is written only when `ZNetScene.IsAreaReady` holds for
+  the four corners of the stone's upgrade range: near a zone border, or just after an ownership
+  hand-off, the upgrades' zone may not be loaded yet and the level would save too small a radius.
 - `SpawnWard` and `WardExtension` each keep a static `s_instances` list that range queries iterate.
 - Gameplay config is in section `General` (admin-only, synced), client-only visuals in `Visuals`.
 - The placement postfix runs every frame while building and the spawn postfix on every spawn
