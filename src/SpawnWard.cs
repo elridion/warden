@@ -11,6 +11,8 @@ namespace Warden
     {
         private static readonly List<SpawnWard> s_instances = new List<SpawnWard>();
         private static readonly int s_enabledHash = "spawnward_enabled".GetStableHashCode();
+        // Saved for other mods (Weathering) that protect ground around stones in unloaded zones.
+        private static readonly int s_radiusHash = "spawnward_radius".GetStableHashCode();
         private const string RpcToggle = "SpawnWard_Toggle";
         // Renamed from SpawnWard_Flash when it gained the hit point, so an older client's call without
         // it finds no handler instead of failing to read the missing argument.
@@ -175,6 +177,7 @@ namespace Warden
             m_flashAvailable = true;
             UpdateRuneGlow(enabled);
             RefreshLevel();
+            SaveRadius();
             UpdateBaseArea(enabled);
 
             if (m_statusInitialized && enabled != m_lastEnabled)
@@ -186,6 +189,16 @@ namespace Warden
             m_lastEnabled = enabled;
             m_statusInitialized = true;
             UpdateHull();
+        }
+
+        // Only the owner writes, and only on a real change, so the ZDO gets no revision every second.
+        private void SaveRadius()
+        {
+            if (!m_nview.IsOwner()) return;
+
+            var zdo = m_nview.GetZDO();
+            float radius = Radius;
+            if (Mathf.Abs(zdo.GetFloat(s_radiusHash, -1f) - radius) > 0.01f) zdo.Set(s_radiusHash, radius);
         }
 
         // Lights the runes while the ward is active, as the vanilla ward does. MaterialMan keeps the

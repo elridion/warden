@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0
+
+- Each warden stone now saves its radius, so other mods such as Weathering can respect warden
+  stones in areas that are not loaded.
+- Players on 0.4.x cannot play together with 0.5.0.
+
 ## 0.4.3
 
 - Players on 0.4.x can still play together.

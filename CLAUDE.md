@@ -16,7 +16,8 @@ and git workflow are shared by all mods: see `../CLAUDE.md` and `../.claude/rule
 ## Invariants that must not break
 
 - **Saved-world compatibility.** Persisted or networked identifiers: prefab names
-  `piece_spawnward` and `piece_spawnward_ext1`..`ext4`, ZDO key `spawnward_enabled`, RPC
+  `piece_spawnward` and `piece_spawnward_ext1`..`ext4`, ZDO keys `spawnward_enabled` and `spawnward_radius` (float, the
+  stone's current radius, read by the Weathering mod), RPC
   `SpawnWard_Toggle`, plugin GUID `elridion.warden`, and config section/key names (renaming a key
   resets users' settings).
 - **Upgrade tiers** are numbered in `WardPieces.Register`: 1 banner, 2 idol, 3 offering cup,

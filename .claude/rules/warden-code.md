@@ -51,6 +51,9 @@ Adds to the workspace-wide `code-style.md` and `valheim-modding.md` in `../.clau
 - Ward coverage (spawn blocking, kept items, damage flash) is a 3D sphere of `Radius` around the
   stone, the same sphere the hull draws and the `PlayerBase` area fills; hull merging and upgrade
   range are 3D distances too. Keep new checks consistent with that sphere.
+- Each stone saves its radius in the ZDO (`spawnward_radius`, owner only, on change) because the
+  level comes from upgrade pieces that exist only while loaded; Weathering reads it to protect
+  ground around stones in unloaded zones.
 - `SpawnWard` and `WardExtension` each keep a static `s_instances` list that range queries iterate.
 - Gameplay config is in section `General` (admin-only, synced), client-only visuals in `Visuals`.
 - The placement postfix runs every frame while building and the spawn postfix on every spawn
