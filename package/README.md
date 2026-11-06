@@ -1,6 +1,6 @@
 # Warden
 
-A buildable rune stone stops creatures from spawning out of nowhere in your base, so you no longer need a ring of workbenches. Upgrade pieces from each biome widen its reach.
+An upgradeable spawn-proofing piece for your base. Build the Warden stone and grow its reach with upgrades instead of a ring of workbenches.
 
 ## Features
 
