@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1
+
+- No changes in game; this release only updates the mod page.
+
 ## 0.5.0
 
 - Each warden stone now saves its radius, so other mods such as Weathering can respect warden
