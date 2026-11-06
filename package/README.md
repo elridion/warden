@@ -1,104 +1,58 @@
 # Warden
 
-Spawn-proof your base without a ring of workbenches.
-
-In vanilla Valheim, creatures only stop spawning close to player structures, and the vanilla ward
-only keeps other players out, not creatures. Keeping a larger base free of spawns means
-scattering workbenches and fires across it and along its edges, just for their side effect.
-
-Warden replaces that chore with one dedicated piece: the **Warden stone**, a rune stone that keeps
-random creature spawns out of its radius while active. Upgrade pieces built next to it, like
-crafting station extensions, widen the protected area as you progress.
-
-## Vanilla in spirit
-
-- Built with the hammer from ordinary materials, next to a workbench, like any other piece.
-- Its reach grows with progression: each upgrade needs materials from the next biome, from the
-  Black Forest to the Plains.
-- It only stops creatures from appearing out of nowhere. Raids still happen, but their creatures
-  spawn outside the radius and walk in, creatures from outside can still walk in, and fixed spawners such as greydwarf nests and dungeon
-  spawns keep working, so your walls and defenses still matter.
+A buildable rune stone stops creatures from spawning out of nowhere in your base, so you no longer need a ring of workbenches. Upgrade pieces from each biome widen its reach.
 
 ## Features
 
-- Warden stone and its upgrades in the hammer's Defense tab. The stone requires a workbench
-  nearby; upgrades only need a warden stone within range.
-  Cost: 15 Stone, 10 Greydwarf Eye, 2 Surtling Core.
-- While active, random world spawns inside the radius are blocked. The radius reaches up and down
-  as well as outwards: the protected area is the sphere the haze shows, so build the stone near the
-  middle height of the area you want covered.
-- Toggle on/off by interacting with it. Hover to see its level, radius and connected upgrades.
-- Amber motes drift over the sphere of the protected area while the ward is active. Near its edge,
-  the sphere lights up as a haze wall around you, so you can see where protection ends above and
-  below you as well. Overlapping wards blend into one common wall.
-- Items dropped inside an active stone's radius never despawn, as in a vanilla base (near a
-  workbench or fire). Turn `KeepDroppedItems` off for vanilla despawning.
-- Like the vanilla ward, an active stone flashes when something inside its radius takes damage, so
-  you notice when creatures attack your walls: the amber haze brightens and the ward's hit sound
-  plays where the damage happened.
-- Raid/event spawns are kept out of the radius too, so raiders spawn beyond it and walk in. With a
-  large radius and everyone near the stone, a raid may find nowhere to spawn and bring few or no
-  creatures; turn `BlockEventSpawns` off to let raiders spawn inside the radius as in vanilla.
-- Creatures you want around anyway, such as deer or hares, can be let through: list their prefab
-  names in `AllowedCreatures` (for example `Deer, Hare`) and they spawn inside the radius as usual.
+- The Warden stone blocks random creature spawns within its radius while it is active. Interact
+  with it to turn it on or off, and hover over it to see its level, radius and upgrades.
+- Raids still happen, but their creatures spawn outside the radius and walk in. Nests and dungeon
+  spawners keep working, so your walls still matter.
+- Amber motes show the protected area, and a haze wall lights up near its edge. The area is a
+  sphere, so place the stone near the middle height of your base.
+- The stone flashes when something inside its radius takes damage, as the vanilla ward does.
+- Dropped items inside the radius never despawn, as in a vanilla base.
+- Creatures you want around, such as deer, can still be allowed to spawn.
 
-## Upgrades
+## How to use
 
-Like crafting station extensions: build them within 5 m of a warden stone. Each distinct upgrade raises
-the stone's level by one and its radius by 20 m; a second banner, idol or cup adds nothing. Ritual
-candles stack: every cluster in range counts, up to 4, so a fully upgraded stone reaches 180 m.
+Build the stone with the hammer (Defense tab) next to a workbench. Build upgrades within 5 m of
+the stone. Each different upgrade adds a level and 20 m of radius; a second banner, idol or cup
+adds nothing. Up to four ritual candle clusters count, so a fully upgraded stone reaches 180 m.
 
-| Level | Upgrade | Biome | Cost | Radius |
-| --- | --- | --- | --- | --- |
-| 1 | Warden stone | Black Forest | 15 Stone, 10 Greydwarf Eye, 2 Surtling Core | 40 m |
-| 2 | Runed hide banner | Black Forest | 6 Leather Scraps, 2 Fine Wood, 4 Coal, 5 Tin | 60 m |
-| 3 | Sacred idol | Swamp | 20 Stone, 5 Iron, 3 Withered Bone | 80 m |
-| 4 | Offering cup | Mountain | 5 Silver, 5 Obsidian | 100 m |
-| 5-8 | Ritual candles (each) | Plains | 10 Tar, 10 Resin, 5 Candle Wick | 120-180 m |
+| Level | Piece | Cost | Radius |
+| --- | --- | --- | --- |
+| 1 | Warden stone | 15 Stone, 10 Greydwarf Eye, 2 Surtling Core | 40 m |
+| 2 | Runed hide banner | 6 Leather Scraps, 2 Fine Wood, 4 Coal, 5 Tin | 60 m |
+| 3 | Sacred idol | 20 Stone, 5 Iron, 3 Withered Bone | 80 m |
+| 4 | Offering cup | 5 Silver, 5 Obsidian | 100 m |
+| 5-8 | Ritual candles (each) | 10 Tar, 10 Resin, 5 Candle Wick | 120-180 m |
+
+## Installation
+
+- Requires BepInEx and [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/).
+- Every player and the server need the mod, at the same minor version.
+- Translated into every language Valheim offers except Abenaki, which shows English.
+- After uninstalling, the stones and upgrades disappear and their materials are not refunded, so
+  deconstruct them first. Spawns then work as in vanilla again.
 
 ## Configuration
 
-`BepInEx/config/elridion.warden.cfg`. Everything under `General` is server-synced and admin-only;
-`Visuals` (`ShowHull`, `FlashOnDamage`) is per client.
+Settings are in `BepInEx/config/elridion.warden.cfg` (or a config manager). `General` settings
+are synced from the server and admin-only; `Visuals` are per player.
 
-| Key | Default | Description |
-| --- | --- | --- |
-| `BaseRadius` | 40 | Radius in meters without upgrades (4-128) |
-| `RadiusPerUpgrade` | 20 | Meters added per upgrade (0-64) |
-| `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20) |
-| `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16) |
-| `BlockEventSpawns` | true | Also keep raid/event spawns out of the radius; a large radius can stop raids near its center |
-| `AllowedCreatures` | (empty) | Comma-separated creature prefab names that may still spawn inside the radius, e.g. `Deer, Hare` |
-| `KeepDroppedItems` | true | Dropped items inside an active stone's radius never despawn |
-| `PlayerBaseArea` | false | Also mark the radius as a vanilla player base, for compatibility (see below) |
-| `ShowHull` | Always | Haze visibility: `Always`, `OnHover` or `Off` |
-| `FlashOnDamage` | true | Flash the stone when something inside its radius is damaged |
-
-### PlayerBaseArea
-
-Warden blocks spawns with its own check, so the game and other mods don't see a warden stone as a
-player base the way they see a workbench or fire. Mods that only respect vanilla player bases (for
-example custom spawners) therefore ignore it. Turn `PlayerBaseArea` on to also mark each active
-stone's radius as a vanilla player base. That brings vanilla's other base effects with it:
-
-- Greydwarf nests and other creature spawners inside the radius stop spawning.
-- Each stone counts toward the base value raids need, wherever you stand inside its radius.
-- Vanilla may keep raid creatures out of the radius even with `BlockEventSpawns` off.
-- Dropped items inside never despawn, even with `KeepDroppedItems` off.
-
-## Languages
-
-Piece names, descriptions and messages follow the game's language setting, in every language
-Valheim offers except Abenaki, which shows English. The translations have not been checked by
-native speakers yet; corrections are welcome on GitHub (see below). Configuration descriptions stay
-in English.
-
-## Requirements
-
-- BepInEx for Valheim
-- [Jotunn](https://thunderstore.io/c/valheim/p/ValheimModding/Jotunn/)
-
-Every client and the server need the mod installed, at the same minor version.
+| Section | Key | Default | Description |
+| --- | --- | --- | --- |
+| General | `BaseRadius` | 40 | Radius in metres without upgrades (4-128). |
+| General | `RadiusPerUpgrade` | 20 | Metres added per upgrade (0-64). |
+| General | `UpgradeRange` | 5 | Max distance between an upgrade and its stone (2-20). |
+| General | `MaxStackedUpgrades` | 4 | How many ritual candle clusters count per stone (1-16). |
+| General | `BlockEventSpawns` | true | Keep raid creatures from spawning inside the radius. A large radius can stop raids near its centre. |
+| General | `AllowedCreatures` | (empty) | Creature prefab names that may still spawn inside, e.g. `Deer, Hare`. |
+| General | `KeepDroppedItems` | true | Dropped items inside the radius never despawn. |
+| General | `PlayerBaseArea` | false | Also mark the radius as a vanilla player base, for mods that only respect those. Nests inside then stop too. |
+| Visuals | `ShowHull` | Always | When the haze shows: `Always`, `OnHover` or `Off`. |
+| Visuals | `FlashOnDamage` | true | Flash the stone when something inside its radius is damaged. |
 
 ## Credits
 

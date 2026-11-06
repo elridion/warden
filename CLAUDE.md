@@ -24,8 +24,10 @@ and git workflow are shared by all mods: see `../CLAUDE.md` and `../.claude/rule
   4 ritual candles (`StackableTier`). Non-stackable tiers count once each; stackable pieces count
   per piece up to `MaxStackedUpgrades`. Tier numbers are part of the prefab names: never renumber.
 - **Docs follow code.** `package/README.md` keeps in sync with the code in the same change: the
-  upgrade table (level, piece, biome, cost, radius) and the stone's cost with `WardPieces.Register`,
-  the config table with `WardenPlugin.Awake`, the stacking note with `MaxStackedUpgrades`. Radius
+  upgrade table (level, piece, cost, radius) with `WardPieces.Register`, the config table with
+  `WardenPlugin.Awake`, the stacking note with `MaxStackedUpgrades`. The store page stays short:
+  its first line matches `<PackageDescription>`, then short features, how to use, install notes
+  and the settings; details of how the ward works belong in the changelog and this file. Radius
   per level is `BaseRadius + RadiusPerUpgrade * (level - 1)`; with the defaults (40 m, +20 m, four
   candle clusters) a full stone is level 8 with 180 m.
 

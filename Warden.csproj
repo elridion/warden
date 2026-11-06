@@ -44,7 +44,7 @@
 
   <!-- Thunderstore/Hexium package: dotnet build -c Release -t:Package -->
   <PropertyGroup>
-    <PackageDescription>Spawn-proof your base without a ring of workbenches: a buildable rune stone that blocks random creature spawns in its radius, with upgrades from each biome that extend its reach.</PackageDescription>
+    <PackageDescription>A buildable rune stone stops creatures from spawning out of nowhere in your base, so you no longer need a ring of workbenches. Upgrade pieces from each biome widen its reach.</PackageDescription>
     <PackageWebsite>https://discord.gg/TsJGEmKj6V</PackageWebsite>
     <PackageDependencies>"ValheimModding-Jotunn-2.30.2"</PackageDependencies>
     <PackageStagingDir>$(BaseIntermediateOutputPath)package\</PackageStagingDir>
